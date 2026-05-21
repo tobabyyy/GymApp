@@ -20,84 +20,21 @@ body.light-mode #screen-users{background:radial-gradient(circle at top,#fff8ef 0
 body.light-mode .ex-thumb,body.light-mode .wu-img{background:#ddd2c2}body.light-mode .seg{background:#e6ded2}@media(max-width:390px){.h-title{max-width:35vw;font-size:20px}.top-chip span:last-child{display:none}.top-chip{width:34px;padding:0;justify-content:center}.h-name{display:none}.seg-btn{font-size:12px}.ex-name{font-size:14px}}
 
 
-/* ===== MOBILE OPTIMIZATION V2 ===== */
-:root{
-  --gb-gap:16px;
-}
-
-body{
-  padding-bottom:90px;
-}
-
-.top-header,
-.header,
-.hero{
-  padding:14px 16px !important;
-  min-height:auto !important;
-}
-
-.dashboard-card,
-.card,
-.workout-card{
-  margin-bottom:16px !important;
-  border-radius:18px !important;
-}
-
-.exercise-list{
-  max-height:none !important;
-}
-
-button{
-  min-height:48px;
-  border-radius:14px;
-}
-
-input,select{
-  min-height:48px;
-  padding:12px;
-  border-radius:12px;
-}
-
-.section{
-  margin-bottom:22px;
-}
-
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  display:flex;
-  justify-content:space-around;
-  padding:12px;
-  background:#111;
-  border-top:1px solid rgba(255,255,255,.08);
-  z-index:999;
-}
-
-.bottom-nav button{
-  flex:1;
-  margin:0 4px;
-}
-
-.quick-stats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-@media(max-width:768px){
-  .top-header,
-  .header,
-  .hero{
-    padding:10px 12px !important;
-  }
-
-  h1,h2{
-    line-height:1.1;
-  }
-
-  .workout-card{
-    padding:14px !important;
-  }
+/* Mobile UX Refresh */
+.tcontent,.pcontent{padding:20px 16px calc(140px + var(--safe-bottom));}
+.quick-card,.settings-card,.builder-card,.ex-card{border-radius:22px;margin-bottom:20px;padding:18px;}
+.ex-row{min-height:86px;gap:8px;padding:6px;}
+.ex-thumb,.ex-thumb img{width:84px;height:84px;border-radius:18px 0 0 18px;}
+.ex-name{font-size:17px;line-height:1.2;}
+.ex-last{font-size:12px;margin-top:4px;}
+.seg,.split-tabs,.daytabs{margin-top:16px;}
+button{touch-action:manipulation;}
+@media (max-width:640px){
+ #header{padding-bottom:8px;}
+ .h-top{padding:10px 18px 4px;}
+ .split-tabs{gap:10px;padding:14px 16px 6px;}
+ .split-btn,.seg-btn,.daytab{min-height:46px;font-size:14px;}
+ .quick-btn,.builder-btn,.settings-action{min-height:48px;font-size:14px;border-radius:14px;}
+ input,select{min-height:50px;border-radius:14px;}
+ .settings-card + .settings-card{margin-top:18px;}
 }
