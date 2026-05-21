@@ -1,0 +1,9 @@
+{
+  "name": "GymBaddies",
+  "short_name": "GymBaddies",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#7c5cff",
+  "start_url": "./",
+  "icons": []
+}
