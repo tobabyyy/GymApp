@@ -227,37 +227,3 @@
   function init() { loadPlans(); applySavedTheme(); renderUserScreen(); bindDynamicEvents(); const input = $('new-user-inp'); const add = $('add-user-btn'); const update = () => add.classList.toggle('ready', !!input.value.trim()); input.addEventListener('input', update); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') addUser(); }); add.addEventListener('click', addUser); add.addEventListener('touchend', (e) => { e.preventDefault(); addUser(); }, { passive: false }); $('user-switch').addEventListener('click', goUsers); $('tab-train').addEventListener('click', () => setScreen('train')); $('tab-progress').addEventListener('click', () => setScreen('progress')); $('top-plans').addEventListener('click', () => setScreen('plans')); $('top-settings').addEventListener('click', () => setScreen('settings')); $('rest-close').addEventListener('click', () => { clearInterval(window.__restTimer); $('rest-float').classList.remove('show'); }); update(); runChecks(); }
   document.addEventListener('DOMContentLoaded', init);
 }());
-
-
-// ===== NEW FEATURES =====
-
-const gymbaddiesFeatures = {
-  streaks: true,
-  progressPhotos: true,
-  smartSuggestions: true,
-  personalRecords: true,
-  dashboard: true,
-  cloudSyncReady: true,
-  pwaReady: true
-};
-
-function showSmartSuggestion(){
-  console.log("Smart suggestion system initialized");
-}
-
-function initPRTracking(){
-  console.log("PR tracking initialized");
-}
-
-function initStreaks(){
-  console.log("Workout streaks initialized");
-}
-
-function initDashboard(){
-  console.log("Dashboard initialized");
-}
-
-showSmartSuggestion();
-initPRTracking();
-initStreaks();
-initDashboard();
