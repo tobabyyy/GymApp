@@ -43,5 +43,58 @@
     { label: 'Pull', ex: [['p8', 'Ruecken', 'Latziehen breit'], ['p9', 'Ruecken', 'Rudern breit'], ['p10', 'Ruecken', 'Rudern eng'], ['p11', 'Schulter', 'Reverse Flys'], ['p12', 'Bizeps', 'Preacher Curls'], ['p13', 'Bizeps', 'Bizeps Curls'], ['p14', 'Bizeps', 'Hammer Curls']] },
     { label: 'Legs', ex: [['p15', 'Beine', 'Kniebeuge'], ['p16', 'Beine', 'Beinbeuger'], ['p17', 'Beine', 'Beinstrecker'], ['p18', 'Beine', 'Hyper Extensions'], ['p19', 'Waden', 'Wadenheben'], ['p20', 'Bauch', 'Crunch'], ['p21', 'Bauch', 'Beinheben']] }
   ];
+
+  function autoImage(name, muscle) {
+    const colors = {
+      Brust: ['#ff6b6b', '#2d1010'],
+      Ruecken: ['#4ecdc4', '#0d2220'],
+      Schulter: ['#a78bfa', '#1a1030'],
+      Bizeps: ['#fbbf24', '#2a1d00'],
+      Trizeps: ['#34d399', '#002818'],
+      Bauch: ['#f97316', '#2a1200'],
+      Beine: ['#60a5fa', '#0d1a2d'],
+      Waden: ['#e879f9', '#210d25']
+    };
+    const pair = colors[muscle] || ['#ff3b30', '#151515'];
+    const safeName = String(name).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const safeMuscle = String(muscle).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+      <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="${pair[1]}" offset="0"/><stop stop-color="#101010" offset="1"/></linearGradient></defs>
+      <rect width="900" height="560" fill="url(#g)"/>
+      <rect x="44" y="44" width="812" height="472" rx="42" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.16)"/>
+      <circle cx="450" cy="188" r="54" fill="none" stroke="${pair[0]}" stroke-width="18"/>
+      <path d="M314 305 C360 248 540 248 586 305" fill="none" stroke="${pair[0]}" stroke-width="22" stroke-linecap="round"/>
+      <path d="M365 316 L322 408 M535 316 L578 408 M414 310 L392 432 M486 310 L508 432" stroke="#f8f8f8" stroke-width="20" stroke-linecap="round"/>
+      <path d="M275 422 H625" stroke="${pair[0]}" stroke-width="14" stroke-linecap="round"/>
+      <text x="450" y="496" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="900">${safeName}</text>
+      <text x="450" y="530" text-anchor="middle" fill="${pair[0]}" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="900" letter-spacing="5">${safeMuscle.toUpperCase()}</text>
+    </svg>`;
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+
+  const EXTRA_EXERCISES = [
+    ['Brust', 'Bankdruecken'], ['Brust', 'Kurzhantel Bankdruecken'], ['Brust', 'Fliegende Kurzhantel'], ['Brust', 'Cable Flys hoch'], ['Brust', 'Cable Flys tief'],
+    ['Ruecken', 'Klimmzug eng'], ['Ruecken', 'Einarmiges Rudern'], ['Ruecken', 'Chest Supported Row'], ['Ruecken', 'Latzug eng'], ['Ruecken', 'Rack Pulls'],
+    ['Schulter', 'Military Press'], ['Schulter', 'Cable Lateral Raise'], ['Schulter', 'Upright Row'], ['Schulter', 'Rear Delt Machine'],
+    ['Bizeps', 'SZ Curls'], ['Bizeps', 'Incline Curls'], ['Bizeps', 'Reverse Curls'],
+    ['Trizeps', 'French Press'], ['Trizeps', 'Dips Maschine'], ['Trizeps', 'Einarmiges Trizepsdruecken'],
+    ['Bauch', 'Plank'], ['Bauch', 'Russian Twists'], ['Bauch', 'Hanging Leg Raises'], ['Bauch', 'Ab Wheel'],
+    ['Beine', 'Ausfallschritte'], ['Beine', 'Hack Squat'], ['Beine', 'Sumo Deadlift'], ['Beine', 'Glute Bridge'], ['Beine', 'Good Mornings'], ['Beine', 'Step Ups'],
+    ['Waden', 'Sitzendes Wadenheben'], ['Waden', 'Donkey Calf Raises']
+  ];
+  EXTRA_EXERCISES.forEach(([m, n]) => GB.EXERCISE_DB.push({ m, n }));
+  const seenExercises = new Set();
+  GB.EXERCISE_DB = GB.EXERCISE_DB
+    .filter((item) => {
+      const key = item.m + '|' + item.n;
+      if (seenExercises.has(key)) return false;
+      seenExercises.add(key);
+      return true;
+    })
+    .sort((a, b) => (a.m + a.n).localeCompare(b.m + b.n, 'de'));
+  GB.EXERCISE_DB.forEach((item) => {
+    if (!GB.IMAGES[item.n]) GB.IMAGES[item.n] = autoImage(item.n, item.m);
+  });
+
   GB.BASE_PLANS = { Ganzkoerper: n(FULL), 'Upper/Lower': n(UL), 'Push/Pull/Legs': n(PPL) };
 }());
