@@ -1,0 +1,50 @@
+
+
+/* ===== REAL UX POLISH ===== */
+
+.top-section,
+.header,
+.stats,
+.menu,
+.settings-card{
+  border-radius:20px !important;
+}
+
+.header,
+.stats,
+.menu{
+  padding:14px !important;
+}
+
+.exercise-card,
+.workout-card{
+  border-radius:20px !important;
+  margin-bottom:14px !important;
+}
+
+.exercise-list{
+  padding-bottom:20px;
+}
+
+button{
+  transition:.2s ease;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+@media(max-width:768px){
+
+  .header{
+    padding:10px 12px !important;
+  }
+
+  .stats{
+    margin-bottom:12px !important;
+  }
+
+  .exercise-card{
+    padding:14px !important;
+  }
+}
