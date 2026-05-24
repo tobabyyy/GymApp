@@ -1,34 +1,27 @@
 (function () {
+  'use strict';
   window.GBStore = {
-    get(key, fallback = null) {
+    get: function (key, fallback) {
       try {
-        const value = localStorage.getItem(key);
-        return value ? JSON.parse(value) : fallback;
-      } catch (error) {
-        console.warn('Storage read failed:', key, error);
-        return fallback;
-      }
+        var v = localStorage.getItem(key);
+        return v !== null ? JSON.parse(v) : (fallback !== undefined ? fallback : null);
+      } catch (e) { return fallback !== undefined ? fallback : null; }
     },
-    set(key, value) {
+    set: function (key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    },
+    remove: function (key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    },
+    keys: function () {
+      var result = [];
       try {
-        localStorage.setItem(key, JSON.stringify(value));
-        return true;
-      } catch (error) {
-        console.warn('Storage write failed:', key, error);
-        return false;
-      }
-    },
-    remove(key) {
-      try {
-        localStorage.removeItem(key);
-      } catch (error) {
-        console.warn('Storage remove failed:', key, error);
-      }
-    },
-    keys() {
-      const keys = [];
-      for (let i = 0; i < localStorage.length; i += 1) keys.push(localStorage.key(i));
-      return keys;
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k) result.push(k);
+        }
+      } catch (e) {}
+      return result;
     }
   };
 }());
