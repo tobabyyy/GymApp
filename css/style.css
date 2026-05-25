@@ -503,3 +503,158 @@ canvas { max-height: 140px; }
 .account-menu.show { display: flex; }
 .account-menu button { text-align: left; padding: 10px 13px; border-radius: var(--r-sm); font-size: 14px; font-weight: 700; color: var(--text); }
 .account-menu button:hover { background: rgba(255,255,255,.07); }
+
+/* ── Light mode full override ────────────────────────────────────────────── */
+body.light-mode #screen-users {
+  background: radial-gradient(ellipse at top, #e8e8f0 0%, #f2f2f7 60%);
+}
+body.light-mode #screen-users .logo { color: var(--red); }
+body.light-mode #screen-users h2   { color: #555; }
+body.light-mode .start-hint        { color: #aaa; }
+body.light-mode #new-user-inp {
+  background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); color: #1a1a1a;
+}
+body.light-mode #new-user-inp::placeholder { color: #aaa; }
+body.light-mode .user-btn {
+  background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.1); color: #1a1a1a;
+}
+body.light-mode .user-btn:active { background: rgba(0,0,0,.08); }
+body.light-mode #add-user-btn:not(.ready) { background: rgba(0,0,0,.07); border-color: rgba(0,0,0,.12); }
+
+/* Header light mode */
+body.light-mode #header {
+  background: rgba(255,255,255,.96);
+  border-bottom-color: rgba(0,0,0,.1);
+}
+body.light-mode .h-title  { color: #1a1a1a; }
+body.light-mode .h-user   { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
+body.light-mode .h-name   { color: #888; }
+body.light-mode .menu-dot { color: #aaa; }
+body.light-mode .top-chip { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); color: #888; }
+body.light-mode .top-chip.active { background: var(--red); color: #fff; border-color: var(--red); }
+body.light-mode .seg       { background: rgba(0,0,0,.05); }
+body.light-mode .seg-btn   { color: #888; }
+body.light-mode .split-tabs, body.light-mode .daytabs { border-color: rgba(0,0,0,.1); }
+body.light-mode .split-btn { background: #fff; border-color: rgba(0,0,0,.1); color: #888; }
+body.light-mode .split-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
+body.light-mode .daytab    { color: #bbb; }
+body.light-mode .daytab.active { color: var(--red); }
+body.light-mode .finish-btn { background: linear-gradient(135deg,#e8e8f0,#dddde8); color: #999; border-color: rgba(0,0,0,.1); }
+body.light-mode .finish-confirm { background: #fff; }
+body.light-mode .finish-no { background: #f0f0f5; }
+body.light-mode .finish-done-msg { background: #fff; }
+body.light-mode .account-menu { background: rgba(255,255,255,.97); border-color: rgba(0,0,0,.12); }
+body.light-mode .account-menu button { color: #1a1a1a; }
+body.light-mode .account-menu button:hover { background: rgba(0,0,0,.05); }
+body.light-mode .rest-float { background: rgba(245,245,250,.97); border-color: rgba(0,0,0,.12); }
+body.light-mode .rest-time  { color: var(--orange); }
+body.light-mode .rest-close { background: rgba(0,0,0,.06); }
+body.light-mode .toast { background: rgba(30,30,30,.9); }
+
+/* ── Modern design upgrades ──────────────────────────────────────────────── */
+
+/* Glassmorphism header */
+#header {
+  background: rgba(14,14,14,.9);
+  box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 4px 24px rgba(0,0,0,.2);
+}
+body.light-mode #header {
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+}
+
+/* Glow on active plan tab */
+.split-btn.active {
+  box-shadow: 0 2px 12px rgba(232,39,42,.35);
+}
+
+/* Card depth */
+.ex-card {
+  background: linear-gradient(160deg,var(--card) 0%,rgba(255,255,255,.02) 100%);
+}
+body.light-mode .ex-card {
+  background: linear-gradient(160deg,#fff 0%,#f8f8fc 100%);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+body.light-mode .ex-card.open {
+  box-shadow: 0 8px 32px rgba(0,0,0,.1);
+}
+
+/* Pinned tag glow */
+.pinned-tag {
+  box-shadow: 0 0 8px rgba(255,159,10,.2);
+}
+
+/* Modern stat cards */
+.dash-stat {
+  background: linear-gradient(135deg, var(--card), rgba(255,255,255,.03));
+}
+body.light-mode .dash-stat {
+  background: linear-gradient(135deg, #fff, #f8f8fc);
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+
+/* Input focus glow */
+.ninp:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(232,39,42,.15);
+}
+body.light-mode .ninp:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(232,39,42,.12);
+}
+
+/* Save button glow */
+.save-btn { box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.save-btn:active { transform: scale(.98); box-shadow: none; }
+
+/* Finish bar ready glow */
+.finish-btn.ready { box-shadow: 0 6px 22px rgba(48,209,88,.3); }
+
+/* Quick btn hover */
+.quick-btn { box-shadow: 0 2px 10px rgba(232,39,42,.25); }
+
+/* home-content no top padding (dashboard hero handles it) */
+#home-content { padding-top: 10px; }
+
+/* ── Home training widget ────────────────────────────────────────────────── */
+.home-train-widget {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-xl); overflow: hidden; margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+}
+body.light-mode .home-train-widget {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.home-train-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; cursor: pointer; user-select: none;
+  transition: background .15s;
+}
+.home-train-header:active { background: rgba(255,255,255,.04); }
+body.light-mode .home-train-header:active { background: rgba(0,0,0,.03); }
+.home-train-title { font-size: 15px; font-weight: 900; }
+.home-train-meta  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.home-train-chevron {
+  font-size: 20px; color: var(--muted);
+  transition: transform .2s; flex-shrink: 0;
+}
+.home-train-chevron.open { transform: rotate(180deg); }
+.home-train-body {
+  border-top: 1px solid var(--border);
+  padding: 14px 14px 16px;
+  display: none;
+}
+.home-train-body.open { display: block; }
+.home-train-body .ex-card { margin-bottom: 8px; }
+.home-train-body .ex-card:last-child { margin-bottom: 0; }
+.home-train-fullbtn {
+  display: block; width: 100%; margin-top: 12px;
+  padding: 12px; border-radius: var(--r-md);
+  background: rgba(232,39,42,.12); color: var(--red);
+  font-size: 13px; font-weight: 900;
+  border: 1px solid rgba(232,39,42,.25);
+  text-align: center; transition: all .15s;
+}
+.home-train-fullbtn:active { background: rgba(232,39,42,.2); }
