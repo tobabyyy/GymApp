@@ -29,29 +29,85 @@
   // ── i18n ───────────────────────────────────────────────────────────────────
   const STRINGS = {
     de: {
-      noPlanTitle: 'Kein Plan ausgewählt',
-      noPlanDesc: 'Hefte dir in der Planbibliothek einen Plan an – er erscheint dann hier.',
-      pinPlan: 'Plan anheften',
-      langSaved: 'Sprache gespeichert.',
-      profileDeleted: 'Profil gelöscht.',
-      deleteConfirm: 'Profil "{name}" wirklich löschen? Alle Trainingsdaten werden entfernt.',
-      exerciseSaved: 'Übung gespeichert.',
-      exerciseDeleted: 'Übung gelöscht.',
-      renamedTo: 'Umbenannt.',
-      imageSaved: 'Bild aktualisiert.',
-      planSaved: 'Plan gespeichert.',
+      // App shell
+      appName: 'GymBaddies',
+      whoTrains: 'Wer trainiert heute?',
+      newProfile: 'Neuer Name',
+      addBtn: '+',
+      addHint: 'Button wird rot sobald ein Name eingetragen ist.',
+      // Nav
+      navHome: '🏠 Home', navTrain: '🏋️ Training', navProgress: '📈 Fortschritt',
+      navPlans: '🛠️ Pläne',
+      // Home
+      greeting: 'Hi {name} 👋',
+      lastTraining: 'Zuletzt: {plan} · {label} am {date}',
+      noTrainingYet: 'Noch kein Training abgeschlossen.',
+      pinnedPlans: 'Angeheftete Pläne',
+      lastWorkout: 'Letztes Training',
+      personalRecords: 'Persönliche Rekorde',
+      startBtn: '{label} →',
+      thisWeek: 'Diese Woche', total: 'Gesamt', volume: 'Volumen',
+      // Training
+      warmUp: '🔥 Warm-Up',
+      gymSection: '💪 {plan} · {label}',
+      suggestion: '⚡ Vorschlag',
+      suggestionActive: 'Aktiv ✓',
+      openSuggestion: 'Öffnen →',
+      lastSession: 'Zuletzt: {plan} · {label} am {date}',
+      noLastSession: 'Noch kein Training.',
+      historyLabel: 'Letzte Einheiten',
+      enterToday: 'Heute eintragen',
       fillLast: 'Letzte Werte übernommen.',
       noHistory: 'Noch keine gespeicherten Werte.',
-      newPR: 'Neue PR: ',
-      trainingSaved: 'Training gespeichert! Weiter so',
+      addSet: '+ Satz hinzufügen',
+      swapExercise: '🔄 Übung tauschen',
+      resetSwap: 'Zurücksetzen ↺',
+      closeCard: '▲ schließen',
+      selectExercise: 'Wählen',
+      activeExercise: '✓ Aktiv',
+      rest90: '⏱ 1:30', rest180: '💤 3:00',
+      fillLastBtn: '↩ Letzte Werte',
+      progressBtn: '📊 Fortschritt',
+      setsSaved: 'Einheit gespeichert',
+      restRunning: 'Pause',
+      // Finish
+      finishBtn: 'Training beenden ({done}/{total})',
+      finishReady: '🎉 Abschließen',
       confirmFinish: 'Training wirklich abschließen?',
       stillOpen: 'Noch {n} Übung(en) offen.',
       allDone: 'Alle Übungen erledigt!',
       yesFinish: 'Abschließen',
       cancel: 'Abbrechen',
-      setsSaved: 'Einheit gespeichert',
-      nameRequired: 'Bitte Namen eintragen.',
-      atLeastOneEx: 'Mindestens eine Übung pro Tag hinzufügen.',
+      trainingSaved: 'Training gespeichert! Weiter so',
+      trainingSavedFull: '🎉 Training abgeschlossen! Weiter so, {name}!',
+      // Progress
+      selectExerciseLabel: '📊 Übung wählen',
+      sessions: 'Einheiten', maxKg: 'Max kg', volLabel: 'Volumen',
+      logLabel: 'Verlauf',
+      noData: 'Noch keine Daten', noDataDesc: 'Trage eine Einheit ein.',
+      // Plans
+      planLibTitle: '📚 Planbibliothek',
+      planLibDesc: 'Hefte Pläne an, bearbeite oder erstelle eigene.',
+      newPlanTitle: '➕ Neuen Plan erstellen',
+      planNamePlaceholder: 'Name des Plans',
+      startBlank: 'Leer starten',
+      addDay: '+ Tag hinzufügen',
+      copyTemplate: 'Vorlage kopieren',
+      pinBtn: 'Anheften', unpinBtn: 'Lösen',
+      duplicate: 'Duplizieren',
+      editPlan: 'Bearbeiten',
+      copyEdit: 'Kopie bearbeiten',
+      deletePlan: 'Plan löschen',
+      deletePlanConfirm: 'Plan "{name}" löschen?',
+      draftActive: '✏️ Entwurf aktiv',
+      saveDraft: 'Plan speichern ✓',
+      addExerciseToDay: '+ Übung hinzufügen',
+      addCustomToDay: '+ Eigene Übung',
+      customExTitle: '💪 Eigene Übung',
+      customExDesc: 'Füge eine Übung zur Datenbank hinzu.',
+      uploadImage: '📷 Bild hochladen',
+      exerciseSaved: 'Übung gespeichert.',
+      // Settings
       settingsTitle: 'Einstellungen',
       designLabel: 'Design', dark: '🌙 Dunkel', light: '☀️ Hell',
       langLabel: 'Sprache', profilesLabel: 'Profile',
@@ -62,31 +118,93 @@
       cloudOffline: 'Offline · lokal gespeichert',
       addExercise: 'Übung hinzufügen',
       back: '← Zurück',
+      // Misc
+      noPlanTitle: 'Kein Plan ausgewählt',
+      noPlanDesc: 'Hefte dir in der Planbibliothek einen Plan an – er erscheint dann hier.',
+      pinPlan: 'Plan anheften',
+      langSaved: 'Sprache gespeichert.',
+      profileDeleted: 'Profil gelöscht.',
+      deleteConfirm: 'Profil "{name}" wirklich löschen? Alle Trainingsdaten werden entfernt.',
+      exerciseDeleted: 'Übung gelöscht.',
+      renamedTo: 'Umbenannt.',
+      imageSaved: 'Bild aktualisiert.',
+      planSaved: 'Plan gespeichert.',
+      newPR: 'Neue PR: ',
+      nameRequired: 'Bitte Namen eintragen.',
+      atLeastOneEx: 'Mindestens eine Übung pro Tag hinzufügen.',
     },
     en: {
-      noPlanTitle: 'No plan selected',
-      noPlanDesc: 'Pin a plan in the plan library – it will appear here.',
-      pinPlan: 'Pin plan',
-      langSaved: 'Language saved.',
-      profileDeleted: 'Profile deleted.',
-      deleteConfirm: 'Really delete profile "{name}"? All training data will be removed.',
-      exerciseSaved: 'Exercise saved.',
-      exerciseDeleted: 'Exercise deleted.',
-      renamedTo: 'Renamed.',
-      imageSaved: 'Image updated.',
-      planSaved: 'Plan saved.',
+      appName: 'GymBaddies',
+      whoTrains: 'Who is training today?',
+      newProfile: 'New name',
+      addBtn: '+',
+      addHint: 'Button turns red once a name is entered.',
+      navHome: '🏠 Home', navTrain: '🏋️ Training', navProgress: '📈 Progress',
+      navPlans: '🛠️ Plans',
+      greeting: 'Hi {name} 👋',
+      lastTraining: 'Last: {plan} · {label} on {date}',
+      noTrainingYet: 'No training completed yet.',
+      pinnedPlans: 'Pinned Plans',
+      lastWorkout: 'Last Workout',
+      personalRecords: 'Personal Records',
+      startBtn: '{label} →',
+      thisWeek: 'This Week', total: 'Total', volume: 'Volume',
+      warmUp: '🔥 Warm-Up',
+      gymSection: '💪 {plan} · {label}',
+      suggestion: '⚡ Suggestion',
+      suggestionActive: 'Active ✓',
+      openSuggestion: 'Open →',
+      lastSession: 'Last: {plan} · {label} on {date}',
+      noLastSession: 'No training yet.',
+      historyLabel: 'Recent Sessions',
+      enterToday: 'Log today',
       fillLast: 'Last values loaded.',
       noHistory: 'No saved values yet.',
-      newPR: 'New PR: ',
-      trainingSaved: 'Training saved! Well done',
+      addSet: '+ Add set',
+      swapExercise: '🔄 Swap exercise',
+      resetSwap: 'Reset ↺',
+      closeCard: '▲ close',
+      selectExercise: 'Select',
+      activeExercise: '✓ Active',
+      rest90: '⏱ 1:30', rest180: '💤 3:00',
+      fillLastBtn: '↩ Last values',
+      progressBtn: '📊 Progress',
+      setsSaved: 'Session saved',
+      restRunning: 'Rest',
+      finishBtn: 'End training ({done}/{total})',
+      finishReady: '🎉 Finish',
       confirmFinish: 'Really finish training?',
       stillOpen: '{n} exercise(s) still open.',
       allDone: 'All exercises done!',
       yesFinish: 'Finish',
       cancel: 'Cancel',
-      setsSaved: 'Session saved',
-      nameRequired: 'Please enter a name.',
-      atLeastOneEx: 'Add at least one exercise per day.',
+      trainingSaved: 'Training saved! Well done',
+      trainingSavedFull: '🎉 Training done! Well done, {name}!',
+      selectExerciseLabel: '📊 Select exercise',
+      sessions: 'Sessions', maxKg: 'Max kg', volLabel: 'Volume',
+      logLabel: 'History',
+      noData: 'No data yet', noDataDesc: 'Log a session to see progress.',
+      planLibTitle: '📚 Plan Library',
+      planLibDesc: 'Pin, edit or create your own plans.',
+      newPlanTitle: '➕ Create New Plan',
+      planNamePlaceholder: 'Plan name',
+      startBlank: 'Start blank',
+      addDay: '+ Add day',
+      copyTemplate: 'Copy template',
+      pinBtn: 'Pin', unpinBtn: 'Unpin',
+      duplicate: 'Duplicate',
+      editPlan: 'Edit',
+      copyEdit: 'Edit copy',
+      deletePlan: 'Delete plan',
+      deletePlanConfirm: 'Delete plan "{name}"?',
+      draftActive: '✏️ Draft active',
+      saveDraft: 'Save plan ✓',
+      addExerciseToDay: '+ Add exercise',
+      addCustomToDay: '+ Custom exercise',
+      customExTitle: '💪 Custom Exercise',
+      customExDesc: 'Add an exercise to the database.',
+      uploadImage: '📷 Upload image',
+      exerciseSaved: 'Exercise saved.',
       settingsTitle: 'Settings',
       designLabel: 'Design', dark: '🌙 Dark', light: '☀️ Light',
       langLabel: 'Language', profilesLabel: 'Profiles',
@@ -97,32 +215,93 @@
       cloudOffline: 'Offline · saved locally',
       addExercise: 'Add exercise',
       back: '← Back',
+      noPlanTitle: 'No plan selected',
+      noPlanDesc: 'Pin a plan in the plan library – it will appear here.',
+      pinPlan: 'Pin plan',
+      langSaved: 'Language saved.',
+      profileDeleted: 'Profile deleted.',
+      deleteConfirm: 'Really delete profile "{name}"? All training data will be removed.',
+      exerciseDeleted: 'Exercise deleted.',
+      renamedTo: 'Renamed.',
+      imageSaved: 'Image updated.',
+      planSaved: 'Plan saved.',
+      newPR: 'New PR: ',
+      nameRequired: 'Please enter a name.',
+      atLeastOneEx: 'Add at least one exercise per day.',
     },
     th: {
-      noPlanTitle: 'ยังไม่ได้เลือกแผน',
-      noPlanDesc: 'ปักหมุดแผนในคลัง – แล้วมันจะปรากฏที่นี่',
-      pinPlan: 'ปักหมุดแผน',
-      langSaved: 'บันทึกภาษาแล้ว',
-      profileDeleted: 'ลบโปรไฟล์แล้ว',
-      deleteConfirm: 'ลบโปรไฟล์ "{name}" จริงไหม? ข้อมูลการฝึกทั้งหมดจะถูกลบ',
-      exerciseSaved: 'บันทึกท่าออกกำลังกายแล้ว',
-      exerciseDeleted: 'ลบท่าออกกำลังกายแล้ว',
-      renamedTo: 'เปลี่ยนชื่อแล้ว',
-      imageSaved: 'อัปเดตรูปภาพแล้ว',
-      planSaved: 'บันทึกแผนแล้ว',
+      appName: 'GymBaddies',
+      whoTrains: 'ใครออกกำลังกายวันนี้?',
+      newProfile: 'ชื่อใหม่',
+      addBtn: '+',
+      addHint: 'ปุ่มจะเป็นสีแดงเมื่อกรอกชื่อ',
+      navHome: '🏠 หน้าหลัก', navTrain: '🏋️ ฝึก', navProgress: '📈 ความก้าวหน้า',
+      navPlans: '🛠️ แผน',
+      greeting: 'สวัสดี {name} 👋',
+      lastTraining: 'ล่าสุด: {plan} · {label} เมื่อ {date}',
+      noTrainingYet: 'ยังไม่เคยฝึก',
+      pinnedPlans: 'แผนที่ปักหมุด',
+      lastWorkout: 'การฝึกล่าสุด',
+      personalRecords: 'สถิติส่วนตัว',
+      startBtn: '{label} →',
+      thisWeek: 'สัปดาห์นี้', total: 'ทั้งหมด', volume: 'ปริมาณ',
+      warmUp: '🔥 วอร์มอัพ',
+      gymSection: '💪 {plan} · {label}',
+      suggestion: '⚡ แนะนำ',
+      suggestionActive: 'กำลังใช้ ✓',
+      openSuggestion: 'เปิด →',
+      lastSession: 'ล่าสุด: {plan} · {label} เมื่อ {date}',
+      noLastSession: 'ยังไม่เคยฝึก',
+      historyLabel: 'เซตล่าสุด',
+      enterToday: 'บันทึกวันนี้',
       fillLast: 'โหลดค่าล่าสุดแล้ว',
       noHistory: 'ยังไม่มีค่าที่บันทึก',
-      newPR: 'สถิติใหม่: ',
-      trainingSaved: 'บันทึกการฝึกแล้ว เก่งมาก',
+      addSet: '+ เพิ่มเซต',
+      swapExercise: '🔄 เปลี่ยนท่า',
+      resetSwap: 'รีเซ็ต ↺',
+      closeCard: '▲ ปิด',
+      selectExercise: 'เลือก',
+      activeExercise: '✓ กำลังใช้',
+      rest90: '⏱ 1:30', rest180: '💤 3:00',
+      fillLastBtn: '↩ ค่าล่าสุด',
+      progressBtn: '📊 ความก้าวหน้า',
+      setsSaved: 'บันทึกเซตแล้ว',
+      restRunning: 'พัก',
+      finishBtn: 'จบการฝึก ({done}/{total})',
+      finishReady: '🎉 จบเลย',
       confirmFinish: 'จบการฝึกจริงไหม?',
       stillOpen: 'ยังเหลืออีก {n} ท่า',
       allDone: 'ทำครบทุกท่าแล้ว!',
       yesFinish: 'จบเลย',
       cancel: 'ยกเลิก',
-      setsSaved: 'บันทึกเซตแล้ว',
-      nameRequired: 'กรุณาใส่ชื่อ',
-      atLeastOneEx: 'เพิ่มอย่างน้อยหนึ่งท่าต่อวัน',
-      settingsTitle: 'ตั้งค่า',
+      trainingSaved: 'บันทึกการฝึกแล้ว เก่งมาก',
+      trainingSavedFull: '🎉 ฝึกเสร็จแล้ว! เก่งมาก {name}!',
+      selectExerciseLabel: '📊 เลือกท่า',
+      sessions: 'เซสชัน', maxKg: 'สูงสุด kg', volLabel: 'ปริมาณ',
+      logLabel: 'ประวัติ',
+      noData: 'ยังไม่มีข้อมูล', noDataDesc: 'บันทึกเซสชันเพื่อดูความก้าวหน้า',
+      planLibTitle: '📚 คลังแผน',
+      planLibDesc: 'ปักหมุด แก้ไข หรือสร้างแผนของตัวเอง',
+      newPlanTitle: '➕ สร้างแผนใหม่',
+      planNamePlaceholder: 'ชื่อแผน',
+      startBlank: 'เริ่มเปล่า',
+      addDay: '+ เพิ่มวัน',
+      copyTemplate: 'คัดลอกเทมเพลต',
+      pinBtn: 'ปักหมุด', unpinBtn: 'เอาออก',
+      duplicate: 'ทำสำเนา',
+      editPlan: 'แก้ไข',
+      copyEdit: 'แก้ไขสำเนา',
+      deletePlan: 'ลบแผน',
+      deletePlanConfirm: 'ลบแผน "{name}" ไหม?',
+      draftActive: '✏️ แบบร่างยังเปิดอยู่',
+      saveDraft: 'บันทึกแผน ✓',
+      addExerciseToDay: '+ เพิ่มท่า',
+      addCustomToDay: '+ ท่าของตัวเอง',
+      customExTitle: '💪 ท่าของตัวเอง',
+      customExDesc: 'เพิ่มท่าลงฐานข้อมูล',
+      uploadImage: '📷 อัปโหลดรูป',
+      exerciseSaved: 'บันทึกท่าแล้ว',
+      settingsTitle: 'การตั้งค่า',
       designLabel: 'ธีม', dark: '🌙 มืด', light: '☀️ สว่าง',
       langLabel: 'ภาษา', profilesLabel: 'โปรไฟล์',
       deleteProfile: 'ลบ',
@@ -132,7 +311,20 @@
       cloudOffline: 'ออฟไลน์ · บันทึกในเครื่อง',
       addExercise: 'เพิ่มท่า',
       back: '← กลับ',
-    },
+      noPlanTitle: 'ยังไม่ได้เลือกแผน',
+      noPlanDesc: 'ปักหมุดแผนในคลัง – แล้วมันจะปรากฏที่นี่',
+      pinPlan: 'ปักหมุดแผน',
+      langSaved: 'บันทึกภาษาแล้ว',
+      profileDeleted: 'ลบโปรไฟล์แล้ว',
+      deleteConfirm: 'ลบโปรไฟล์ "{name}" จริงไหม? ข้อมูลการฝึกทั้งหมดจะถูกลบ',
+      exerciseDeleted: 'ลบท่าแล้ว',
+      renamedTo: 'เปลี่ยนชื่อแล้ว',
+      imageSaved: 'อัปเดตรูปแล้ว',
+      planSaved: 'บันทึกแผนแล้ว',
+      newPR: 'สถิติใหม่: ',
+      nameRequired: 'กรุณาใส่ชื่อ',
+      atLeastOneEx: 'เพิ่มอย่างน้อยหนึ่งท่าต่อวัน',
+    }
   };
   function t(key, vars) {
     let str = (STRINGS[currentLang] || STRINGS.de)[key] || (STRINGS.de)[key] || key;
@@ -222,11 +414,27 @@
 
   // ── User screen ────────────────────────────────────────────────────────────
   function renderUserScreen() {
+    // Update static HTML strings that live in index.html
+    const ni = $('new-user-inp');
+    if (ni) ni.placeholder = t('newProfile');
+    const hint = document.querySelector('.start-hint');
+    if (hint) hint.textContent = t('addHint');
+    // Update seg tabs
+    const th = $('tab-home');   if (th) th.textContent = t('navHome');
+    const tt = $('tab-train');  if (tt) tt.textContent = t('navTrain');
+    const tp = $('tab-progress'); if (tp) tp.textContent = t('navProgress');
+    const tpl = $('top-plans'); if (tpl) tpl.textContent = t('navPlans');
+    // Update user screen heading
+    const h2 = document.querySelector('#screen-users h2');
+    if (h2) h2.textContent = t('whoTrains');
+    const logo = document.querySelector('#screen-users .logo');
+    if (logo) logo.textContent = t('appName') + ' 💪';
+
     const users = getUsers();
     const list = $('user-list');
     list.innerHTML = '';
     if (!users.length) {
-      list.innerHTML = '<div class="user-empty">Noch keine Profile – lege unten eines an.</div>';
+      list.innerHTML = '<div class="user-empty">' + t('noTrainingYet') + '</div>';
       return;
     }
     users.forEach((name, i) => {
@@ -242,7 +450,7 @@
           <div class="uname">${esc(name)}</div>
           <div class="ustats">${sess.length} Einheiten</div>
           <div class="profile-meta">
-            ${last ? `Zuletzt: <strong>${esc(last.plan)} · ${esc(last.label)}</strong>` : 'Noch kein Training'}
+            ${last ? t('lastTraining',{plan:last.plan,label:last.label,date:last.date}) : t('noTrainingYet')}
             ${next ? `<br><span class="profile-next">→ ${esc(next.plan)} · ${esc(next.label)}</span>` : ''}
           </div>
         </div>
@@ -312,7 +520,7 @@
 
     $('account-menu')?.classList.remove('show');
 
-    if      (next === 'home')     renderDashboard();
+    if      (next === 'home')     { renderDashboard(); }
     else if (next === 'train')    renderTraining();
     else if (next === 'progress') renderProgress();
     else if (next === 'plans')    renderPlanBuilder();
@@ -400,8 +608,8 @@
           return `<div class="pinned-plan-card">
             <div class="pinned-plan-top">
               <div><div class="pinned-plan-name">${esc(name)}</div>
-              <div class="pinned-plan-meta">${p.length} Tage · ${p.reduce((s,d)=>s+d.ex.length,0)} Übungen</div></div>
-              <button class="quick-btn" data-start-plan="${esc(name)}" type="button">Starten</button>
+              <div class="pinned-plan-meta">${p.length} ${t('addDay').replace('+ ','')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('addExercise')}</div></div>
+              <button class="quick-btn" data-start-plan="${esc(name)}" type="button">${t('navTrain')}</button>
             </div>
           </div>`;
         }).join('')
@@ -415,23 +623,24 @@
     $('home-content').innerHTML = `
       <div class="dashboard-hero">
         <div>
-          <div class="dash-greeting">Hi ${esc(user)} 👋</div>
-          <div class="dash-sub">${last ? `Zuletzt: ${esc(last.plan)} · ${esc(last.label)} am ${esc(last.date)}` : 'Noch kein Training abgeschlossen.'}</div>
+          <div class="dash-greeting">${t('greeting',{name:esc(user)})}</div>
+          <div class="dash-sub">${last ? t('lastTraining',{plan:esc(last.plan),label:esc(last.label),date:esc(last.date)}) : t('noTrainingYet')}</div>
         </div>
         ${next ? `<button class="quick-btn" id="home-start" type="button">${esc(next.label)} →</button>` : ''}
       </div>
       <div class="dash-grid">
-        <div class="dash-stat"><strong>${weekCount}</strong><span>Diese Woche</span></div>
-        <div class="dash-stat"><strong>${log.length}</strong><span>Gesamt</span></div>
-        <div class="dash-stat"><strong>${Math.round(totalVol/1000)}t</strong><span>Volumen</span></div>
+        <div class="dash-stat"><strong>${weekCount}</strong><span>${t('thisWeek')}</span></div>
+        <div class="dash-stat"><strong>${log.length}</strong><span>${t('total')}</span></div>
+        <div class="dash-stat"><strong>${Math.round(totalVol/1000)}t</strong><span>${t('volume')}</span></div>
       </div>
-      <div class="home-section-label">Angeheftete Pläne</div>
+      <div id="home-train-widget" class="home-train-widget"></div>
+      <div class="home-section-label">${t('pinnedPlans')}</div>
       ${pinnedHtml}
-      ${lastSum ? `<div class="quick-card"><div class="quick-label">Letztes Training</div>
+      ${lastSum ? `<div class="quick-card"><div class="quick-label">${t('lastWorkout')}</div>
         <div class="quick-title">${esc(lastSum.plan)} · ${esc(lastSum.label)}</div>
-        <div class="quick-sub">${lastSum.exercises} Übungen · ${lastSum.sets} Sätze · ${lastSum.volume}kg</div>
+        <div class="quick-sub">${lastSum.exercises} ${t('sessions')} · ${lastSum.sets} ${t('addSet').replace('+ ','')} · ${lastSum.volume}kg</div>
       </div>` : ''}
-      ${prs.length ? `<div class="quick-card"><div class="quick-label">Persönliche Rekorde</div>
+      ${prs.length ? `<div class="quick-card"><div class="quick-label">${t('personalRecords')}</div>
         ${prs.map(pr => `<div class="pr-row"><span>🏆 ${esc(pr.exercise)}</span><strong>${pr.kg}kg×${pr.reps}</strong></div>`).join('')}
       </div>` : ''}`;
 
@@ -443,6 +652,116 @@
     document.querySelectorAll('[data-start-plan]').forEach(b =>
       b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
     );
+
+    // Home training widget
+    renderHomeTrainWidget();
+  }
+
+  // ── Home training widget ──────────────────────────────────────────────────
+  let homeWidgetOpen = false;
+
+  function renderHomeTrainWidget() {
+    const widget = $('home-train-widget');
+    if (!widget) return;
+
+    // Determine which plan/day to show (use current or suggestion)
+    const sug = getNextSuggestion(user);
+    const widgetPlan = (plan && days && days[day]) ? plan : (sug?.plan || null);
+    const widgetDay  = (plan && days && days[day]) ? day  : (sug?.dayIndex || 0);
+    const widgetDays = widgetPlan ? plans[widgetPlan] : null;
+    const widgetDayObj = widgetDays?.[widgetDay];
+
+    if (!widgetPlan || !widgetDayObj) {
+      widget.innerHTML = `<div class="home-train-header" id="htw-header">
+        <div>
+          <div class="home-train-title">🏋️ ${t('navTrain')}</div>
+          <div class="home-train-meta" style="color:var(--red)">${t('noPlanDesc')}</div>
+        </div>
+        <button class="quick-btn" id="htw-pin" type="button" style="font-size:12px">${t('pinPlan')}</button>
+      </div>`;
+      $('htw-pin')?.addEventListener('click', () => setScreen('plans'));
+      return;
+    }
+
+    const donePct = widgetDayObj.ex.length
+      ? Math.round(widgetDayObj.ex.filter(ex => S.get('done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id,false)).length / widgetDayObj.ex.length * 100)
+      : 0;
+
+    widget.innerHTML = `
+      <div class="home-train-header" id="htw-header">
+        <div style="flex:1;min-width:0">
+          <div class="home-train-title">🏋️ ${esc(widgetPlan)} · ${esc(widgetDayObj.label)}</div>
+          <div class="home-train-meta">${widgetDayObj.ex.length} ${t('sessions')} · ${donePct}% ${t('allDone').replace('!','')}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <div class="htw-progress-ring">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="3"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--red)" stroke-width="3"
+                stroke-dasharray="${Math.round(donePct*0.88)} 88"
+                stroke-linecap="round" transform="rotate(-90 18 18)"/>
+              <text x="18" y="22" text-anchor="middle" fill="var(--text)" font-size="9" font-weight="900">${donePct}%</text>
+            </svg>
+          </div>
+          <div class="home-train-chevron ${homeWidgetOpen?'open':''}">▾</div>
+        </div>
+      </div>
+      <div class="home-train-body ${homeWidgetOpen?'open':''}">
+        ${widgetDayObj.ex.map(ex => {
+          const exDisp = displayExercise(ex);
+          const st = styleFor(exDisp.m);
+          const isDone = !!S.get('done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id, false);
+          const hist = getHistory(ex.id).filter(e=>e.user===user).slice(-1)[0];
+          return `<div class="ex-card ${isDone?'edone':''}" style="margin-bottom:8px">
+            <div class="ex-row" data-htw-open="${ex.id}">
+              <div class="ex-thumb">
+                <img src="${esc(imageFor(exDisp.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+              </div>
+              <div class="ex-info">
+                <div class="ex-mtag" style="color:${st.c}">${esc(exDisp.m)}</div>
+                <div class="ex-name">${esc(exDisp.n)}</div>
+                ${hist ? `<div class="ex-last">${hist.date} · ${hist.sets.map(s=>`${s.kg}×${s.reps}`).join('  ')}</div>` : ''}
+              </div>
+              <div class="ex-r">
+                ${isDone
+                  ? '<div class="done-chk">✓</div>'
+                  : `<div class="sets-badge">${setCounts[ex.id]||3}×</div><div class="chevron">›</div>`
+                }
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+        <button class="home-train-fullbtn" id="htw-fullscreen" type="button">
+          ⬆︎ ${t('navTrain')} öffnen
+        </button>
+      </div>`;
+
+    $('htw-header').addEventListener('click', () => {
+      homeWidgetOpen = !homeWidgetOpen;
+      renderHomeTrainWidget();
+    });
+
+    document.querySelectorAll('[data-htw-open]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Switch to training screen and open this exercise
+        if (widgetPlan !== plan) {
+          plan = widgetPlan; days = plans[plan]; day = widgetDay;
+          renderPlanTabs(); renderDayTabs();
+        }
+        openExercise = el.dataset.htwOpen;
+        setScreen('train');
+      });
+    });
+
+    $('htw-fullscreen')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (widgetPlan !== plan) {
+        plan = widgetPlan; days = plans[plan]; day = widgetDay;
+        renderPlanTabs(); renderDayTabs();
+      }
+      setScreen('train');
+    });
   }
 
   // ── Training ───────────────────────────────────────────────────────────────
@@ -471,19 +790,19 @@
       html += `<div class="quick-card suggestion-card">
         <div class="quick-top">
           <div>
-            <div class="quick-label">⚡ Vorschlag</div>
+            <div class="quick-label">${t('suggestion')}</div>
             <div class="quick-title">${esc(sug.plan)} · ${esc(sug.label)}</div>
-            <div class="quick-sub">${last ? `Zuletzt: ${esc(last.plan)} · ${esc(last.label)} am ${esc(last.date)}` : 'Noch kein Training.'}</div>
+            <div class="quick-sub">${last ? t('lastSession',{plan:esc(last.plan),label:esc(last.label),date:esc(last.date)}) : t('noLastSession')}</div>
           </div>
           ${isActive
             ? '<span class="quick-done">Aktiv ✓</span>'
-            : '<button class="quick-btn" id="open-sug" type="button">Öffnen →</button>'
+            : `<button class="quick-btn" id="open-sug" type="button">${t('openSuggestion')}</button>`
           }
         </div>
       </div>`;
     }
 
-    html += '<div class="sec-lbl">🔥 Warm-Up</div><div class="wu-row">';
+    html += `<div class="sec-lbl">${t('warmUp')}</div><div class="wu-row">`;
     D.WARMUP.forEach(name => {
       const done = !!warmup[name];
       html += `<div class="wu-card ${done?'done':''}" data-wu="${esc(name)}">
@@ -492,7 +811,7 @@
         <div class="wu-tick">✓</div>
       </div>`;
     });
-    html += `</div><div class="sec-lbl">💪 ${esc(plan)} · ${esc(d.label)}</div>`;
+    html += `</div><div class="sec-lbl">${t('gymSection',{plan:esc(plan),label:esc(d.label)})}</div>`;
     d.ex.forEach(ex => { html += renderCard(ex); });
 
     $('train-content').innerHTML = html;
@@ -556,7 +875,7 @@
     }
 
     const histHtml = hist.length ? `<div class="hist">
-      <div class="hist-ttl">Letzte Einheiten</div>
+      <div class="hist-ttl">${t('historyLabel')}</div>
       ${hist.map(e => `<div class="hentry">
         <div class="hdate">${esc(e.date)} · ${esc(e.user)}</div>
         <div class="hpills">${e.sets.map((s,i) =>
@@ -580,7 +899,7 @@
             <div class="swap-name">${esc(item.n)}</div>
             <button class="swap-select-btn" type="button"
               data-swap-id="${original.id}" data-swap-m="${esc(item.m)}" data-swap-n="${esc(item.n)}">
-              ${item.n===ex.n ? '✓ Aktiv' : 'Wählen'}
+              ${item.n===ex.n ? t('activeExercise') : t('selectExercise')}
             </button>
           </div>
         </div>`).join('')}
@@ -596,24 +915,24 @@
       <div class="ex-body">
         <div class="swap-box">
           <button class="swap-toggle" type="button" data-swap-toggle="${original.id}">
-            <span>🔄 Übung tauschen</span><span>${swapOpen[original.id]?'−':'+'}</span>
+            <span>${t('swapExercise')}</span><span>${swapOpen[original.id]?'−':'+'}</span>
           </button>
           <div class="swap-content ${swapOpen[original.id]?'open':''}">${swapHtml}
-            ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">Zurücksetzen ↺</button>`:''}
+            ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">${t('resetSwap')}</button>`:''}
           </div>
         </div>
         ${histHtml}
-        <div class="inp-ttl">Heute eintragen</div>
+        <div class="inp-ttl">${t('enterToday')}</div>
         <div class="col-hd"><span></span><span>kg</span><span>Wdh.</span><span></span></div>
         ${rows}
         <div class="rest-row">
-          <button class="rest-btn" type="button" data-fill="${original.id}">↩ Letzte Werte</button>
-          <button class="rest-btn" type="button" data-detail="${original.id}">📊 Fortschritt</button>
+          <button class="rest-btn" type="button" data-fill="${original.id}">${t('fillLastBtn')}</button>
+          <button class="rest-btn" type="button" data-detail="${original.id}">${t('progressBtn')}</button>
         </div>
-        <button class="add-s-btn" type="button" data-addset="${original.id}">+ Satz hinzufügen</button>
+        <button class="add-s-btn" type="button" data-addset="${original.id}">${t('addSet')}</button>
         <div class="rest-row">
-          <button class="rest-btn" type="button" data-rest="90">⏱ 1:30</button>
-          <button class="rest-btn" type="button" data-rest="180">💤 3:00</button>
+          <button class="rest-btn" type="button" data-rest="90">${t('rest90')}</button>
+          <button class="rest-btn" type="button" data-rest="180">${t('rest180')}</button>
         </div>
         <button class="save-btn" type="button"
           data-saveex="${original.id}" data-setcount="${count}"
@@ -632,13 +951,13 @@
 
     if (finished[day]) {
       inner.innerHTML = `<div class="finish-done-msg">
-        <div class="fdm-txt">🎉 ${t('trainingSaved')}, ${esc(user)}!</div>
+        <div class="fdm-txt">${t('trainingSavedFull',{name:esc(user)})}</div>
       </div>`; return;
     }
     if (finishConfirm) {
       inner.innerHTML = `<div class="finish-confirm">
         <div class="finish-confirm-title">${t('confirmFinish')}</div>
-        <div class="finish-confirm-note">${allDone ? t('allDone') : t('stillOpen', {n: total-done})}</div>
+        <div class="finish-confirm-note">${allDone ? t('allDone') : t('stillOpen',{n:total-done})}</div>
         <div class="finish-confirm-row">
           <button class="finish-no"  id="fc-no"  type="button">${t('cancel')}</button>
           <button class="finish-yes" id="fc-yes" type="button">${t('yesFinish')}</button>
@@ -795,6 +1114,8 @@
     openExercise = null;
     startTimer(90);
     renderDayTabs(); renderTraining();
+    // Refresh home widget progress ring if visible
+    if ($('home-train-widget')) renderHomeTrainWidget();
   }
 
   function fillLast(id) {
@@ -813,6 +1134,8 @@
     clearInterval(window.__restInt);
     window.__restEnd = Date.now() + seconds * 1000;
     $('rest-float').classList.add('show');
+    const rl = document.querySelector('.rest-label');
+    if (rl) rl.textContent = t('restRunning');
     function tick() {
       const rem = Math.max(0, Math.ceil((window.__restEnd - Date.now()) / 1000));
       $('rest-time').textContent = rem <= 0 ? 'Fertig ✓'
@@ -851,7 +1174,7 @@
     const groups = {};
     exList.forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
 
-    let html = '<div class="sec-lbl">📊 Übung wählen</div>';
+    let html = `<div class="sec-lbl">${t('selectExerciseLabel')}</div>`;
     html += Object.keys(groups).map(m => {
       const ms = styleFor(m);
       return `<details class="prog-group" ${m===cur.m?'open':''}>
@@ -888,7 +1211,7 @@
     html += '</div>';
 
     if (!hist.length) {
-      $('prog-content').innerHTML = html + '<div class="empty-state"><h3>Noch keine Daten</h3><p>Trage eine Einheit ein.</p></div>';
+      $('prog-content').innerHTML = html + `<div class="empty-state"><h3>${t('noData')}</h3><p>${t('noDataDesc')}</p></div>`;
       $('prog-content').querySelectorAll('[data-pex]').forEach(b=>b.addEventListener('click',()=>{progressExercise=b.dataset.pex;renderProgress();}));
       return;
     }
@@ -899,7 +1222,7 @@
 
     html += '<div class="chart-box"><div class="chart-lbl">Ø Gewicht (kg)</div><canvas id="cKg"></canvas></div>';
     html += '<div class="chart-box"><div class="chart-lbl">Ø Wiederholungen</div><canvas id="cRp"></canvas></div>';
-    html += '<div class="sec-lbl">Verlauf</div>';
+    html += `<div class="sec-lbl">${t('logLabel')}</div>`;
     html += [...hist].reverse().map(e => `<div class="log-entry">
       <div class="log-top"><span class="log-d" style="color:${st.c}">${e.date}</span><span class="log-u">${esc(e.user)}</span></div>
       <div class="log-pills">${e.sets.map((s,i)=>`<span class="lpill" style="background:${st.bg};color:${st.c}">S${i+1}: ${s.kg}kg×${s.reps}</span>`).join('')}</div>
@@ -940,8 +1263,8 @@
     }
 
     let html = `<div class="builder-card">
-      <div class="builder-title">📚 Planbibliothek</div>
-      <div class="builder-sub">Hefte Pläne an, bearbeite oder erstelle eigene.</div>
+      <div class="builder-title">${t('planLibTitle')}</div>
+      <div class="builder-sub">${t('planLibDesc')}</div>
     </div>`;
 
     // Library list
@@ -957,39 +1280,39 @@
             <div class="plan-lib-meta">${p.length} Tage · ${p.reduce((s,d)=>s+d.ex.length,0)} Übungen${isBase?' · Vorlage':''}</div>
           </div>
           <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button">
-            ${isPinned ? 'Lösen' : 'Anheften'}
+            ${isPinned ? t('unpinBtn') : t('pinBtn')}
           </button>
         </div>
         <div class="builder-row" style="margin-top:10px">
-          <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">Duplizieren</button>
+          <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
           ${isBase
-            ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">Kopie bearbeiten</button>`
-            : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">Bearbeiten</button>`
+            ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
+            : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
           }
         </div>
-        ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button" style="width:100%;margin-top:8px">Plan löschen</button>` : ''}
+        ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button" style="width:100%;margin-top:8px">${t('deletePlan')}</button>` : ''}
       </div>`;
     });
 
     // New plan section
     html += `<div class="builder-card">
       <div class="builder-title">➕ Neuen Plan</div>
-      <input class="builder-input" id="builder-name" placeholder="Name des Plans" value="${esc(planDraft?.name||'')}">
+      <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft?.name||'')}">
       <div class="builder-row">
-        <button class="builder-btn" id="btn-blank" type="button">Leer starten</button>
-        <button class="builder-btn secondary" id="btn-addday" type="button">+ Tag hinzufügen</button>
+        <button class="builder-btn" id="btn-blank" type="button">${t('startBlank')}</button>
+        <button class="builder-btn secondary" id="btn-addday" type="button">${t('addDay')}</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">oder Vorlage kopieren:</div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${t('copyTemplate')}:</div>
       <select class="builder-select" id="tpl-select">
         ${Object.keys(plans).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}
       </select>
-      <button class="builder-btn secondary" id="btn-copy-tpl" type="button">Vorlage kopieren</button>
+      <button class="builder-btn secondary" id="btn-copy-tpl" type="button">${t('copyTemplate')}</button>
     </div>`;
 
     // Custom exercise creator
     html += `<div class="builder-card">
-      <div class="builder-title">💪 Eigene Übung</div>
-      <div class="builder-sub">Füge eine Übung zur Datenbank hinzu.</div>
+      <div class="builder-title">${t('customExTitle')}</div>
+      <div class="builder-sub">${t('customExDesc')}</div>
       <select class="builder-select" id="cex-muscle">
         ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
       </select>
@@ -1000,15 +1323,15 @@
         <input id="cex-file" type="file" accept="image/*" style="display:none">
         <span id="cex-file-name" class="file-name-hint"></span>
       </div>
-      <button class="builder-btn" id="cex-save" type="button" style="width:100%;margin-top:8px">Übung speichern</button>
+      <button class="builder-btn" id="cex-save" type="button" style="width:100%;margin-top:8px">${t('addExercise')}</button>
     </div>`;
 
     // Draft editor
     if (planDraft) {
       html += `<div class="builder-card draft-active">
-        <span class="custom-pill">✏️ Entwurf aktiv</span>
-        <div class="builder-title">${esc(planDraft.name || 'Neuer Plan')}</div>
-        <button class="builder-btn" id="save-draft" type="button" style="width:100%">Plan speichern ✓</button>
+        <span class="custom-pill">${t('draftActive')}</span>
+        <div class="builder-title">${esc(planDraft.name || t('newPlanTitle'))}</div>
+        <button class="builder-btn" id="save-draft" type="button" style="width:100%">${t('saveDraft')}</button>
       </div>`;
       html += planDraft.days.map((d, di) => `
         <div class="day-builder">
@@ -1030,7 +1353,7 @@
             : '<div class="builder-empty">Noch keine Übungen.</div>'
           }
           ${exPicker('addex-' + di)}
-          <button class="builder-btn secondary" data-addex="${di}" type="button">+ Übung hinzufügen</button>
+          <button class="builder-btn secondary" data-addex="${di}" type="button">${t('addExerciseToDay')}</button>
         </div>`).join('');
     }
 
@@ -1216,8 +1539,8 @@
 
     $('s-dark').addEventListener('click',  () => setTheme('dark'));
     $('s-light').addEventListener('click', () => setTheme('light'));
-    $('l-de').addEventListener('click', () => { currentLang='de'; S.set('lang','de'); showToast(t('langSaved')); renderSettings(); });
-    $('l-en').addEventListener('click', () => { currentLang='en'; S.set('lang','en'); showToast(t('langSaved')); renderSettings(); });
+    $('l-de').addEventListener('click', () => { currentLang='de'; S.set('lang','de'); showToast(t('langSaved')); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
+    $('l-en').addEventListener('click', () => { currentLang='en'; S.set('lang','en'); showToast(t('langSaved')); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
     $('l-th').addEventListener('click', () => { currentLang='th'; S.set('lang','th'); showToast(t('langSaved')); renderSettings(); });
     $('open-exdb').addEventListener('click', renderExerciseEditor);
 
@@ -1416,6 +1739,9 @@
       clearInterval(window.__restInt); window.__restEnd=null;
       $('rest-float').classList.remove('show');
     });
+    // Update rest label on language load
+    const restLabel = document.querySelector('.rest-label');
+    if (restLabel) restLabel.textContent = t('restRunning');
     upd();
 
     // Expose remote sync hook for cloud-sync.js
