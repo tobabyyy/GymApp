@@ -11,7 +11,7 @@
   let inputs = {}, setCounts = {}, finished = {};
   let progressExercise = null, progressUser = null;
   let charts = {}, planDraft = null;
-  let daySwaps = {}, swapOpen = {};
+  let daySwaps = {}, swapOpen = {}, editMode = {};
   let finishConfirm = false;
   let completedSetTimers = {};
   let currentLang = 'de';
@@ -650,7 +650,12 @@
       }));
     });
   }
-  function inputVal(id, i, f) { return inputs[day]?.[id]?.[i]?.[f] || ''; }
+  function todayEntry(id) {
+    return getHistory(id).find(e => e.user === user && e.date === dateStr()) || null;
+  }
+  function inputVal(id, i, f) {
+    return inputs[day]?.[id]?.[i]?.[f] || todayEntry(id)?.sets?.[i]?.[f] || '';
+  }
 
   // ── Dashboard ──────────────────────────────────────────────────────────────
   function allUserSessions(name) {
@@ -714,7 +719,8 @@
       </div>` : ''}
       ${prs.length ? `<div class="quick-card"><div class="quick-label">${t('personalRecords')}</div>
         ${prs.map(pr => `<div class="pr-row"><span>🏆 ${esc(pr.exercise)}</span><strong>${pr.kg}kg×${pr.reps}</strong></div>`).join('')}
-      </div>` : ''}`;
+      </div>` : `<div class="quick-card"><div class="quick-label">${t('personalRecords')}</div><div class="quick-sub">${t('noDataDesc')}</div></div>`}
+      <div class="quick-card"><div class="quick-label">${t('logLabel')}</div><div class="quick-sub">${sessions.length ? sessions.slice(-3).reverse().map(e=>esc(e.date)+' · '+esc(e.exercise)).join('<br>') : t('noDataDesc')}</div></div>`;
 
     $('home-start')?.addEventListener('click', () => {
       if (!next || !plans[next.plan]) { setScreen('plans'); return; }
@@ -909,6 +915,7 @@
     const st = styleFor(ex.m);
     const isOpen = openExercise === original.id;
     const isDone = !!S.get(doneKey(original.id), false);
+    const isEditing = !isDone || !!editMode[original.id];
     const hist   = getHistory(original.id).filter(e => e.user === user).slice(-3);
     const last   = hist[hist.length - 1];
     const count  = setCounts[original.id] || 3;
@@ -939,11 +946,11 @@
         <div class="snum" style="background:${st.bg};color:${st.c}">S${i+1}</div>
         <input class="ninp" type="number" inputmode="decimal" id="kg_${original.id}_${i}"
           value="${inputVal(original.id, i, 'kg')}" placeholder="kg"
-          data-setwatch="${original.id}" data-setidx="${i}">
+          data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
         <input class="ninp" type="number" inputmode="numeric" id="reps_${original.id}_${i}"
           value="${inputVal(original.id, i, 'reps')}" placeholder="${t('repsPlaceholder')}"
-          data-setwatch="${original.id}" data-setidx="${i}">
-        <button class="del-btn" type="button" data-del="${original.id}" data-delidx="${i}">−</button>
+          data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
+        <button class="del-btn" type="button" data-del="${original.id}" data-delidx="${i}" ${!isEditing?'disabled':''}>−</button>
       </div>`;
     }
 
@@ -998,21 +1005,21 @@
           </div>
         </div>
         ${histHtml}
-        <div class="inp-ttl">${t('enterToday')}</div>
+        ${isDone&&!isEditing?`<div class="saved-edit-note">✓ ${t('savedBadge')} · ${t('editSession')}</div>`:''}<div class="inp-ttl">${t('enterToday')}</div>
         <div class="col-hd"><span></span><span>kg</span><span>${t('repsHeader')}</span><span></span></div>
         ${rows}
         <div class="rest-row">
           <button class="rest-btn" type="button" data-fill="${original.id}">${t('fillLastBtn')}</button>
           <button class="rest-btn" type="button" data-detail="${original.id}">${t('progressBtn')}</button>
         </div>
-        <button class="add-s-btn" type="button" data-addset="${original.id}">${t('addSet')}</button>
+        ${isEditing?`<button class="add-s-btn" type="button" data-addset="${original.id}">${t('addSet')}</button>`:''}
         <div class="rest-row">
           <button class="rest-btn" type="button" data-rest="90">${t('rest90')}</button>
           <button class="rest-btn" type="button" data-rest="180">${t('rest180')}</button>
         </div>
-        <button class="save-btn ${isDone?'saved':''}" type="button"
-          data-saveex="${original.id}" data-setcount="${count}"
-          style="background:${st.c}">${isDone ? t('editSession') : t('saveSession')}</button>
+        <button class="save-btn ${isDone&&!isEditing?'saved':''}" type="button"
+          ${isDone&&!isEditing?`data-editex="${original.id}"`:`data-saveex="${original.id}" data-setcount="${count}"`}
+          style="background:${st.c}">${isDone&&!isEditing ? t('editSession') : t('saveSession')}</button>
       </div>
     </div>`;
   }
@@ -1108,6 +1115,9 @@
         inputs[day]?.[id]?.splice(idx, 1);
         renderTraining(); return;
       }
+      // Edit saved exercise
+      const editex = e.target.closest('[data-editex]');
+      if (editex) { editMode[editex.dataset.editex] = true; openExercise = editex.dataset.editex; renderTraining(); return; }
       // Save exercise
       const saveex = e.target.closest('[data-saveex]');
       if (saveex) { saveExercise(saveex.dataset.saveex, Number(saveex.dataset.setcount)); return; }
@@ -1159,7 +1169,7 @@
     // Auto-start timer when both kg+reps filled
     document.addEventListener('input', e => {
       const inp = e.target.closest('.ninp[data-setwatch]');
-      if (!inp || !openExercise) return;
+      if (!inp || inp.disabled || !openExercise) return;
       const id = inp.dataset.setwatch, idx = inp.dataset.setidx;
       const kg   = $('kg_'   + id + '_' + idx)?.value;
       const reps = $('reps_' + id + '_' + idx)?.value;
@@ -1214,6 +1224,7 @@
     else sess.push(sEntry);
     S.set('sessions_'+user, sess.slice(-300));
     S.set(doneKey(id), true);
+    delete editMode[id];
     openExercise = null;
     startTimer(90);
     renderDayTabs(); renderTraining();
@@ -1662,17 +1673,18 @@
         if (btn.dataset.confirmed === '1') {
           const name = btn.dataset.deluser;
           const usersNow = getUsers();
-          if (usersNow.length <= 1) { showToast(t('noLastProfile') || 'Letztes Profil kann nicht gelöscht werden.'); return; }
+          if (usersNow.length <= 1) { showToast(t('noLastProfile')); return; }
           const msg = t('deleteConfirm', {name});
           if (!confirm(msg)) return;
-          saveUsers(usersNow.filter(u=>u!==name));
-          // Remove user-bound local data for this profile.
+          const remainingUsers = usersNow.filter(u=>u!==name);
+          saveUsers(remainingUsers);
+          // Remove known user-bound local data for this profile.
           S.keys().forEach(key => {
-            if (key.endsWith('_'+name) || key.includes('_'+name+'_')) S.remove(key);
+            if (key === 'sessions_'+name || key === 'prs_'+name || key === 'trainingLog_'+name || key === 'pinnedPlans_'+name || key === 'theme_'+name || key.endsWith('_'+name) || key.includes('_'+name+'_')) S.remove(key);
           });
           showToast(t('profileDeleted'));
           if (window.GBCloudSync) window.GBCloudSync.push(true);
-          if (name === user) { goUsers(); return; }
+          if (name === user) { loginUser(remainingUsers[0]); setScreen('home'); return; }
           renderSettings(); renderUserScreen();
         } else {
           btn.dataset.confirmed = '1';
@@ -1859,6 +1871,39 @@
     }
   }
 
+
+  function installDraggableTimer() {
+    const box = $('rest-float');
+    if (!box || box.dataset.draggable === '1') return;
+    box.dataset.draggable = '1';
+    const saved = S.get('restTimerPos', null);
+    if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+      box.style.left = saved.x + 'px';
+      box.style.top = saved.y + 'px';
+      box.style.right = 'auto';
+      box.style.bottom = 'auto';
+      box.classList.add('floating-free');
+    }
+    let dragging=false, sx=0, sy=0, ox=0, oy=0;
+    box.addEventListener('pointerdown', e => {
+      if (e.target.closest('button')) return;
+      dragging=true; box.setPointerCapture(e.pointerId);
+      const r=box.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; ox=r.left; oy=r.top;
+      box.classList.add('dragging');
+    });
+    box.addEventListener('pointermove', e => {
+      if(!dragging) return;
+      const w=box.offsetWidth, h=box.offsetHeight;
+      const x=Math.min(Math.max(8, ox + e.clientX - sx), window.innerWidth - w - 8);
+      const y=Math.min(Math.max(8, oy + e.clientY - sy), window.innerHeight - h - 8);
+      box.style.left=x+'px'; box.style.top=y+'px'; box.style.right='auto'; box.style.bottom='auto'; box.classList.add('floating-free');
+    });
+    box.addEventListener('pointerup', e => {
+      if(!dragging) return; dragging=false; box.classList.remove('dragging');
+      const r=box.getBoundingClientRect(); S.set('restTimerPos',{x:Math.round(r.left), y:Math.round(r.top)});
+    });
+  }
+
   function init() {
     currentLang = S.get('lang','de');
     document.documentElement.lang=currentLang;
@@ -1868,6 +1913,7 @@
     applySavedTheme();
     renderUserScreen();
     bindDynamic();
+    installDraggableTimer();
 
     const inp = $('new-user-inp'), add = $('add-user-btn');
     const upd = () => add.classList.toggle('ready', !!inp.value.trim());
