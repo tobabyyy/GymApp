@@ -872,3 +872,107 @@ body.light-mode html, body.light-mode{background: radial-gradient(circle at 50% 
 body.light-mode .seg-btn.active,body.light-mode .top-chip.active,body.light-mode .split-btn.active{color:#fff!important;}
 /* Make profile/settings menu intentionally close via profile tap/outside tap only */
 .account-menu .close-row{display:none!important;}
+
+
+/* v7.3 polish: smoother cards, liquid glass, Training lives in Home */
+:root { --ease-spring: cubic-bezier(.22,1,.36,1); }
+.seg { backdrop-filter: blur(22px) saturate(1.25); -webkit-backdrop-filter: blur(22px) saturate(1.25); }
+.seg-btn, .top-chip, .h-user, .quick-btn, .save-btn, .rest-btn, .swap-card {
+  transition: transform .18s var(--ease-spring), opacity .18s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.seg-btn:active, .top-chip:active, .h-user:active, .quick-btn:active, .save-btn:active, .rest-btn:active, .swap-card:active {
+  transform: scale(.975);
+}
+.ex-card {
+  transition: transform .24s var(--ease-spring), box-shadow .24s ease, border-color .24s ease, opacity .24s ease;
+  will-change: transform, opacity;
+}
+.ex-card.open {
+  animation: gb-card-open .26s var(--ease-spring);
+}
+.ex-card.edone {
+  opacity: .82;
+}
+.ex-card.edone:not(.open) .ex-row {
+  background: linear-gradient(135deg, rgba(48,209,88,.08), rgba(255,255,255,.03));
+}
+.ex-body {
+  animation: gb-soft-reveal .24s ease both;
+}
+.ex-hero img, .ex-thumb img {
+  transition: transform .28s var(--ease-spring), filter .28s ease;
+}
+.ex-card.open .ex-hero img {
+  transform: scale(1.015);
+}
+.save-btn.saved {
+  background: linear-gradient(135deg, var(--green), #1f9d55) !important;
+}
+.done-chk::after {
+  content: " ";
+}
+.swap-card {
+  text-align: left;
+  color: var(--text);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.035));
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+.swap-card.active {
+  border-color: var(--red);
+  box-shadow: 0 0 0 1px rgba(232,39,42,.35), 0 12px 30px rgba(232,39,42,.14);
+}
+.swap-select-btn {
+  display: inline-flex;
+  margin-top: 8px;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.swap-card.active .swap-select-btn {
+  background: rgba(48,209,88,.18);
+  color: var(--green);
+}
+.account-menu {
+  backdrop-filter: blur(26px) saturate(1.4);
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  animation: gb-menu-in .18s var(--ease-spring);
+}
+@keyframes gb-card-open {
+  from { opacity: .7; transform: translateY(-4px) scale(.992); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes gb-soft-reveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gb-menu-in {
+  from { opacity: 0; transform: translateY(-8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ex-card, .ex-body, .account-menu, .seg-btn, .top-chip, .h-user, .quick-btn, .save-btn, .rest-btn, .swap-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* v7.3.4 polish: bottom sheet menu, plan search, swap filters, online/offline */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:190;display:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet-backdrop.show{display:block}.sheet-open{overflow:hidden}.menu-status{display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:14px;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);margin-bottom:4px}.menu-status-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(48,209,88,.45)}.menu-status.offline .menu-status-dot{background:var(--orange);box-shadow:0 0 12px rgba(255,159,10,.38)}
+.plan-search-input{position:sticky;top:0;z-index:2;margin-top:10px;margin-bottom:0;background:rgba(255,255,255,.08)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.swap-filter{width:100%;min-height:42px;margin-bottom:10px;border-radius:14px;border:1px solid var(--glass-border, var(--border));background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.04));color:var(--text);padding:0 12px;font-size:13px;font-weight:850;outline:none}.swap-group{margin-bottom:10px}.swap-content.open{animation:gb-soft-reveal .22s ease both}.swap-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+.account-menu.show{display:flex}.account-menu .menu-status + button{margin-top:2px}
+@media(max-width:640px){.account-menu{top:auto!important;right:10px!important;left:10px!important;bottom:calc(10px + var(--safe-bot))!important;min-width:0!important;border-radius:28px!important;padding:10px!important;animation:gb-sheet-up .24s var(--ease-spring, cubic-bezier(.22,1,.36,1))!important}.account-menu button{min-height:48px!important;font-size:15px!important}.menu-status{min-height:46px}.h-title{max-width:48vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.swap-grid{display:flex!important;overflow-x:auto;gap:10px;padding-bottom:4px;scroll-snap-type:x mandatory}.swap-card{min-width:145px;scroll-snap-align:start}.swap-card img{height:86px}}
+@keyframes gb-sheet-up{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+body.light-mode .sheet-backdrop{background:rgba(40,30,20,.22)}body.light-mode .menu-status{background:rgba(80,55,25,.06);border-color:rgba(80,55,25,.12)}body.light-mode .swap-filter,body.light-mode .plan-search-input{background:rgba(255,250,242,.76)!important;border-color:rgba(80,55,25,.14)!important;color:var(--text)!important}
