@@ -132,6 +132,19 @@
       newPR: 'Neue PR: ',
       nameRequired: 'Bitte Namen eintragen.',
       atLeastOneEx: 'Mindestens eine Übung pro Tag hinzufügen.',
+      sessions1: 'Einheit', sessionsN: 'Einheiten',
+      days: 'Tage', exercises: 'Übungen', template: '· Vorlage',
+      noExercises: 'Noch keine Übungen.',
+      exerciseName: 'Übungsname',
+      deleteExerciseConfirm: 'Übung "{name}" löschen?',
+      repsPlaceholder: 'Wdh',
+      repsHeader: 'Wdh.',
+      timerDone: 'Fertig ✓',
+      noPlanShort: 'Keinen Plan gefunden.',
+      activePercent: '% abgeschlossen',
+      openTraining: '⬆︎ Training öffnen',
+      noExercisesDB: 'Keine Übungen vorhanden.',
+      vorlage: '· Vorlage',
     },
     en: {
       appName: 'GymBaddies',
@@ -228,6 +241,19 @@
       newPR: 'New PR: ',
       nameRequired: 'Please enter a name.',
       atLeastOneEx: 'Add at least one exercise per day.',
+      sessions1: 'session', sessionsN: 'sessions',
+      days: 'days', exercises: 'exercises', template: '· Template',
+      noExercises: 'No exercises yet.',
+      exerciseName: 'Exercise name',
+      deleteExerciseConfirm: 'Delete exercise "{name}"?',
+      repsPlaceholder: 'Reps',
+      repsHeader: 'Reps',
+      timerDone: 'Done ✓',
+      noPlanShort: 'No plan found.',
+      activePercent: '% done',
+      openTraining: '⬆︎ Open training',
+      noExercisesDB: 'No exercises found.',
+      vorlage: '· Template',
     },
     th: {
       appName: 'GymBaddies',
@@ -324,6 +350,19 @@
       newPR: 'สถิติใหม่: ',
       nameRequired: 'กรุณาใส่ชื่อ',
       atLeastOneEx: 'เพิ่มอย่างน้อยหนึ่งท่าต่อวัน',
+      sessions1: 'ครั้ง', sessionsN: 'ครั้ง',
+      days: 'วัน', exercises: 'ท่า', template: '· เทมเพลต',
+      noExercises: 'ยังไม่มีท่าออกกำลังกาย',
+      exerciseName: 'ชื่อท่า',
+      deleteExerciseConfirm: 'ลบท่า "{name}" ไหม?',
+      repsPlaceholder: 'ครั้ง',
+      repsHeader: 'ครั้ง',
+      timerDone: 'เสร็จ ✓',
+      noPlanShort: 'ไม่พบแผน',
+      activePercent: '% เสร็จ',
+      openTraining: '⬆︎ เปิดการฝึก',
+      noExercisesDB: 'ไม่พบท่าออกกำลังกาย',
+      vorlage: '· เทมเพลต',
     }
   };
   function t(key, vars) {
@@ -448,7 +487,7 @@
         <div class="avatar" style="background:${c.bg};color:${c.c}">${initial(name)}</div>
         <div class="uinfo">
           <div class="uname">${esc(name)}</div>
-          <div class="ustats">${sess.length} Einheiten</div>
+          <div class="ustats">${sess.length} ${t(sess.length===1?'sessions1':'sessionsN')}</div>
           <div class="profile-meta">
             ${last ? t('lastTraining',{plan:last.plan,label:last.label,date:last.date}) : t('noTrainingYet')}
             ${next ? `<br><span class="profile-next">→ ${esc(next.plan)} · ${esc(next.label)}</span>` : ''}
@@ -653,8 +692,8 @@
       b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
     );
 
-    // Home training widget
-    renderHomeTrainWidget();
+    // Home training widget - use setTimeout to ensure DOM is painted
+    setTimeout(renderHomeTrainWidget, 0);
   }
 
   // ── Home training widget ──────────────────────────────────────────────────
@@ -684,14 +723,18 @@
     }
 
     const donePct = widgetDayObj.ex.length
-      ? Math.round(widgetDayObj.ex.filter(ex => S.get('done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id,false)).length / widgetDayObj.ex.length * 100)
+      ? Math.round(widgetDayObj.ex.filter(ex => {
+          // Match doneKey() format exactly
+          const k = 'done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id;
+          return !!S.get(k, false);
+        }).length / widgetDayObj.ex.length * 100)
       : 0;
 
     widget.innerHTML = `
       <div class="home-train-header" id="htw-header">
         <div style="flex:1;min-width:0">
           <div class="home-train-title">🏋️ ${esc(widgetPlan)} · ${esc(widgetDayObj.label)}</div>
-          <div class="home-train-meta">${widgetDayObj.ex.length} ${t('sessions')} · ${donePct}% ${t('allDone').replace('!','')}</div>
+          <div class="home-train-meta">${widgetDayObj.ex.length} ${t('exercises')} · ${donePct}${t('activePercent')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           <div class="htw-progress-ring">
@@ -732,7 +775,7 @@
           </div>`;
         }).join('')}
         <button class="home-train-fullbtn" id="htw-fullscreen" type="button">
-          ⬆︎ ${t('navTrain')} öffnen
+          ${t('openTraining')}
         </button>
       </div>`;
 
@@ -795,7 +838,7 @@
             <div class="quick-sub">${last ? t('lastSession',{plan:esc(last.plan),label:esc(last.label),date:esc(last.date)}) : t('noLastSession')}</div>
           </div>
           ${isActive
-            ? '<span class="quick-done">Aktiv ✓</span>'
+            ? `<span class="quick-done">${t('suggestionActive')}</span>`
             : `<button class="quick-btn" id="open-sug" type="button">${t('openSuggestion')}</button>`
           }
         </div>
@@ -868,7 +911,7 @@
           value="${inputVal(original.id, i, 'kg')}" placeholder="kg"
           data-setwatch="${original.id}" data-setidx="${i}">
         <input class="ninp" type="number" inputmode="numeric" id="reps_${original.id}_${i}"
-          value="${inputVal(original.id, i, 'reps')}" placeholder="Wdh"
+          value="${inputVal(original.id, i, 'reps')}" placeholder="${t('repsPlaceholder')}"
           data-setwatch="${original.id}" data-setidx="${i}">
         <button class="del-btn" type="button" data-del="${original.id}" data-delidx="${i}">−</button>
       </div>`;
@@ -910,7 +953,7 @@
         <img src="${esc(imageFor(ex.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
         <div class="grad"></div>
         <div class="hbadge" style="background:${st.c}">${esc(ex.m)}</div>
-        <div class="hbot"><div class="hname">${esc(ex.n)}</div><div class="hhint">▲ schließen</div></div>
+        <div class="hbot"><div class="hname">${esc(ex.n)}</div><div class="hhint">${t('closeCard')}</div></div>
       </div>
       <div class="ex-body">
         <div class="swap-box">
@@ -923,7 +966,7 @@
         </div>
         ${histHtml}
         <div class="inp-ttl">${t('enterToday')}</div>
-        <div class="col-hd"><span></span><span>kg</span><span>Wdh.</span><span></span></div>
+        <div class="col-hd"><span></span><span>kg</span><span>${t('repsHeader')}</span><span></span></div>
         ${rows}
         <div class="rest-row">
           <button class="rest-btn" type="button" data-fill="${original.id}">${t('fillLastBtn')}</button>
@@ -986,6 +1029,7 @@
         finished[day] = true; finishConfirm = false;
         showToast('🎉 ' + t('trainingSaved') + ', ' + user + '!');
         renderDayTabs(); renderFinishBar();
+        setTimeout(renderHomeTrainWidget, 0);
       });
       return;
     }
@@ -1115,7 +1159,7 @@
     startTimer(90);
     renderDayTabs(); renderTraining();
     // Refresh home widget progress ring if visible
-    if ($('home-train-widget')) renderHomeTrainWidget();
+    if ($('home-train-widget')) setTimeout(renderHomeTrainWidget, 0);
   }
 
   function fillLast(id) {
@@ -1138,7 +1182,7 @@
     if (rl) rl.textContent = t('restRunning');
     function tick() {
       const rem = Math.max(0, Math.ceil((window.__restEnd - Date.now()) / 1000));
-      $('rest-time').textContent = rem <= 0 ? 'Fertig ✓'
+      $('rest-time').textContent = rem <= 0 ? t('timerDone')
         : String(Math.floor(rem/60)).padStart(2,'0') + ':' + String(rem%60).padStart(2,'0');
       if (rem <= 0) {
         clearInterval(window.__restInt);
@@ -1277,7 +1321,7 @@
           <div>
             ${isPinned ? '<span class="pinned-tag">📌 Angeheftet</span>' : ''}
             <div class="plan-lib-name">${esc(name)}</div>
-            <div class="plan-lib-meta">${p.length} Tage · ${p.reduce((s,d)=>s+d.ex.length,0)} Übungen${isBase?' · Vorlage':''}</div>
+            <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?(' '+t('template')):''}</div>
           </div>
           <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button">
             ${isPinned ? t('unpinBtn') : t('pinBtn')}
@@ -1316,7 +1360,7 @@
       <select class="builder-select" id="cex-muscle">
         ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
       </select>
-      <input class="builder-input" id="cex-name" placeholder="Übungsname" maxlength="50">
+      <input class="builder-input" id="cex-name" placeholder="${t('exerciseName')}" maxlength="50">
       <input class="builder-input" id="cex-url" placeholder="Bild-URL (optional)">
       <div class="file-upload-row">
         <label class="file-upload-btn" for="cex-file">📷 Bild hochladen</label>
@@ -1350,7 +1394,7 @@
                 <button class="builder-mini" data-mvdn="${di}|${ei}" title="Nach unten">↓</button>
                 <button class="builder-mini" data-rmex="${di}|${ei}" title="Entfernen" style="color:var(--red)">×</button>
               </div>`).join('')
-            : '<div class="builder-empty">Noch keine Übungen.</div>'
+            : `<div class="builder-empty">${t('noExercises')}</div>`
           }
           ${exPicker('addex-' + di)}
           <button class="builder-btn secondary" data-addex="${di}" type="button">${t('addExerciseToDay')}</button>
@@ -1580,7 +1624,7 @@
         <select class="builder-select" id="edb-muscle">
           ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
         </select>
-        <input class="builder-input" id="edb-name" placeholder="Übungsname" maxlength="50">
+        <input class="builder-input" id="edb-name" placeholder="${t('exerciseName')}" maxlength="50">
         <input class="builder-input" id="edb-url" placeholder="Bild-URL (optional)">
         <div class="file-upload-row">
           <label class="file-upload-btn" for="edb-file">📷 Hochladen</label>
@@ -1685,7 +1729,7 @@
     document.querySelectorAll('[data-del-ex]').forEach(btn => {
       btn.addEventListener('click', () => {
         const name = btn.dataset.delEx;
-        if (!confirm('Übung "' + name + '" löschen?')) return;
+        if (!confirm(t('deleteExerciseConfirm',{name}))) return;
         saveCustomExercises(getCustomExercises().filter(e=>e.n!==name));
         D.EXERCISE_DB = (D.EXERCISE_DB||[]).filter(e=>e.n!==name);
         loadPlans();
