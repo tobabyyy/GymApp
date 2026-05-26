@@ -658,3 +658,170 @@ body.light-mode .home-train-header:active { background: rgba(0,0,0,.03); }
   text-align: center; transition: all .15s;
 }
 .home-train-fullbtn:active { background: rgba(232,39,42,.2); }
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN REFRESH v6 — more modern, dynamic, consistent
+   ══════════════════════════════════════════════════════════════ */
+
+/* Better font rendering */
+body { -webkit-font-smoothing: antialiased; }
+
+/* ── App background gradient ─────────────────────────────────── */
+body { background: #0a0a0f; }
+body.light-mode { background: #f0f0f8; }
+
+/* ── Coloured left border on ex-card when open ───────────────── */
+.ex-card.open { border-left-width: 3px; }
+
+/* ── Ex thumbnail with gradient overlay ──────────────────────── */
+.ex-thumb { position: relative; }
+.ex-thumb::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 60%);
+  border-radius: var(--r-xl) 0 0 var(--r-xl);
+  pointer-events: none;
+}
+
+/* ── Muscle tag with pill shape ──────────────────────────────── */
+.ex-mtag {
+  display: inline-block;
+  padding: 2px 7px; border-radius: 20px;
+  font-size: 9px; font-weight: 900; letter-spacing: 1.5px;
+  margin-bottom: 4px;
+  background: rgba(255,255,255,.07);
+}
+body.light-mode .ex-mtag { background: rgba(0,0,0,.06); }
+
+/* ── Better warmup cards ─────────────────────────────────────── */
+.wu-card { box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.wu-card.done { box-shadow: 0 2px 10px rgba(48,209,88,.15); }
+
+/* ── Dash stats with colored top border ──────────────────────── */
+.dash-stat { border-top: 2px solid var(--red); }
+
+/* ── Pinned plan card accent ─────────────────────────────────── */
+.pinned-plan-card { border-left: 3px solid var(--red); }
+
+/* ── Quick card subtle gradient ──────────────────────────────── */
+.quick-card {
+  background: linear-gradient(135deg, var(--card) 0%, rgba(255,255,255,.02) 100%);
+}
+body.light-mode .quick-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f8fc 100%);
+}
+
+/* ── Suggestion card highlight ───────────────────────────────── */
+.suggestion-card { border-color: rgba(232,39,42,.3); }
+
+/* ── Home section label with line ────────────────────────────── */
+.home-section-label {
+  display: flex; align-items: center; gap: 8px;
+  margin: 20px 0 10px;
+}
+.home-section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border);
+}
+
+/* ── Progress ring in home widget ────────────────────────────── */
+.htw-progress-ring { flex-shrink: 0; }
+.htw-progress-ring svg { display: block; }
+
+/* ── Home widget open animation ──────────────────────────────── */
+.home-train-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease, padding .25s ease;
+  padding: 0 14px;
+  display: block !important;   /* override the display:none */
+  border-top: 0px solid var(--border);
+}
+.home-train-body.open {
+  max-height: 2000px;
+  padding: 14px 14px 16px;
+  border-top-width: 1px;
+}
+
+/* ── Settings card with icon accent ──────────────────────────── */
+.settings-card { transition: box-shadow .15s; }
+.settings-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,.12); }
+body.light-mode .settings-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,.06); }
+
+/* ── Profile rows ────────────────────────────────────────────── */
+.profile-row .avatar { border: 2px solid rgba(255,255,255,.1); }
+body.light-mode .profile-row .avatar { border-color: rgba(0,0,0,.08); }
+
+/* ── Theme / lang buttons grid ───────────────────────────────── */
+.theme-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+/* ── Plan lib card hover ─────────────────────────────────────── */
+.plan-lib-card { transition: box-shadow .15s; }
+.plan-lib-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.18); }
+body.light-mode .plan-lib-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+
+/* ── Builder select better look ──────────────────────────────── */
+.builder-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23777' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* ── Swap grid cards improved ────────────────────────────────── */
+.swap-card { transition: border-color .15s, transform .1s; }
+.swap-card:active { transform: scale(.97); }
+.swap-card.active { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+
+/* ── Log entry hover ─────────────────────────────────────────── */
+.log-entry { transition: border-color .15s; }
+.log-entry:hover { border-color: rgba(255,255,255,.15); }
+body.light-mode .log-entry:hover { border-color: rgba(0,0,0,.15); }
+
+/* ── Rest float improved ─────────────────────────────────────── */
+.rest-float { border-radius: 20px; }
+.rest-time { font-variant-numeric: tabular-nums; }
+
+/* ── Day done tick color ─────────────────────────────────────── */
+.day-done-tick { color: var(--green); margin-left: 2px; }
+
+/* ── Finish bar backdrop ─────────────────────────────────────── */
+#finish-bar {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── PR row hover ────────────────────────────────────────────── */
+.pr-row { transition: background .1s; border-radius: 8px; padding: 7px 6px; margin: 0 -6px; }
+.pr-row:hover { background: rgba(255,255,255,.04); }
+body.light-mode .pr-row:hover { background: rgba(0,0,0,.03); }
+
+/* ── Nav tabs bottom border indicator ────────────────────────── */
+.daytab { position: relative; }
+.daytab.active::after {
+  content: '';
+  position: absolute; bottom: 0; left: 25%; right: 25%;
+  height: 2.5px; background: var(--red);
+  border-radius: 2px 2px 0 0;
+}
+/* Remove the default border-bottom since we use ::after now */
+.daytab.active { border-bottom-color: transparent; }
+
+/* ── Mobile safe tap zones ───────────────────────────────────── */
+@media (max-width: 390px) {
+  .seg-btn { font-size: 12px; }
+  .daytab  { font-size: 12px; min-width: 62px; }
+  .split-btn { font-size: 12px; }
+  .h-name { display: none; }
+}
+
+/* ── Light mode card borders ─────────────────────────────────── */
+body.light-mode .ex-card { border-color: rgba(0,0,0,.07); }
+body.light-mode .hist     { background: rgba(0,0,0,.03); }
+body.light-mode .quick-card { border-color: rgba(0,0,0,.07); }
+body.light-mode .wu-card  { border-color: rgba(0,0,0,.1); }
+body.light-mode .builder-card { border-color: rgba(0,0,0,.07); }
+body.light-mode .settings-card { border-color: rgba(0,0,0,.07); }
+body.light-mode .log-entry { border-color: rgba(0,0,0,.07); }
+body.light-mode .chart-box { border-color: rgba(0,0,0,.07); }
+body.light-mode .hero-card { border-color: rgba(0,0,0,.07); }
