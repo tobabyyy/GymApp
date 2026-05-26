@@ -62,7 +62,7 @@
       addSet: '+ Satz hinzufügen',
       swapExercise: '🔄 Übung tauschen',
       resetSwap: 'Zurücksetzen ↺',
-      closeCard: '▲ schließen',
+      closeCard: '',
       selectExercise: 'Wählen',
       activeExercise: '✓ Aktiv',
       rest90: '⏱ 1:30', rest180: '💤 3:00',
@@ -111,6 +111,7 @@
       settingsTitle: 'Einstellungen',
       designLabel: 'Design', dark: '🌙 Dunkel', light: '☀️ Hell',
       langLabel: 'Sprache', profilesLabel: 'Profile',
+      menuSettings: 'Einstellungen', menuSwitchProfile: 'Profil wechseln', activeProfile: 'Aktiv',
       deleteProfile: 'Löschen',
       exerciseDBLabel: 'Übungsdatenbank bearbeiten',
       cloudLabel: '☁️ Cloud-Sync',
@@ -125,6 +126,8 @@
       langSaved: 'Sprache gespeichert.',
       profileDeleted: 'Profil gelöscht.',
       deleteConfirm: 'Profil "{name}" wirklich löschen? Alle Trainingsdaten werden entfernt.',
+      noLastProfile: 'Das letzte Profil kann nicht gelöscht werden.',
+      confirmDeleteShort: '⚠️ Wirklich löschen?',
       exerciseDeleted: 'Übung gelöscht.',
       renamedTo: 'Umbenannt.',
       imageSaved: 'Bild aktualisiert.',
@@ -176,7 +179,7 @@
       addSet: '+ Add set',
       swapExercise: '🔄 Swap exercise',
       resetSwap: 'Reset ↺',
-      closeCard: '▲ close',
+      closeCard: '',
       selectExercise: 'Select',
       activeExercise: '✓ Active',
       rest90: '⏱ 1:30', rest180: '💤 3:00',
@@ -221,6 +224,7 @@
       settingsTitle: 'Settings',
       designLabel: 'Design', dark: '🌙 Dark', light: '☀️ Light',
       langLabel: 'Language', profilesLabel: 'Profiles',
+      menuSettings: 'Settings', menuSwitchProfile: 'Switch profile', activeProfile: 'Active',
       deleteProfile: 'Delete',
       exerciseDBLabel: 'Edit exercise database',
       cloudLabel: '☁️ Cloud Sync',
@@ -234,6 +238,8 @@
       langSaved: 'Language saved.',
       profileDeleted: 'Profile deleted.',
       deleteConfirm: 'Really delete profile "{name}"? All training data will be removed.',
+      noLastProfile: 'The last profile cannot be deleted.',
+      confirmDeleteShort: '⚠️ Really delete?',
       exerciseDeleted: 'Exercise deleted.',
       renamedTo: 'Renamed.',
       imageSaved: 'Image updated.',
@@ -285,7 +291,7 @@
       addSet: '+ เพิ่มเซต',
       swapExercise: '🔄 เปลี่ยนท่า',
       resetSwap: 'รีเซ็ต ↺',
-      closeCard: '▲ ปิด',
+      closeCard: '',
       selectExercise: 'เลือก',
       activeExercise: '✓ กำลังใช้',
       rest90: '⏱ 1:30', rest180: '💤 3:00',
@@ -330,6 +336,7 @@
       settingsTitle: 'การตั้งค่า',
       designLabel: 'ธีม', dark: '🌙 มืด', light: '☀️ สว่าง',
       langLabel: 'ภาษา', profilesLabel: 'โปรไฟล์',
+      menuSettings: 'การตั้งค่า', menuSwitchProfile: 'เปลี่ยนโปรไฟล์', activeProfile: 'กำลังใช้',
       deleteProfile: 'ลบ',
       exerciseDBLabel: 'แก้ไขฐานข้อมูลท่า',
       cloudLabel: '☁️ คลาวด์ซิงค์',
@@ -343,6 +350,8 @@
       langSaved: 'บันทึกภาษาแล้ว',
       profileDeleted: 'ลบโปรไฟล์แล้ว',
       deleteConfirm: 'ลบโปรไฟล์ "{name}" จริงไหม? ข้อมูลการฝึกทั้งหมดจะถูกลบ',
+      noLastProfile: 'ไม่สามารถลบโปรไฟล์สุดท้ายได้',
+      confirmDeleteShort: '⚠️ ลบจริงไหม?',
       exerciseDeleted: 'ลบท่าแล้ว',
       renamedTo: 'เปลี่ยนชื่อแล้ว',
       imageSaved: 'อัปเดตรูปแล้ว',
@@ -935,17 +944,19 @@
     });
     const swapHtml = Object.keys(groups).map(muscle => `
       <div class="swap-group-label">${esc(muscle)}</div>
-      <div class="swap-grid">${groups[muscle].map(item => `
-        <div class="swap-card ${item.n===ex.n?'active':''}">
+      <div class="swap-grid">${groups[muscle].map(item => {
+        const swapIndex = getExerciseDB().findIndex(e => e.m === item.m && e.n === item.n);
+        return `<div class="swap-card ${item.n===ex.n?'active':''}">
           <img src="${esc(imageFor(item.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
           <div class="swap-card-body">
             <div class="swap-name">${esc(item.n)}</div>
             <button class="swap-select-btn" type="button"
-              data-swap-id="${original.id}" data-swap-m="${esc(item.m)}" data-swap-n="${esc(item.n)}">
+              data-swap-id="${original.id}" data-swap-index="${swapIndex}">
               ${item.n===ex.n ? t('activeExercise') : t('selectExercise')}
             </button>
           </div>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
       </div>`).join('');
 
     return `<div class="ex-card open ${isDone?'edone':''}" id="card_${original.id}" style="border-color:${st.c}55">
@@ -1094,8 +1105,16 @@
       // Swap select
       const sw = e.target.closest('[data-swap-id]');
       if (sw) {
-        daySwaps[swapKey(sw.dataset.swapId)] = {id:sw.dataset.swapId, m:sw.dataset.swapM, n:sw.dataset.swapN, swapped:true};
-        openExercise = sw.dataset.swapId; renderTraining(); return;
+        const item = getExerciseDB()[Number(sw.dataset.swapIndex)];
+        if (item) {
+          saveCurrentInputs();
+          daySwaps[swapKey(sw.dataset.swapId)] = {id:sw.dataset.swapId, m:item.m, n:item.n, swapped:true};
+          openExercise = sw.dataset.swapId;
+          swapOpen[sw.dataset.swapId] = false;
+          showToast(t('setsSaved'));
+          renderTraining();
+        }
+        return;
       }
       // Swap toggle
       const swt = e.target.closest('[data-swap-toggle]');
@@ -1574,7 +1593,7 @@
             <div class="avatar" style="background:${c.bg};color:${c.c};width:34px;height:34px;font-size:14px">${initial(u)}</div>
             <div class="profile-row-name">${esc(u)}</div>
             ${u===user
-              ? '<span class="profile-active-tag">Aktiv</span>'
+              ? `<span class="profile-active-tag">${t('activeProfile')}</span><button class="builder-btn danger profile-del-btn" data-deluser="${esc(u)}" type="button">${t('deleteProfile')}</button>`
               : `<button class="builder-btn danger profile-del-btn" data-deluser="${esc(u)}" type="button">${t('deleteProfile')}</button>`
             }
           </div>`;
@@ -1583,9 +1602,9 @@
 
     $('s-dark').addEventListener('click',  () => setTheme('dark'));
     $('s-light').addEventListener('click', () => setTheme('light'));
-    $('l-de').addEventListener('click', () => { currentLang='de'; S.set('lang','de'); showToast(t('langSaved')); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
-    $('l-en').addEventListener('click', () => { currentLang='en'; S.set('lang','en'); showToast(t('langSaved')); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
-    $('l-th').addEventListener('click', () => { currentLang='th'; S.set('lang','th'); showToast(t('langSaved')); renderSettings(); });
+    $('l-de').addEventListener('click', () => { currentLang='de'; S.set('lang','de'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
+    $('l-en').addEventListener('click', () => { currentLang='en'; S.set('lang','en'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
+    $('l-th').addEventListener('click', () => { currentLang='th'; S.set('lang','th'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); });
     $('open-exdb').addEventListener('click', renderExerciseEditor);
 
     // Profile delete — two-click confirm
@@ -1593,15 +1612,22 @@
       btn.addEventListener('click', () => {
         if (btn.dataset.confirmed === '1') {
           const name = btn.dataset.deluser;
+          const usersNow = getUsers();
+          if (usersNow.length <= 1) { showToast(t('noLastProfile') || 'Letztes Profil kann nicht gelöscht werden.'); return; }
           const msg = t('deleteConfirm', {name});
           if (!confirm(msg)) return;
-          saveUsers(getUsers().filter(u=>u!==name));
+          saveUsers(usersNow.filter(u=>u!==name));
+          // Remove user-bound local data for this profile.
+          Object.keys(localStorage).forEach(key => {
+            if (key.endsWith('_'+name) || key.includes('_'+name+'_')) S.remove(key);
+          });
           showToast(t('profileDeleted'));
           if (window.GBCloudSync) window.GBCloudSync.push(true);
+          if (name === user) { goUsers(); return; }
           renderSettings(); renderUserScreen();
         } else {
           btn.dataset.confirmed = '1';
-          btn.textContent = '⚠️ Wirklich löschen?';
+          btn.textContent = t('confirmDeleteShort');
           btn.style.background = 'rgba(255,59,48,.25)';
           setTimeout(() => { btn.dataset.confirmed='0'; btn.textContent=t('deleteProfile'); btn.style.background=''; }, 3000);
         }
@@ -1739,6 +1765,14 @@
     });
   }
 
+
+  function renderAccountMenuLabels() {
+    const ms = $('menu-settings');
+    const mp = $('menu-profile-switch');
+    if (ms) ms.textContent = '⚙️ ' + t('menuSettings');
+    if (mp) mp.textContent = '👥 ' + t('menuSwitchProfile');
+  }
+
   // ── Account menu ───────────────────────────────────────────────────────────
   function toggleMenu() { $('account-menu')?.classList.toggle('show'); }
   function closeMenu()  { $('account-menu')?.classList.remove('show'); }
@@ -1755,6 +1789,7 @@
 
   function init() {
     currentLang = S.get('lang','de');
+    renderAccountMenuLabels();
     loadPlans();
     migrateLegacy();
     applySavedTheme();
@@ -1771,7 +1806,6 @@
     $('top-profile-menu').addEventListener('click', toggleMenu);
     $('menu-settings').addEventListener('click', () => { closeMenu(); setScreen('settings'); });
     $('menu-profile-switch').addEventListener('click', () => { closeMenu(); goUsers(); });
-    $('menu-close').addEventListener('click', closeMenu);
     document.addEventListener('click', e => {
       if (!e.target.closest('#account-menu') && !e.target.closest('#top-profile-menu')) closeMenu();
     });
