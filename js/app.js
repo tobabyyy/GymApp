@@ -475,9 +475,23 @@
     loadPlans();
   }
 
-  function doneKey(id) { return 'done_' + user + '_' + plan + '_' + day + '_' + dateStr() + '_' + id; }
+  function doneKeyFor(planName, dayIndex, id) { return 'done_' + user + '_' + planName + '_' + dayIndex + '_' + dateStr() + '_' + id; }
+  function doneKey(id) { return doneKeyFor(plan, day, id); }
   function swapKey(id)  { return plan + '_' + day + '_' + id; }
-  function displayExercise(ex) { return daySwaps[swapKey(ex.id)] || ex; }
+  function displayExercise(ex) { return ex && ex.id ? (daySwaps[swapKey(ex.id)] || ex) : ex; }
+
+  function activateSuggestedOrPinnedPlan() {
+    if (!user || (plan && plans[plan] && days && days[day])) return;
+    const sug = getNextSuggestion(user);
+    if (sug && plans[sug.plan]) {
+      plan = sug.plan; days = plans[plan]; day = Math.min(Math.max(Number(sug.dayIndex) || 0, 0), days.length - 1);
+      return;
+    }
+    const pinned = getPinnedPlans();
+    if (pinned.length && plans[pinned[0]]) {
+      plan = pinned[0]; days = plans[plan]; day = 0;
+    }
+  }
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   function showToast(msg) {
@@ -586,6 +600,12 @@
     $('tab-train')?.classList.toggle('active', next === 'train');
     $('menu-plans')?.classList.toggle('active', next === 'plans');
 
+    if (next === 'train') {
+      activateSuggestedOrPinnedPlan();
+      renderPlanTabs();
+      renderDayTabs();
+    }
+
     // Training-only chrome
     $('daytabs').style.display    = next === 'train' ? 'flex'  : 'none';
     $('split-tabs').style.display = next === 'train' ? 'flex'  : 'none';
@@ -600,10 +620,11 @@
     else if (next === 'settings') renderSettings();
   }
 
-  function setPlan(name) {
+  function setPlan(name, targetDay = 0) {
     saveCurrentInputs();
     if (!plans[name]) return;
-    plan = name; days = plans[name]; day = 0;
+    plan = name; days = plans[name];
+    day = Math.min(Math.max(Number(targetDay) || 0, 0), Math.max(days.length - 1, 0));
     openExercise = null; warmup = {}; inputs = {}; setCounts = {}; finished = {};
     renderPlanTabs(); renderDayTabs(); renderTraining();
   }
@@ -624,7 +645,7 @@
     const wrap = $('daytabs'); wrap.innerHTML = '';
     if (!days || !days.length) return;
     days.forEach((d, i) => {
-      const allDone = d.ex.every(ex => S.get(doneKey(ex.id), false));
+      const allDone = d.ex.length > 0 && d.ex.every(ex => S.get(doneKeyFor(plan, i, ex.id), false));
       const b = document.createElement('button');
       b.className = 'daytab' + (i === day ? ' active' : '');
       b.type = 'button';
@@ -711,8 +732,8 @@
         <div class="dash-stat"><strong>${log.length}</strong><span>${t('total')}</span></div>
         <div class="dash-stat"><strong>${Math.round(totalVol/1000)}t</strong><span>${t('volume')}</span></div>
       </div>
-      <div class="home-section-label">${t('pinnedPlans')}</div>
-      ${pinnedHtml}
+      <div id="home-train-widget" class="home-train-widget"></div>
+      ${pinned.length ? `<div class="home-section-label">${t('pinnedPlans')}</div>${pinnedHtml}` : ''}
       ${lastSum ? `<div class="quick-card"><div class="quick-label">${t('lastWorkout')}</div>
         <div class="quick-title">${esc(lastSum.plan)} · ${esc(lastSum.label)}</div>
         <div class="quick-sub">${lastSum.exercises} ${t('sessions')} · ${lastSum.sets} ${t('addSet').replace('+ ','')} · ${lastSum.volume}kg</div>
@@ -724,12 +745,13 @@
 
     $('home-start')?.addEventListener('click', () => {
       if (!next || !plans[next.plan]) { setScreen('plans'); return; }
-      setPlan(next.plan); setScreen('train');
+      setPlan(next.plan, next.dayIndex); setScreen('train');
     });
     $('home-pin')?.addEventListener('click', () => setScreen('plans'));
     document.querySelectorAll('[data-start-plan]').forEach(b =>
       b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
     );
+    renderHomeTrainWidget();
   }
 
   // ── Home training widget ──────────────────────────────────────────────────
@@ -749,7 +771,7 @@
     if (!widgetPlan || !widgetDayObj) {
       widget.innerHTML = `<div class="home-train-header" id="htw-header">
         <div>
-          <div class="home-train-title">🏋️ ${t('navTrain')}</div>
+          <div class="home-train-title">${t('navTrain')}</div>
           <div class="home-train-meta" style="color:var(--red)">${t('noPlanDesc')}</div>
         </div>
         <button class="quick-btn" id="htw-pin" type="button" style="font-size:12px">${t('pinPlan')}</button>
@@ -824,7 +846,7 @@
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         // Switch to training screen and open this exercise
-        if (widgetPlan !== plan) {
+        if (widgetPlan !== plan || widgetDay !== day) {
           plan = widgetPlan; days = plans[plan]; day = widgetDay;
           renderPlanTabs(); renderDayTabs();
         }
@@ -835,7 +857,7 @@
 
     $('htw-fullscreen')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (widgetPlan !== plan) {
+      if (widgetPlan !== plan || widgetDay !== day) {
         plan = widgetPlan; days = plans[plan]; day = widgetDay;
         renderPlanTabs(); renderDayTabs();
       }
@@ -945,10 +967,10 @@
       rows += `<div class="set-row">
         <div class="snum" style="background:${st.bg};color:${st.c}">S${i+1}</div>
         <input class="ninp" type="number" inputmode="decimal" id="kg_${original.id}_${i}"
-          value="${inputVal(original.id, i, 'kg')}" placeholder="kg"
+          value="${esc(inputVal(original.id, i, 'kg'))}" placeholder="kg"
           data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
         <input class="ninp" type="number" inputmode="numeric" id="reps_${original.id}_${i}"
-          value="${inputVal(original.id, i, 'reps')}" placeholder="${t('repsPlaceholder')}"
+          value="${esc(inputVal(original.id, i, 'reps'))}" placeholder="${t('repsPlaceholder')}"
           data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
         <button class="del-btn" type="button" data-del="${original.id}" data-delidx="${i}" ${!isEditing?'disabled':''}>−</button>
       </div>`;
@@ -1054,7 +1076,8 @@
           sets: 0, volume: 0,
         };
         days[day].ex.forEach(ex => {
-          const h = getHistory(ex.id).filter(e=>e.user===user).slice(-1)[0];
+          if (!S.get(doneKey(ex.id), false)) return;
+          const h = getHistory(ex.id).filter(e => e.user === user && e.date === dateStr()).slice(-1)[0];
           if (!h) return;
           summary.sets += h.sets.length;
           summary.volume += Math.round(h.sets.reduce((s,set)=>s+(parseFloat(set.kg)||0)*(parseFloat(set.reps)||0),0));
@@ -1130,8 +1153,10 @@
       // Progress shortcut
       const detail = e.target.closest('[data-detail]');
       if (detail) {
-        const ex = displayExercise({id:detail.dataset.detail});
-        progressExercise = ex.n || detail.dataset.detail;
+        const id = detail.dataset.detail;
+        const base = days[day]?.ex.find(e => e.id === id) || Object.values(plans).flatMap(p => p.flatMap(d => d.ex)).find(e => e.id === id);
+        const ex = displayExercise(base || {id, n:id, m:'Brust'});
+        progressExercise = ex.n || id;
         setScreen('progress'); return;
       }
       // Swap select
@@ -1186,30 +1211,35 @@
 
   function saveExercise(id, count) {
     saveCurrentInputs();
-    const sets = Array.from({length:count}, (_,i) => ({
-      kg:   inputs[day]?.[id]?.[i]?.kg   || '0',
-      reps: inputs[day]?.[id]?.[i]?.reps || '0',
+    const rawSets = Array.from({length:count}, (_,i) => ({
+      kg:   String(inputs[day]?.[id]?.[i]?.kg   || '').trim(),
+      reps: String(inputs[day]?.[id]?.[i]?.reps || '').trim(),
     }));
-    const ex = displayExercise({id, n:id, m:'Brust'});
-    // Find actual exercise info
+    const sets = rawSets
+      .filter(s => (parseFloat(s.kg) || 0) > 0 || (parseFloat(s.reps) || 0) > 0)
+      .map(s => ({ kg: s.kg || '0', reps: s.reps || '0' }));
+    if (!sets.length) { showToast(t('noDataDesc')); return; }
+
+    // Find actual exercise info, including swaps.
     const exInfo = getExerciseDB().find(e => e.n === (daySwaps[swapKey(id)]?.n || (days[day]?.ex.find(e=>e.id===id)?.n)));
     const entry  = {date:dateStr(), user, sets, exercise:exInfo?.n||id, muscle:exInfo?.m||'Brust', ts:Date.now()};
 
-    // Check PR
+    // Check PR once per save: compare the best set of this entry with previous best.
     const prev = getHistory(id).filter(e=>e.user===user).flatMap(e=>e.sets)
       .reduce((best,s) => {
         const v = (parseFloat(s.kg)||0)*(parseFloat(s.reps)||0);
         return v > best.v ? {v,kg:s.kg,reps:s.reps} : best;
       }, {v:0,kg:0,reps:0});
-    sets.forEach(s => {
+    const sessionBest = sets.reduce((best,s) => {
       const v = (parseFloat(s.kg)||0)*(parseFloat(s.reps)||0);
-      if (parseFloat(s.kg) && parseFloat(s.reps) && v > prev.v) {
-        const prs = S.get('prs_'+user,[]);
-        prs.push({exercise:entry.exercise, kg:s.kg, reps:s.reps, date:dateStr(), ts:Date.now()});
-        S.set('prs_'+user, prs.slice(-80));
-        showToast(t('newPR') + entry.exercise + ' · ' + s.kg + 'kg×' + s.reps);
-      }
-    });
+      return v > best.v ? {v,kg:s.kg,reps:s.reps} : best;
+    }, {v:0,kg:0,reps:0});
+    if (sessionBest.v > prev.v && parseFloat(sessionBest.reps)) {
+      const prs = S.get('prs_'+user,[]);
+      prs.push({exercise:entry.exercise, kg:sessionBest.kg, reps:sessionBest.reps, date:dateStr(), ts:Date.now()});
+      S.set('prs_'+user, prs.slice(-80));
+      showToast(t('newPR') + entry.exercise + ' · ' + sessionBest.kg + 'kg×' + sessionBest.reps);
+    }
 
     const histNow = getHistory(id);
     const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date);
@@ -1334,8 +1364,14 @@
     const kgData   = hist.map(h=>avg(h.sets.map(s=>parseFloat(s.kg)||0)));
     const repsData = hist.map(h=>avg(h.sets.map(s=>parseFloat(s.reps)||0)));
 
-    html += '<div class="chart-box"><div class="chart-lbl">'+t('avgWeight')+'</div><canvas id="cKg"></canvas></div>';
-    html += '<div class="chart-box"><div class="chart-lbl">'+t('avgReps')+'</div><canvas id="cRp"></canvas></div>';
+    const canChart = !!window.Chart;
+    if (canChart) {
+      html += '<div class="chart-box"><div class="chart-lbl">'+t('avgWeight')+'</div><canvas id="cKg"></canvas></div>';
+      html += '<div class="chart-box"><div class="chart-lbl">'+t('avgReps')+'</div><canvas id="cRp"></canvas></div>';
+    } else {
+      html += `<div class="chart-box chart-fallback"><div class="chart-lbl">${t('avgWeight')}</div><div class="chart-fallback-list">${labels.map((label,i)=>`<span>${esc(label)}</span><strong>${kgData[i]}kg</strong>`).join('')}</div></div>`;
+      html += `<div class="chart-box chart-fallback"><div class="chart-lbl">${t('avgReps')}</div><div class="chart-fallback-list">${labels.map((label,i)=>`<span>${esc(label)}</span><strong>${repsData[i]}</strong>`).join('')}</div></div>`;
+    }
     html += `<div class="sec-lbl">${t('logLabel')}</div>`;
     html += [...hist].reverse().map(e => `<div class="log-entry">
       <div class="log-top"><span class="log-d" style="color:${st.c}">${e.date}</span><span class="log-u">${esc(e.user)}</span></div>
@@ -1356,8 +1392,10 @@
                   y:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}}
       });
     }
-    mkChart('kg',   $('cKg'), labels, kgData,   st.c,       'kg');
-    mkChart('reps', $('cRp'), labels, repsData, '#ff9f0a',  '');
+    if (canChart) {
+      mkChart('kg',   $('cKg'), labels, kgData,   st.c,       'kg');
+      mkChart('reps', $('cRp'), labels, repsData, '#ff9f0a',  '');
+    }
   }
 
   // ── Plan builder ───────────────────────────────────────────────────────────
