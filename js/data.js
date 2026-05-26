@@ -3,8 +3,8 @@
   window.GB = window.GB || {};
 
   // ── Image base ────────────────────────────────────────────────────────────
-  const EX = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
-  GB.FALLBACK_IMG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop';
+  const EX = ''; // external exercise CDN removed for offline-friendly PWA
+  GB.FALLBACK_IMG = ''; // assigned after autoImage() is available
 
   // ── Auto-generate placeholder SVG ────────────────────────────────────────
   GB.autoImage = function (name, muscle) {
@@ -20,6 +20,7 @@
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="${bg}" offset="0"/><stop stop-color="#101010" offset="1"/></linearGradient></defs><rect width="900" height="560" fill="url(#g)"/><rect x="44" y="44" width="812" height="472" rx="42" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/><circle cx="450" cy="188" r="54" fill="none" stroke="${c}" stroke-width="18"/><path d="M314 305 C360 248 540 248 586 305" fill="none" stroke="${c}" stroke-width="22" stroke-linecap="round"/><path d="M365 316 L322 408 M535 316 L578 408 M414 310 L392 432 M486 310 L508 432" stroke="#f8f8f8" stroke-width="20" stroke-linecap="round"/><text x="450" y="490" text-anchor="middle" fill="#fff" font-family="Arial" font-size="40" font-weight="900">${sn}</text><text x="450" y="526" text-anchor="middle" fill="${c}" font-family="Arial" font-size="16" font-weight="900" letter-spacing="5">${sm.toUpperCase()}</text></svg>`;
     return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
   };
+  GB.FALLBACK_IMG = GB.autoImage('GymBaddies', 'Brust');
 
   // ── Colour palette per muscle ─────────────────────────────────────────────
   GB.STYLE = {
@@ -42,7 +43,7 @@
 
   // ── Clean exercise database — no duplicates, unified names ─────────────────
   // Images use free-exercise-db paths; fallback is autoImage()
-  const IMG = (p) => EX + p;
+  const IMG = () => ''; // keep map shape; standard images are local SVG placeholders
   GB.IMAGES = {
     // Brust
     'Butterfly':            IMG('Butterfly/0.jpg'),
@@ -167,12 +168,10 @@
     { m: 'Cardio', n: 'Burpees' },
   ];
 
-  // Fill missing images with autoImage
+  // Standard images are local SVG placeholders. Custom uploaded image URLs still work.
   GB.EXERCISE_DB.forEach(ex => {
-    if (!GB.IMAGES[ex.n]) GB.IMAGES[ex.n] = GB.autoImage(ex.n, ex.m);
+    GB.IMAGES[ex.n] = GB.autoImage(ex.n, ex.m);
   });
-  // Warmup images
-  GB.IMAGES['Klimmzüge'] = IMG('Pullups/0.jpg');
 
   // ── Base plans (no default selected — user must pin) ──────────────────────
   function mkPlan(days) {

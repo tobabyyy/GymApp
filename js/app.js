@@ -2,6 +2,8 @@
   'use strict';
   const S = window.GBStore;
   const D = window.GB;
+  const APP_VERSION = '7.3.8';
+  const DATA_MODEL_VERSION = 4;
 
   // ── State ──────────────────────────────────────────────────────────────────
   let plans = {}, allExercises = [];
@@ -119,6 +121,9 @@
       deleteProfile: 'Löschen',
       exerciseDBLabel: 'Übungsdatenbank bearbeiten',
       cloudLabel: '☁️ Cloud-Sync',
+      backupLabel: 'Datensicherung', exportData: 'Exportieren', importData: 'Importieren',
+      backupDesc: 'Sichert Profile, Pläne, Übungen und Trainingsdaten als JSON-Datei.',
+      exportDone: 'Backup erstellt.', importDone: 'Backup importiert.', importInvalid: 'Backup konnte nicht gelesen werden.',
       cloudConnected: 'Online',
       cloudOffline: 'Offline',
       statusOnline: 'Online',
@@ -241,6 +246,9 @@
       deleteProfile: 'Delete',
       exerciseDBLabel: 'Edit exercise database',
       cloudLabel: '☁️ Cloud Sync',
+      backupLabel: 'Backup', exportData: 'Export', importData: 'Import',
+      backupDesc: 'Saves profiles, plans, exercises and workout data as a JSON file.',
+      exportDone: 'Backup created.', importDone: 'Backup imported.', importInvalid: 'Backup could not be read.',
       cloudConnected: 'Online',
       cloudOffline: 'Offline',
       statusOnline: 'Online',
@@ -362,6 +370,9 @@
       deleteProfile: 'ลบ',
       exerciseDBLabel: 'แก้ไขฐานข้อมูลท่า',
       cloudLabel: '☁️ คลาวด์ซิงค์',
+      backupLabel: 'สำรองข้อมูล', exportData: 'ส่งออก', importData: 'นำเข้า',
+      backupDesc: 'บันทึกโปรไฟล์ แผน ท่าออกกำลังกาย และข้อมูลการฝึกเป็นไฟล์ JSON',
+      exportDone: 'สร้างไฟล์สำรองแล้ว', importDone: 'นำเข้าข้อมูลแล้ว', importInvalid: 'อ่านไฟล์สำรองไม่ได้',
       cloudConnected: 'ออนไลน์',
       cloudOffline: 'ออฟไลน์',
       statusOnline: 'ออนไลน์',
@@ -401,31 +412,91 @@
       vorlage: '· เทมเพลต',
     }
   };
+
+  // v7.3.8 supplemental labels
+  Object.assign(STRINGS.de, {
+    navMore:'Mehr', bottomPlans:'Pläne', firstProfileHint:'Lege ein Profil an und hefte dir danach einen Plan an.',
+    supersetLabel:'Superset', supersetNone:'Kein Superset', supersetGroup:'Superset {group}',
+    setType:'Typ', setTypeNormal:'Arbeit', setTypeWarmup:'Warm-up', setTypeDrop:'Dropset', setTypeFailure:'Limit',
+    rpeLabel:'RPE', noteLabel:'Notiz', notePlaceholder:'Technik, Gefühl oder Besonderheiten', deloadLabel:'Deload',
+    deloadDesc:'Markiert heutige Sätze als leichteren Deload und reduziert übernommene kg grob um 10%.',
+    progressionTitle:'Vorschlag für heute', progressionEmpty:'Trage erst Werte ein, dann erscheint hier ein Vorschlag.',
+    analyticsTitle:'Wochenanalyse', muscleBalance:'Muskel-Balance', planDevelopment:'Planentwicklung', frequency:'Frequenz', volumeWeek:'Wochenvolumen',
+    favOnly:'Nur Favoriten', favorite:'Favorit', category:'Kategorie', hiddenExercisesLabel:'Ausgeblendete Übungen', restore:'Wiederherstellen', hideExercise:'Ausblenden',
+    searchExercises:'Übungen suchen…', allCategories:'Alle Kategorien', selfTest:'Test-Suite', selfTestRun:'Tests starten', selfTestOK:'OK: Basisfunktionen sehen gut aus.', selfTestFail:'Fehler gefunden:',
+    quickStartTitle:'Schnellstart', quickStartPlan:'Plan anheften', quickStartTrain:'Training öffnen', quickStartSave:'Erste Übung speichern'
+  });
+  ['en','th'].forEach(lang => {
+    STRINGS[lang] = STRINGS[lang] || {};
+    Object.keys(STRINGS.de).forEach(k => { if (!STRINGS[lang][k]) STRINGS[lang][k] = STRINGS.de[k]; });
+  });
+
   function t(key, vars) {
     let str = (STRINGS[currentLang] || STRINGS.de)[key] || (STRINGS.de)[key] || key;
     if (vars) Object.keys(vars).forEach(k => { str = str.replace('{' + k + '}', vars[k]); });
     return str;
   }
 
+  function setScore(set) {
+    const kg = parseFloat(set?.kg) || 0;
+    const reps = parseFloat(set?.reps) || 0;
+    return kg > 0 ? kg * reps : reps;
+  }
+  function setLabel(set) {
+    const kgTxt = String(set?.kg ?? '').trim() || '0';
+    const repsTxt = String(set?.reps ?? '').trim() || '0';
+    return (parseFloat(kgTxt) || 0) > 0 ? kgTxt + 'kg×' + repsTxt : repsTxt + ' ' + t('repsHeader');
+  }
+
   // ── Custom exercises ───────────────────────────────────────────────────────
   function getCustomExercises() { return S.get('customExercises', []); }
   function saveCustomExercises(items) { S.set('customExercises', items); }
-
-  function getExerciseDB() {
+  function getHiddenExercises() { return S.get('hiddenExercises', []); }
+  function setHiddenExercises(items) { S.set('hiddenExercises', [...new Set(items.filter(Boolean))]); }
+  function getFavoriteExercises() { return S.get('favoriteExercises', []); }
+  function setFavoriteExercises(items) { S.set('favoriteExercises', [...new Set(items.filter(Boolean))]); }
+  function getExerciseCategories() { return S.get('exerciseCategories', {}); }
+  function setExerciseCategories(map) { S.set('exerciseCategories', map || {}); }
+  function categoryFor(name, fallback) { return getExerciseCategories()[name] || fallback || muscleForExercise(name); }
+  function isFavoriteExercise(name) { return getFavoriteExercises().includes(name); }
+  function setFavoriteExercise(name, yes) {
+    const fav = new Set(getFavoriteExercises());
+    if (yes) fav.add(name); else fav.delete(name);
+    setFavoriteExercises([...fav]);
+  }
+  function isExerciseHidden(name) { return getHiddenExercises().includes(name); }
+  function setExerciseHidden(name, yes) {
+    const hidden = new Set(getHiddenExercises());
+    if (yes) hidden.add(name); else hidden.delete(name);
+    setHiddenExercises([...hidden]);
+  }
+  function getExerciseDB(includeHidden = false) {
     const base = D.EXERCISE_DB || [];
     const custom = getCustomExercises();
+    const hidden = new Set(getHiddenExercises());
+    const cats = getExerciseCategories();
     const seen = new Set();
     return base.concat(custom).filter(ex => {
       const k = ex.m + '|' + ex.n;
       if (seen.has(k)) return false;
-      seen.add(k); return true;
-    });
+      seen.add(k);
+      return includeHidden || !hidden.has(ex.n);
+    }).map(ex => Object.assign({}, ex, { cat: cats[ex.n] || ex.cat || ex.m, fav: isFavoriteExercise(ex.n) }));
   }
 
+  function muscleForExercise(name) {
+    return getExerciseDB().find(ex => ex.n === name)?.m || 'Brust';
+  }
+  function imageFallbackFor(name) {
+    return D.autoImage ? D.autoImage(name || 'Training', muscleForExercise(name)) : D.FALLBACK_IMG;
+  }
+  function imgFallbackAttr(name) {
+    return `data-fallback="${esc(imageFallbackFor(name))}" onerror="this.onerror=null;this.src=this.dataset.fallback||GB.FALLBACK_IMG"`;
+  }
   function imageFor(name) {
     const customMap = {};
     getCustomExercises().forEach(ex => { if (ex.image) customMap[ex.n] = ex.image; });
-    return customMap[name] || D.IMAGES[name] || D.autoImage(name, 'Brust');
+    return customMap[name] || D.IMAGES[name] || imageFallbackFor(name);
   }
 
   // ── Data helpers ───────────────────────────────────────────────────────────
@@ -512,6 +583,8 @@
     const th = $('tab-home');   if (th) th.textContent = t('navHome');
     const tt = $('tab-train');  if (tt) tt.textContent = t('navTrain');
     const tpl = $('menu-plans'); if (tpl) tpl.textContent = t('menuPlans');
+    const bottomLabels = {home:t('navHome').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), train:t('navTrain').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), progress:t('navProgress').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), plans:t('bottomPlans'), settings:t('navMore')};
+    Object.keys(bottomLabels).forEach(k => { const el = document.querySelector(`[data-bottom-nav="${k}"] .bn-label`); if (el) el.textContent = bottomLabels[k]; });
     // Update user screen heading
     const h2 = document.querySelector('#screen-users h2');
     if (h2) h2.textContent = t('whoTrains');
@@ -522,7 +595,7 @@
     const list = $('user-list');
     list.innerHTML = '';
     if (!users.length) {
-      list.innerHTML = '<div class="user-empty">' + t('noTrainingYet') + '</div>';
+      list.innerHTML = '<div class="user-empty">' + t('firstProfileHint') + '</div>';
       return;
     }
     users.forEach((name, i) => {
@@ -599,6 +672,7 @@
     $('tab-home')?.classList.toggle('active',  next === 'home' || next === 'progress');
     $('tab-train')?.classList.toggle('active', next === 'train');
     $('menu-plans')?.classList.toggle('active', next === 'plans');
+    document.querySelectorAll('[data-bottom-nav]').forEach(btn => btn.classList.toggle('active', btn.dataset.bottomNav === next));
 
     if (next === 'train') {
       activateSuggestedOrPinnedPlan();
@@ -666,27 +740,68 @@
     days[day].ex.forEach(ex => {
       const n = setCounts[ex.id] || 3;
       inputs[day][ex.id] = Array.from({length: n}, (_, i) => ({
+        type: $('type_' + ex.id + '_' + i)?.value || 'normal',
         kg:   $('kg_'   + ex.id + '_' + i)?.value || '',
         reps: $('reps_' + ex.id + '_' + i)?.value || '',
       }));
     });
   }
-  function todayEntry(id) {
-    return getHistory(id).find(e => e.user === user && e.date === dateStr()) || null;
+  function todayEntry(id) { return getHistory(id).find(e => e.user === user && e.date === dateStr()) || null; }
+  function inputVal(id, i, f) { return inputs[day]?.[id]?.[i]?.[f] || todayEntry(id)?.sets?.[i]?.[f] || (f === 'type' ? 'normal' : ''); }
+  function metaVal(id, field) {
+    const k = 'meta_' + id + '_' + field;
+    return $(k)?.value ?? todayEntry(id)?.[field] ?? '';
   }
-  function inputVal(id, i, f) {
-    return inputs[day]?.[id]?.[i]?.[f] || todayEntry(id)?.sets?.[i]?.[f] || '';
+  function isDeloadOn() { return !!S.get('deload_' + user, false); }
+  function maybeDeloadKg(value) {
+    const v = parseFloat(value);
+    if (!isDeloadOn() || !v) return value || '';
+    return String(Math.max(0, Math.round(v * 0.9 * 2) / 2));
+  }
+  function progressionSuggestion(hist) {
+    if (!hist || !hist.length) return t('progressionEmpty');
+    const last = hist[hist.length - 1];
+    const best = (last.sets || []).reduce((b, s) => setScore(s) > setScore(b) ? s : b, {kg:'', reps:''});
+    if (!best || !parseFloat(best.reps)) return t('progressionEmpty');
+    const kg = parseFloat(best.kg) || 0;
+    const reps = parseFloat(best.reps) || 0;
+    if (isDeloadOn() && kg) return maybeDeloadKg(kg) + 'kg × ' + reps + ' als sauberer Deload.';
+    if (kg && reps >= 12) return (Math.round((kg + 2.5) * 2) / 2) + 'kg × 8-10 versuchen.';
+    if (kg) return kg + 'kg × ' + Math.round(reps + 1) + ' versuchen.';
+    return Math.round(reps + 1) + ' ' + t('repsHeader') + ' versuchen.';
   }
 
   // ── Dashboard ──────────────────────────────────────────────────────────────
   function allUserSessions(name) {
     return S.keys().filter(k => k.startsWith('h_')).flatMap(k =>
       S.get(k, []).filter(e => e.user === name).map(e => ({ ...e, exId: k.slice(2) }))
-    );
+    ).sort((a,b) => (a.ts || 0) - (b.ts || 0));
+  }
+  function historyEntriesForExercise(exName, person = user, extraIds = []) {
+    const ids = new Set((extraIds || []).filter(Boolean));
+    Object.values(plans).forEach(p => p.forEach(d => d.ex.forEach(e => {
+      if (e.n === exName) ids.add(e.id);
+    })));
+    return S.keys().filter(k => k.startsWith('h_')).flatMap(k =>
+      S.get(k, []).map(e => ({ ...e, exId: k.slice(2) }))
+    ).filter(e => (!person || e.user === person) && (e.exercise === exName || ids.has(e.exId)))
+     .sort((a,b) => (a.ts || 0) - (b.ts || 0));
   }
   function weekKey(ts) {
     const d = new Date(ts || Date.now()), s = new Date(d.getFullYear(), 0, 1);
     return d.getFullYear() + '-W' + Math.ceil((Math.floor((d - s) / 86400000) + s.getDay() + 1) / 7);
+  }
+  function renderOnboardingCard() {
+    const pinned = getPinnedPlans();
+    const sessions = allUserSessions(user);
+    const steps = [
+      { done: true, label: t('newProfile') },
+      { done: pinned.length > 0, label: t('quickStartPlan') },
+      { done: !!(plan && days && days.length), label: t('quickStartTrain') },
+      { done: sessions.length > 0, label: t('quickStartSave') },
+    ];
+    if (steps.every(s => s.done)) return '';
+    return `<div class="onboarding-card"><h3>${t('quickStartTitle')}</h3><div class="onboarding-steps">${steps.map(s => `<div class="onboarding-step ${s.done?'done':''}"><span>${s.done?'✓':'·'}</span>${esc(s.label)}</div>`).join('')}</div></div>`;
   }
 
   function renderDashboard() {
@@ -732,6 +847,7 @@
         <div class="dash-stat"><strong>${log.length}</strong><span>${t('total')}</span></div>
         <div class="dash-stat"><strong>${Math.round(totalVol/1000)}t</strong><span>${t('volume')}</span></div>
       </div>
+      ${renderOnboardingCard()}
       <div id="home-train-widget" class="home-train-widget"></div>
       ${pinned.length ? `<div class="home-section-label">${t('pinnedPlans')}</div>${pinnedHtml}` : ''}
       ${lastSum ? `<div class="quick-card"><div class="quick-label">${t('lastWorkout')}</div>
@@ -739,7 +855,7 @@
         <div class="quick-sub">${lastSum.exercises} ${t('sessions')} · ${lastSum.sets} ${t('addSet').replace('+ ','')} · ${lastSum.volume}kg</div>
       </div>` : ''}
       ${prs.length ? `<div class="quick-card"><div class="quick-label">${t('personalRecords')}</div>
-        ${prs.map(pr => `<div class="pr-row"><span>🏆 ${esc(pr.exercise)}</span><strong>${pr.kg}kg×${pr.reps}</strong></div>`).join('')}
+        ${prs.map(pr => `<div class="pr-row"><span>🏆 ${esc(pr.exercise)}</span><strong>${esc(setLabel(pr))}</strong></div>`).join('')}
       </div>` : `<div class="quick-card"><div class="quick-label">${t('personalRecords')}</div><div class="quick-sub">${t('noDataDesc')}</div></div>`}
       <div class="quick-card"><div class="quick-label">${t('logLabel')}</div><div class="quick-sub">${sessions.length ? sessions.slice(-3).reverse().map(e=>esc(e.date)+' · '+esc(e.exercise)).join('<br>') : t('noDataDesc')}</div></div>`;
 
@@ -816,12 +932,12 @@
           return `<div class="ex-card ${isDone?'edone':''}" style="margin-bottom:8px">
             <div class="ex-row" data-htw-open="${ex.id}">
               <div class="ex-thumb">
-                <img src="${esc(imageFor(exDisp.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+                <img src="${esc(imageFor(exDisp.n))}" ${imgFallbackAttr(exDisp.n)} loading="lazy">
               </div>
               <div class="ex-info">
                 <div class="ex-mtag" style="color:${st.c}">${esc(exDisp.m)}</div>
                 <div class="ex-name">${esc(exDisp.n)}</div>
-                ${hist ? `<div class="ex-last">${hist.date} · ${hist.sets.map(s=>`${s.kg}×${s.reps}`).join('  ')}</div>` : ''}
+                ${hist ? `<div class="ex-last">${esc(hist.date)} · ${hist.sets.map(s=>esc(setLabel(s))).join('  ')}</div>` : ''}
               </div>
               <div class="ex-r">
                 ${isDone
@@ -907,7 +1023,7 @@
     D.WARMUP.forEach(name => {
       const done = !!warmup[name];
       html += `<div class="wu-card ${done?'done':''}" data-wu="${esc(name)}">
-        <div class="wu-img"><img src="${esc(imageFor(name))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy"></div>
+        <div class="wu-img"><img src="${esc(imageFor(name))}" ${imgFallbackAttr(name)} loading="lazy"></div>
         <div class="wu-lbl">${done?'✓ ':''}${esc(name)}</div>
         <div class="wu-tick">✓</div>
       </div>`;
@@ -938,18 +1054,18 @@
     const isOpen = openExercise === original.id;
     const isDone = !!S.get(doneKey(original.id), false);
     const isEditing = !isDone || !!editMode[original.id];
-    const hist   = getHistory(original.id).filter(e => e.user === user).slice(-3);
+    const hist   = historyEntriesForExercise(ex.n, user, [original.id]).slice(-3);
     const last   = hist[hist.length - 1];
     const count  = setCounts[original.id] || 3;
 
     if (!isOpen) {
       return `<div class="ex-card ${isDone?'edone':''}" id="card_${original.id}">
         <div class="ex-row" data-open="${original.id}">
-          <div class="ex-thumb"><img src="${esc(imageFor(ex.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy"></div>
+          <div class="ex-thumb"><img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy"></div>
           <div class="ex-info">
             <div class="ex-mtag" style="color:${st.c}">${esc(ex.m)}</div>
-            <div class="ex-name">${esc(ex.n)}</div>
-            ${last ? `<div class="ex-last">${esc(last.date)} · ${last.sets.map(s=>`${s.kg}×${s.reps}`).join('  ')}</div>` : ''}
+            <div class="ex-name">${esc(ex.n)}${original.superset ? `<span class="superset-badge">${t('supersetGroup',{group:esc(original.superset)})}</span>` : ''}</div>
+            ${last ? `<div class="ex-last">${esc(last.date)} · ${last.sets.map(s=>esc(setLabel(s))).join('  ')}</div>` : ''}
           </div>
           <div class="ex-r">
             ${isDone
@@ -964,8 +1080,12 @@
     // Build set rows
     let rows = '';
     for (let i = 0; i < count; i++) {
-      rows += `<div class="set-row">
+      const type = inputVal(original.id, i, 'type') || 'normal';
+      rows += `<div class="set-row set-row-typed">
         <div class="snum" style="background:${st.bg};color:${st.c}">S${i+1}</div>
+        <select class="set-type" id="type_${original.id}_${i}" data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
+          ${['normal','warmup','drop','failure'].map(tp => `<option value="${tp}" ${type===tp?'selected':''}>${t('setType'+tp.charAt(0).toUpperCase()+tp.slice(1))}</option>`).join('')}
+        </select>
         <input class="ninp" type="number" inputmode="decimal" id="kg_${original.id}_${i}"
           value="${esc(inputVal(original.id, i, 'kg'))}" placeholder="kg"
           data-setwatch="${original.id}" data-setidx="${i}" ${!isEditing?'disabled':''}>
@@ -979,10 +1099,10 @@
     const histHtml = hist.length ? `<div class="hist">
       <div class="hist-ttl">${t('historyLabel')}</div>
       ${hist.map(e => `<div class="hentry">
-        <div class="hdate">${esc(e.date)} · ${esc(e.user)}</div>
+        <div class="hdate">${esc(e.date)} · ${esc(e.user)}${e.rpe ? ' · RPE ' + esc(e.rpe) : ''}${e.deload ? ' · ' + t('deloadLabel') : ''}</div>
         <div class="hpills">${e.sets.map((s,i) =>
-          `<span class="hpill" style="background:${st.bg};color:${st.c}">S${i+1} ${s.kg}kg×${s.reps}</span>`
-        ).join('')}</div>
+          `<span class="hpill" style="background:${st.bg};color:${st.c}">S${i+1} ${s.type && s.type !== 'normal' ? esc(t('setType'+s.type.charAt(0).toUpperCase()+s.type.slice(1))) + ' · ' : ''}${esc(setLabel(s))}</span>`
+        ).join('')}</div>${e.note ? `<div class="hist-note">${esc(e.note)}</div>` : ''}
       </div>`).join('')}
     </div>` : '';
 
@@ -1000,7 +1120,7 @@
         const swapIndex = getExerciseDB().findIndex(e => e.m === item.m && e.n === item.n);
         return `<button class="swap-card ${item.n===ex.n?'active':''}" type="button"
           data-swap-id="${original.id}" data-swap-index="${swapIndex}">
-          <img src="${esc(imageFor(item.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+          <img src="${esc(imageFor(item.n))}" ${imgFallbackAttr(item.n)} loading="lazy">
           <div class="swap-card-body">
             <div class="swap-muscle">${esc(item.m)}</div>
             <div class="swap-name">${esc(item.n)}</div>
@@ -1012,7 +1132,7 @@
 
     return `<div class="ex-card open ${isDone?'edone':''}" id="card_${original.id}" style="border-color:${st.c}55">
       <div class="ex-hero" data-open="${original.id}">
-        <img src="${esc(imageFor(ex.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+        <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
         <div class="grad"></div>
         <div class="hbadge" style="background:${st.c}">${esc(ex.m)}</div>
         <div class="hbot"><div class="hname">${esc(ex.n)}</div><div class="hhint">${t('closeCard')}</div></div>
@@ -1026,10 +1146,15 @@
             ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">${t('resetSwap')}</button>`:''}
           </div>
         </div>
+        <div class="progression-box"><strong>${t('progressionTitle')}</strong><span>${esc(progressionSuggestion(hist))}</span></div>
         ${histHtml}
         ${isDone&&!isEditing?`<div class="saved-edit-note">✓ ${t('savedBadge')} · ${t('editSession')}</div>`:''}<div class="inp-ttl">${t('enterToday')}</div>
-        <div class="col-hd"><span></span><span>kg</span><span>${t('repsHeader')}</span><span></span></div>
+        <div class="col-hd col-hd-typed"><span></span><span>${t('setType')}</span><span>kg</span><span>${t('repsHeader')}</span><span></span></div>
         ${rows}
+        <div class="session-meta-grid">
+          <label><span>${t('rpeLabel')}</span><select class="meta-select" id="meta_${original.id}_rpe" ${!isEditing?'disabled':''}>${['','6','7','8','9','10'].map(v=>`<option value="${v}" ${String(metaVal(original.id,'rpe'))===v?'selected':''}>${v||'-'}</option>`).join('')}</select></label>
+          <label><span>${t('noteLabel')}</span><textarea class="meta-note" id="meta_${original.id}_note" placeholder="${t('notePlaceholder')}" ${!isEditing?'disabled':''}>${esc(metaVal(original.id,'note'))}</textarea></label>
+        </div>
         <div class="rest-row">
           <button class="rest-btn" type="button" data-fill="${original.id}">${t('fillLastBtn')}</button>
           <button class="rest-btn" type="button" data-detail="${original.id}">${t('progressBtn')}</button>
@@ -1125,7 +1250,7 @@
         setCounts[id] = (setCounts[id] || 3) + 1;
         inputs[day] = inputs[day] || {};
         inputs[day][id] = inputs[day][id] || [];
-        inputs[day][id].push({kg:'',reps:''});
+        inputs[day][id].push({type:'normal',kg:'',reps:''});
         renderTraining(); return;
       }
       // Delete set
@@ -1212,64 +1337,72 @@
   function saveExercise(id, count) {
     saveCurrentInputs();
     const rawSets = Array.from({length:count}, (_,i) => ({
+      type: $('type_' + id + '_' + i)?.value || inputs[day]?.[id]?.[i]?.type || 'normal',
       kg:   String(inputs[day]?.[id]?.[i]?.kg   || '').trim(),
       reps: String(inputs[day]?.[id]?.[i]?.reps || '').trim(),
     }));
     const sets = rawSets
       .filter(s => (parseFloat(s.kg) || 0) > 0 || (parseFloat(s.reps) || 0) > 0)
-      .map(s => ({ kg: s.kg || '0', reps: s.reps || '0' }));
+      .map(s => ({ type:s.type || 'normal', kg: s.kg || '0', reps: s.reps || '0' }));
     if (!sets.length) { showToast(t('noDataDesc')); return; }
 
-    // Find actual exercise info, including swaps.
-    const exInfo = getExerciseDB().find(e => e.n === (daySwaps[swapKey(id)]?.n || (days[day]?.ex.find(e=>e.id===id)?.n)));
-    const entry  = {date:dateStr(), user, sets, exercise:exInfo?.n||id, muscle:exInfo?.m||'Brust', ts:Date.now()};
+    const original = days[day]?.ex.find(e=>e.id===id) || {id, n:id, m:'Brust'};
+    const exInfo = displayExercise(original);
+    const entry  = {
+      date:dateStr(), user, sets, exercise:exInfo?.n||id, muscle:exInfo?.m||'Brust',
+      rpe: String($('meta_' + id + '_rpe')?.value || '').trim(),
+      note: String($('meta_' + id + '_note')?.value || '').trim(),
+      deload: isDeloadOn(), ts:Date.now()
+    };
 
-    // Check PR once per save: compare the best set of this entry with previous best.
-    const prev = getHistory(id).filter(e=>e.user===user).flatMap(e=>e.sets)
+    const prev = historyEntriesForExercise(entry.exercise, user, [id]).flatMap(e=>e.sets || [])
+      .filter(s => s.type !== 'warmup')
       .reduce((best,s) => {
-        const v = (parseFloat(s.kg)||0)*(parseFloat(s.reps)||0);
+        const v = setScore(s);
         return v > best.v ? {v,kg:s.kg,reps:s.reps} : best;
       }, {v:0,kg:0,reps:0});
-    const sessionBest = sets.reduce((best,s) => {
-      const v = (parseFloat(s.kg)||0)*(parseFloat(s.reps)||0);
+    const sessionBest = sets.filter(s => s.type !== 'warmup').reduce((best,s) => {
+      const v = setScore(s);
       return v > best.v ? {v,kg:s.kg,reps:s.reps} : best;
     }, {v:0,kg:0,reps:0});
     if (sessionBest.v > prev.v && parseFloat(sessionBest.reps)) {
       const prs = S.get('prs_'+user,[]);
       prs.push({exercise:entry.exercise, kg:sessionBest.kg, reps:sessionBest.reps, date:dateStr(), ts:Date.now()});
       S.set('prs_'+user, prs.slice(-80));
-      showToast(t('newPR') + entry.exercise + ' · ' + sessionBest.kg + 'kg×' + sessionBest.reps);
+      showToast(t('newPR') + entry.exercise + ' · ' + setLabel(sessionBest));
     }
 
     const histNow = getHistory(id);
-    const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date);
+    const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date && (e.exercise || entry.exercise) === entry.exercise);
     if (sameIdx >= 0) histNow[sameIdx] = entry;
     else histNow.push(entry);
-    S.set('h_' + id, histNow.slice(-80));
+    S.set('h_' + id, histNow.sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-120));
 
     const sess = S.get('sessions_'+user,[]);
     const sIdx = sess.findIndex(e => e.date===dateStr() && e.day===day && e.plan===plan && e.exercise===entry.exercise);
     const sEntry = {date:dateStr(), day, plan, exercise:entry.exercise, ts:Date.now()};
     if (sIdx >= 0) sess[sIdx] = sEntry;
     else sess.push(sEntry);
-    S.set('sessions_'+user, sess.slice(-300));
+    S.set('sessions_'+user, sess.sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-300));
     S.set(doneKey(id), true);
     delete editMode[id];
     openExercise = null;
     startTimer(90);
     renderDayTabs(); renderTraining();
-    // Refresh home widget progress ring if visible
     if ($('home-train-widget')) setTimeout(renderHomeTrainWidget, 0);
   }
 
   function fillLast(id) {
-    const hist = getHistory(id).filter(e=>e.user===user);
+    const original = days[day]?.ex.find(e=>e.id===id) || {id, n:id, m:'Brust'};
+    const currentEx = displayExercise(original);
+    let hist = historyEntriesForExercise(currentEx.n, user);
+    if (!hist.length) hist = getHistory(id).filter(e=>e.user===user);
     if (!hist.length) { showToast(t('noHistory')); return; }
     const last  = hist[hist.length-1];
     const count = Math.max(setCounts[id]||3, last.sets.length);
     setCounts[id] = count;
     inputs[day] = inputs[day] || {};
-    inputs[day][id] = Array.from({length:count}, (_,i) => ({kg:last.sets[i]?.kg||'', reps:last.sets[i]?.reps||''}));
+    inputs[day][id] = Array.from({length:count}, (_,i) => ({type:last.sets[i]?.type||'normal', kg:maybeDeloadKg(last.sets[i]?.kg||''), reps:last.sets[i]?.reps||''}));
     renderTraining(); showToast(t('fillLast'));
   }
 
@@ -1302,6 +1435,25 @@
   });
 
   // ── Progress ───────────────────────────────────────────────────────────────
+  function renderProgressAnalytics() {
+    const entries = allUserSessions(user);
+    const now = Date.now();
+    const weekStart = now - 7 * 86400000;
+    const week = entries.filter(e => (e.ts || now) >= weekStart);
+    const volume = Math.round(week.reduce((s,e)=>s+(e.sets||[]).reduce((a,set)=>a+(parseFloat(set.kg)||0)*(parseFloat(set.reps)||0),0),0));
+    const dates = new Set(week.map(e=>e.date));
+    const muscle = {};
+    week.forEach(e => { muscle[e.muscle || muscleForExercise(e.exercise)] = (muscle[e.muscle || muscleForExercise(e.exercise)] || 0) + (e.sets || []).length; });
+    const max = Math.max(1, ...Object.values(muscle));
+    const planCounts = getTrainingLog(user).slice(-12).reduce((m,e)=>{ m[e.plan]=(m[e.plan]||0)+1; return m; }, {});
+    const bars = Object.keys(D.STYLE).map(m => {
+      const val = muscle[m] || 0;
+      return `<div class="muscle-bar"><span>${esc(m)}</span><div><i style="width:${Math.round(val/max*100)}%;background:${styleFor(m).c}"></i></div><b>${val}</b></div>`;
+    }).join('');
+    const dev = Object.keys(planCounts).length ? Object.keys(planCounts).map(n => `<span>${esc(n)}: ${planCounts[n]}</span>`).join('') : `<span>${t('noData')}</span>`;
+    return `<div class="analytics-card"><div class="analytics-title">${t('analyticsTitle')}</div><div class="analytics-grid"><div><strong>${dates.size}</strong><span>${t('frequency')}</span></div><div><strong>${Math.round(volume/1000)}t</strong><span>${t('volumeWeek')}</span></div></div><div class="analytics-sub">${t('muscleBalance')}</div><div class="muscle-bars">${bars}</div><div class="analytics-sub">${t('planDevelopment')}</div><div class="plan-dev-list">${dev}</div></div>`;
+  }
+
   function renderProgress() {
     const exList = getExerciseDB();
     if (!progressExercise || !exList.find(e=>e.n===progressExercise)) {
@@ -1312,7 +1464,7 @@
     const cur = exList.find(e=>e.n===progressExercise) || exList[0];
     const st  = styleFor(cur.m);
     const ids = Object.values(plans).flatMap(p=>p.flatMap(d=>d.ex)).filter(e=>e.n===progressExercise).map(e=>e.id);
-    const hist = ids.flatMap(getHistory).filter(e=>!progressUser||e.user===progressUser);
+    const hist = historyEntriesForExercise(progressExercise, progressUser, ids);
 
     // Group exercises by muscle for picker
     const groups = {};
@@ -1334,7 +1486,7 @@
 
     html += `<div class="hero-card" style="border-color:${st.c}33">
       <div class="hero-img">
-        <img src="${esc(imageFor(progressExercise))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+        <img src="${esc(imageFor(progressExercise))}" ${imgFallbackAttr(progressExercise)} loading="lazy">
         <div class="hgrad"></div>
         <div class="hero-info">
           <div class="hbadge2" style="background:${st.c}">${esc(cur.m)}</div>
@@ -1353,6 +1505,7 @@
       </div>`;
     }
     html += '</div>';
+    html += renderProgressAnalytics();
 
     if (!hist.length) {
       $('prog-content').innerHTML = html + `<div class="empty-state"><h3>${t('noData')}</h3><p>${t('noDataDesc')}</p></div>`;
@@ -1375,7 +1528,7 @@
     html += `<div class="sec-lbl">${t('logLabel')}</div>`;
     html += [...hist].reverse().map(e => `<div class="log-entry">
       <div class="log-top"><span class="log-d" style="color:${st.c}">${e.date}</span><span class="log-u">${esc(e.user)}</span></div>
-      <div class="log-pills">${e.sets.map((s,i)=>`<span class="lpill" style="background:${st.bg};color:${st.c}">S${i+1}: ${s.kg}kg×${s.reps}</span>`).join('')}</div>
+      <div class="log-pills">${e.sets.map((s,i)=>`<span class="lpill" style="background:${st.bg};color:${st.c}">S${i+1}: ${s.type&&s.type!=='normal'?esc(t('setType'+s.type.charAt(0).toUpperCase()+s.type.slice(1)))+' · ':''}${esc(setLabel(s))}</span>`).join('')}</div>${e.note?`<div class="hist-note">${esc(e.note)}</div>`:''}
     </div>`).join('');
 
     $('prog-content').innerHTML = html;
@@ -1406,7 +1559,7 @@
     // Exercise picker HTML (grouped)
     function exPicker(id) {
       const groups = {};
-      getExerciseDB().forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
+      getExerciseDB().sort((a,b)=>Number(isFavoriteExercise(b.n))-Number(isFavoriteExercise(a.n)) || a.n.localeCompare(b.n)).forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
       return `<select class="builder-select" id="${id}">
         ${Object.keys(groups).map(m =>
           `<optgroup label="${esc(m)}">${groups[m].map(ex=>`<option value="${esc(ex.m)}|${esc(ex.n)}">${esc(ex.n)}</option>`).join('')}</optgroup>`
@@ -1494,11 +1647,12 @@
           </div>
           ${d.ex.length
             ? d.ex.map((ex,ei) => `<div class="builder-ex">
-                <img src="${esc(imageFor(ex.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
+                <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
                 <div class="builder-ex-info">
                   <div class="builder-ex-muscle" style="color:${styleFor(ex.m).c}">${esc(ex.m)}</div>
-                  <div class="builder-ex-name">${esc(ex.n)}</div>
+                  <div class="builder-ex-name">${esc(ex.n)}${ex.superset ? `<span class="superset-badge">${t('supersetGroup',{group:esc(ex.superset)})}</span>` : ''}</div>
                 </div>
+                <select class="builder-mini-select" data-superset="${di}|${ei}">${['','A','B','C','D'].map(g=>`<option value="${g}" ${(ex.superset||'')===g?'selected':''}>${g?('SS '+g):'-'}</option>`).join('')}</select>
                 <button class="builder-mini" data-mvup="${di}|${ei}" title="${t('moveUpTitle')}">↑</button>
                 <button class="builder-mini" data-mvdn="${di}|${ei}" title="${t('moveDownTitle')}">↓</button>
                 <button class="builder-mini" data-rmex="${di}|${ei}" title="${t('removeTitle')}" style="color:var(--red)">×</button>
@@ -1604,7 +1758,12 @@
       const val = $('addex-'+di)?.value||'';
       const [m,n] = val.split('|');
       if (!n) return;
-      planDraft.days[di].ex.push({id:'c_'+Date.now()+'_'+Math.random().toString(36).slice(2), m, n});
+      planDraft.days[di].ex.push({id:'c_'+Date.now()+'_'+Math.random().toString(36).slice(2), m, n, superset:''});
+      renderPlanBuilder();
+    }));
+    document.querySelectorAll('[data-superset]').forEach(sel => sel.addEventListener('change', () => {
+      const [di,ei]=sel.dataset.superset.split('|').map(Number);
+      if (planDraft?.days?.[di]?.ex?.[ei]) planDraft.days[di].ex[ei].superset = sel.value;
       renderPlanBuilder();
     }));
     document.querySelectorAll('[data-rmday]').forEach(b => b.addEventListener('click', () => {
@@ -1646,11 +1805,67 @@
   function setTheme(th)  { S.set('theme_' + user, th); S.set('theme_default', th); applySavedTheme(); renderSettings(); }
   function applySavedTheme() { document.body.classList.toggle('light-mode', getTheme()==='light'); }
 
+  function isBackupKey(key) {
+    const prefixes = ['pinnedPlans_','theme_','trainingLog_','sessions_','prs_','done_','h_','lastWorkoutSummary_','deload_'];
+    return ['users','customPlans','customExercises','hiddenExercises','favoriteExercises','exerciseCategories','theme_default','lang','gb_data_model_version','gb_app_version','restTimerPos'].includes(key) || prefixes.some(p => key.startsWith(p));
+  }
+  function exportBackup() {
+    const data = {};
+    S.keys().filter(isBackupKey).forEach(k => { data[k] = S.get(k, null); });
+    const payload = {app:'GymBaddies', version:APP_VERSION, modelVersion:DATA_MODEL_VERSION, exportedAt:new Date().toISOString(), data};
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gymbaddies-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1200);
+    showToast(t('exportDone'));
+  }
+  function importBackupFile(file) {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const payload = JSON.parse(r.result);
+        const data = payload?.data;
+        if (!data || typeof data !== 'object') throw new Error('invalid backup');
+        Object.keys(data).filter(isBackupKey).forEach(k => S.set(k, data[k]));
+        loadPlans();
+        runMigrations();
+        currentLang = S.get('lang', currentLang);
+        document.documentElement.lang = currentLang;
+        if (user && !getUsers().includes(user)) user = getUsers()[0] || null;
+        if (user) { progressUser = user; applySavedTheme(); renderUserScreen(); renderSettings(); }
+        else { goUsers(); }
+        if (window.GBCloudSync) window.GBCloudSync.push(true);
+        showToast(t('importDone'));
+      } catch (err) { showToast(t('importInvalid')); }
+    };
+    r.readAsText(file);
+  }
+
+  function runAppSelfTest() {
+    const checks = [];
+    const check = (ok, msg) => checks.push({ok:!!ok, msg});
+    check(Array.isArray(getUsers()), 'Profile lesbar');
+    check(Object.keys(plans).length > 0, 'Pläne geladen');
+    check(getExerciseDB(true).length > 0, 'Übungsdatenbank geladen');
+    check(typeof window.Chart === 'function', 'Chart lokal verfügbar');
+    check(!!window.supabase?.createClient, 'Supabase-Client lokal verfügbar');
+    check(Number(S.get('gb_data_model_version', 0)) >= DATA_MODEL_VERSION, 'Datenmodell migriert');
+    const bad = checks.filter(c => !c.ok);
+    const el = $('self-test-result');
+    if (!el) return;
+    el.className = 'self-test-result ' + (bad.length ? 'bad' : 'ok');
+    el.textContent = bad.length ? t('selfTestFail') + ' ' + bad.map(b=>b.msg).join(', ') : t('selfTestOK');
+  }
+
   function renderSettings() {
     const theme = getTheme();
     const lang  = currentLang;
     const users = getUsers();
     const configured = !!(window.GBCloudSync?.isConfigured?.());
+    const deload = isDeloadOn();
 
     $('settings-content').innerHTML = `
       <div class="settings-card">
@@ -1677,7 +1892,29 @@
       </div>
 
       <div class="settings-card">
-        <div class="settings-title">💪 ${t('exerciseDBLabel')}</div>
+        <div class="settings-title">${t('backupLabel')}</div>
+        <div class="builder-sub">${t('backupDesc')}</div>
+        <div class="builder-row backup-row">
+          <button class="builder-btn" id="backup-export" type="button">${t('exportData')}</button>
+          <label class="builder-btn secondary import-backup-label" for="backup-import">${t('importData')}</label>
+          <input id="backup-import" type="file" accept="application/json" style="display:none">
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">${t('deloadLabel')}</div>
+        <div class="builder-sub">${t('deloadDesc')}</div>
+        <button class="theme-btn ${deload?'active':''}" id="toggle-deload" type="button" style="width:100%;margin-top:8px">${deload ? t('deloadLabel') + ' aktiv' : t('deloadLabel') + ' aus'}</button>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">${t('selfTest')}</div>
+        <button class="settings-action" id="run-self-test" type="button" style="width:100%;margin-top:8px">${t('selfTestRun')}</button>
+        <div id="self-test-result" class="self-test-result"></div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">${t('exerciseDBLabel')}</div>
         <button class="settings-action" id="open-exdb" type="button" style="width:100%;margin-top:8px">${t('exerciseDBLabel')}</button>
       </div>
 
@@ -1702,6 +1939,10 @@
     $('l-de').addEventListener('click', () => applyLanguage('de'));
     $('l-en').addEventListener('click', () => applyLanguage('en'));
     $('l-th').addEventListener('click', () => applyLanguage('th'));
+    $('backup-export')?.addEventListener('click', exportBackup);
+    $('backup-import')?.addEventListener('change', e => importBackupFile(e.target.files[0]));
+    $('toggle-deload')?.addEventListener('click', () => { S.set('deload_' + user, !isDeloadOn()); renderSettings(); });
+    $('run-self-test')?.addEventListener('click', runAppSelfTest);
     $('open-exdb').addEventListener('click', renderExerciseEditor);
     updateNetworkStatus();
 
@@ -1718,6 +1959,11 @@
           saveUsers(remainingUsers);
           // Remove known user-bound local data for this profile.
           S.keys().forEach(key => {
+            if (key.startsWith('h_')) {
+              const kept = S.get(key, []).filter(e => e.user !== name);
+              if (kept.length) S.set(key, kept); else S.remove(key);
+              return;
+            }
             if (key === 'sessions_'+name || key === 'prs_'+name || key === 'trainingLog_'+name || key === 'pinnedPlans_'+name || key === 'theme_'+name || key.endsWith('_'+name) || key.includes('_'+name+'_')) S.remove(key);
           });
           showToast(t('profileDeleted'));
@@ -1736,132 +1982,144 @@
 
   // ── Exercise DB editor (in settings) ──────────────────────────────────────
   function renderExerciseEditor() {
-    const allEx = getExerciseDB();
+    const search = S.get('edb_search', '');
+    const catFilter = S.get('edb_cat_filter', '');
+    const favOnly = !!S.get('edb_fav_only', false);
+    const hidden = new Set(getHiddenExercises());
+    const cats = getExerciseCategories();
+    const allEx = getExerciseDB(true);
+    const catList = [...new Set(allEx.map(ex => cats[ex.n] || ex.cat || ex.m).filter(Boolean))].sort();
+    const filtered = allEx.filter(ex => {
+      if (hidden.has(ex.n)) return false;
+      const cat = cats[ex.n] || ex.cat || ex.m;
+      const hay = (ex.n + ' ' + ex.m + ' ' + cat).toLowerCase();
+      return (!search || hay.includes(search.toLowerCase())) && (!catFilter || cat === catFilter) && (!favOnly || isFavoriteExercise(ex.n));
+    }).sort((a,b)=>Number(isFavoriteExercise(b.n))-Number(isFavoriteExercise(a.n)) || a.n.localeCompare(b.n));
     const groups = {};
-    allEx.forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
+    filtered.forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
 
     let html = `<div class="settings-card">
       <button class="builder-btn secondary" id="back-settings" type="button" style="margin-bottom:14px">${t('back')}</button>
-      <div class="settings-title">💪 ${t('exerciseDBLabel')}</div>
-      <!-- Add new -->
+      <div class="settings-title">${t('exerciseDBLabel')}</div>
+      <div class="exercise-toolbar">
+        <input class="builder-input" id="edb-search" placeholder="${t('searchExercises')}" value="${esc(search)}" autocomplete="off">
+        <select class="builder-select" id="edb-cat-filter"><option value="">${t('allCategories')}</option>${catList.map(c=>`<option value="${esc(c)}" ${c===catFilter?'selected':''}>${esc(c)}</option>`).join('')}</select>
+        <button class="builder-btn secondary ${favOnly?'active':''}" id="edb-fav-only" type="button">${t('favOnly')}</button>
+      </div>
       <div class="custom-ex-section">
         <div class="quick-label" style="margin:12px 0 8px">${t('addExercise')}</div>
-        <select class="builder-select" id="edb-muscle">
-          ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
-        </select>
+        <select class="builder-select" id="edb-muscle">${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
         <input class="builder-input" id="edb-name" placeholder="${t('exerciseName')}" maxlength="50">
         <input class="builder-input" id="edb-url" placeholder="${t('imageUrlPlaceholder')}">
-        <div class="file-upload-row">
-          <label class="file-upload-btn" for="edb-file">📷 ${t('uploadShort')}</label>
-          <input id="edb-file" type="file" accept="image/*" style="display:none">
-          <span id="edb-fname" class="file-name-hint"></span>
-        </div>
+        <div class="file-upload-row"><label class="file-upload-btn" for="edb-file">${t('uploadShort')}</label><input id="edb-file" type="file" accept="image/*" style="display:none"><span id="edb-fname" class="file-name-hint"></span></div>
         <button class="builder-btn" id="edb-add" type="button" style="width:100%;margin-top:8px">${t('addExercise')}</button>
       </div>
     </div>`;
 
+    if (!filtered.length) html += `<div class="settings-card"><div class="exercise-search-empty">${t('noExercisesDB')}</div></div>`;
     Object.keys(groups).forEach(muscle => {
       const st = styleFor(muscle);
-      html += `<details class="edb-group" open>
-        <summary style="color:${st.c}">${esc(muscle)}</summary>
-        ${groups[muscle].map(ex => `
-          <div class="builder-ex edb-ex-row">
-            <img src="${esc(imageFor(ex.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG"
-              style="width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0">
-            <div class="builder-ex-info" style="flex:1;min-width:0">
-              <input class="builder-input" data-rename-from="${esc(ex.n)}"
-                value="${esc(ex.n)}" style="margin:0;min-height:38px;font-size:13px">
-            </div>
-            <input type="file" accept="image/*" id="edbf_${esc(ex.n).replace(/\W/g,'_')}"
-              style="display:none" data-img-for="${esc(ex.n)}">
-            <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="${t('imageTitle')}">🖼</button>
-            <button class="builder-mini" data-del-ex="${esc(ex.n)}" type="button"
-              title="${t('deleteTitle')}" style="color:var(--red)">×</button>
-          </div>`).join('')}
-      </details>`;
+      html += `<details class="edb-group" open><summary style="color:${st.c}">${esc(muscle)}</summary>${groups[muscle].map(ex => {
+        const id = ex.n.replace(/\W/g,'_');
+        const cat = cats[ex.n] || ex.cat || ex.m;
+        const fav = isFavoriteExercise(ex.n);
+        return `<div class="builder-ex edb-ex-row ${fav?'fav':''}">
+          <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} style="width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0">
+          <div class="builder-ex-info" style="flex:1;min-width:0">
+            <input class="builder-input" data-rename-from="${esc(ex.n)}" value="${esc(ex.n)}" style="margin:0;min-height:38px;font-size:13px">
+            <div class="edb-meta-row"><span>${t('category')}</span><input class="builder-input edb-cat-input" data-cat-for="${esc(ex.n)}" value="${esc(cat)}"></div>
+          </div>
+          <button class="builder-mini fav-btn ${fav?'active':''}" data-edb-fav="${esc(ex.n)}" type="button" title="${t('favorite')}">★</button>
+          <input type="file" accept="image/*" id="edbf_${esc(id)}" style="display:none" data-img-for="${esc(ex.n)}">
+          <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="${t('imageTitle')}">Bild</button>
+          <button class="builder-mini" data-hide-ex="${esc(ex.n)}" type="button" title="${t('hideExercise')}">−</button>
+          <button class="builder-mini" data-del-ex="${esc(ex.n)}" type="button" title="${t('deleteTitle')}" style="color:var(--red)">×</button>
+        </div>`;
+      }).join('')}</details>`;
     });
+    const hiddenItems = allEx.filter(ex => hidden.has(ex.n));
+    if (hiddenItems.length) html += `<div class="settings-card"><div class="settings-title">${t('hiddenExercisesLabel')}</div><div class="hidden-list">${hiddenItems.map(ex => `<button class="builder-btn secondary" data-restore-ex="${esc(ex.n)}" type="button">${esc(ex.n)} · ${t('restore')}</button>`).join('')}</div></div>`;
 
     $('settings-content').innerHTML = html;
     $('back-settings').addEventListener('click', renderSettings);
-    $('edb-file').addEventListener('change', e => { $('edb-fname').textContent = e.target.files[0]?.name||''; });
+    $('edb-search')?.addEventListener('input', e => { S.set('edb_search', e.target.value || ''); renderExerciseEditor(); setTimeout(() => { const inp=$('edb-search'); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } }, 0); });
+    $('edb-cat-filter')?.addEventListener('change', e => { S.set('edb_cat_filter', e.target.value || ''); renderExerciseEditor(); });
+    $('edb-fav-only')?.addEventListener('click', () => { S.set('edb_fav_only', !favOnly); renderExerciseEditor(); });
+    $('edb-file')?.addEventListener('change', e => { $('edb-fname').textContent = e.target.files[0]?.name||''; });
 
-    // Add new exercise
     $('edb-add').addEventListener('click', () => {
       const muscle = $('edb-muscle').value;
-      const name   = ($('edb-name').value||'').trim();
-      const url    = ($('edb-url').value||'').trim();
-      const file   = $('edb-file').files[0];
+      const name = ($('edb-name').value||'').trim();
+      const url = ($('edb-url').value||'').trim();
+      const file = $('edb-file').files[0];
       if (!name) { showToast(t('nameRequired')); return; }
       const doSave = img => {
         const items = getCustomExercises();
-        if (!items.find(e=>e.n===name)) items.push({m:muscle,n:name,image:img||''});
-        saveCustomExercises(items);
+        const ex = items.find(e=>e.n===name);
+        if (ex) { ex.m = muscle; if (img) ex.image = img; }
+        else items.push({m:muscle,n:name,image:img||''});
+        saveCustomExercises(items); setExerciseHidden(name, false);
         if (img) D.IMAGES[name] = img;
         loadPlans(); showToast(t('exerciseSaved'));
         if (window.GBCloudSync) window.GBCloudSync.push(true);
         renderExerciseEditor();
       };
       if (file) {
-        if (window.GBCloudSync?.uploadImage) {
-          window.GBCloudSync.uploadImage(file, name).then(u => {
-            if (u) doSave(u); else { const r=new FileReader(); r.onload=()=>doSave(r.result); r.readAsDataURL(file); }
-          });
-        } else { const r=new FileReader(); r.onload=()=>doSave(r.result); r.readAsDataURL(file); }
+        if (window.GBCloudSync?.uploadImage) window.GBCloudSync.uploadImage(file, name).then(u => { if (u) doSave(u); else { const r=new FileReader(); r.onload=()=>doSave(r.result); r.readAsDataURL(file); } });
+        else { const r=new FileReader(); r.onload=()=>doSave(r.result); r.readAsDataURL(file); }
       } else doSave(url);
     });
 
-    // Image upload buttons
+    document.querySelectorAll('[data-edb-fav]').forEach(btn => btn.addEventListener('click', () => { setFavoriteExercise(btn.dataset.edbFav, !isFavoriteExercise(btn.dataset.edbFav)); renderExerciseEditor(); }));
+    document.querySelectorAll('[data-cat-for]').forEach(inp => inp.addEventListener('change', () => { const map = getExerciseCategories(); map[inp.dataset.catFor] = inp.value.trim() || muscleForExercise(inp.dataset.catFor); setExerciseCategories(map); renderExerciseEditor(); }));
+    document.querySelectorAll('[data-hide-ex]').forEach(btn => btn.addEventListener('click', () => { setExerciseHidden(btn.dataset.hideEx, true); renderExerciseEditor(); }));
+    document.querySelectorAll('[data-restore-ex]').forEach(btn => btn.addEventListener('click', () => { setExerciseHidden(btn.dataset.restoreEx, false); renderExerciseEditor(); }));
+
     document.querySelectorAll('[data-img-btn]').forEach(btn => {
-      const n    = btn.dataset.imgBtn;
-      const inp  = document.getElementById('edbf_' + n.replace(/\W/g,'_'));
+      const n = btn.dataset.imgBtn;
+      const inp = document.getElementById('edbf_' + n.replace(/\W/g,'_'));
       btn.addEventListener('click', () => inp?.click());
       inp?.addEventListener('change', e => {
         const f = e.target.files[0]; if (!f) return;
         const doImg = url => {
           const items = getCustomExercises();
           const ex = items.find(e=>e.n===n);
-          if (ex) ex.image=url; else items.push({m:'Brust',n,image:url});
+          if (ex) ex.image=url; else items.push({m:muscleForExercise(n),n,image:url});
           saveCustomExercises(items); D.IMAGES[n]=url;
           if (window.GBCloudSync) window.GBCloudSync.push(true);
           showToast(t('imageSaved')); renderExerciseEditor();
         };
-        if (window.GBCloudSync?.uploadImage) {
-          window.GBCloudSync.uploadImage(f,n).then(u=>{
-            if(u) doImg(u); else { const r=new FileReader(); r.onload=()=>doImg(r.result); r.readAsDataURL(f); }
-          });
-        } else { const r=new FileReader(); r.onload=()=>doImg(r.result); r.readAsDataURL(f); }
+        if (window.GBCloudSync?.uploadImage) window.GBCloudSync.uploadImage(f,n).then(u=>{ if(u) doImg(u); else { const r=new FileReader(); r.onload=()=>doImg(r.result); r.readAsDataURL(f); } });
+        else { const r=new FileReader(); r.onload=()=>doImg(r.result); r.readAsDataURL(f); }
       });
     });
 
-    // Rename
-    document.querySelectorAll('[data-rename-from]').forEach(inp => {
-      inp.addEventListener('change', () => {
-        const oldName = inp.dataset.renameFrom;
-        const newName = inp.value.trim();
-        if (!newName || newName===oldName) return;
-        const items = getCustomExercises();
-        const ex = items.find(e=>e.n===oldName);
-        if (ex) ex.n=newName; else items.push({m:'Brust',n:newName});
-        saveCustomExercises(items);
-        if (D.IMAGES[oldName]) { D.IMAGES[newName]=D.IMAGES[oldName]; delete D.IMAGES[oldName]; }
-        loadPlans();
-        if (window.GBCloudSync) window.GBCloudSync.push(true);
-        showToast(t('renamedTo')); inp.dataset.renameFrom=newName;
-      });
-    });
+    document.querySelectorAll('[data-rename-from]').forEach(inp => inp.addEventListener('change', () => {
+      const oldName = inp.dataset.renameFrom;
+      const newName = inp.value.trim();
+      if (!newName || newName===oldName) return;
+      const items = getCustomExercises();
+      const ex = items.find(e=>e.n===oldName);
+      if (ex) ex.n=newName; else items.push({m:muscleForExercise(oldName),n:newName,image:D.IMAGES[oldName]||''});
+      const fav = getFavoriteExercises().map(n=>n===oldName?newName:n); setFavoriteExercises(fav);
+      const hidden = getHiddenExercises().map(n=>n===oldName?newName:n); setHiddenExercises(hidden);
+      const map = getExerciseCategories(); if (map[oldName]) { map[newName]=map[oldName]; delete map[oldName]; setExerciseCategories(map); }
+      if (D.IMAGES[oldName]) { D.IMAGES[newName]=D.IMAGES[oldName]; delete D.IMAGES[oldName]; }
+      saveCustomExercises(items); loadPlans(); if (window.GBCloudSync) window.GBCloudSync.push(true);
+      showToast(t('renamedTo')); renderExerciseEditor();
+    }));
 
-    // Delete exercise
-    document.querySelectorAll('[data-del-ex]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const name = btn.dataset.delEx;
-        if (!confirm(t('deleteExerciseConfirm',{name}))) return;
-        saveCustomExercises(getCustomExercises().filter(e=>e.n!==name));
-        D.EXERCISE_DB = (D.EXERCISE_DB||[]).filter(e=>e.n!==name);
-        loadPlans();
-        if (window.GBCloudSync) window.GBCloudSync.push(true);
-        showToast(t('exerciseDeleted')); renderExerciseEditor();
-      });
-    });
+    document.querySelectorAll('[data-del-ex]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.delEx;
+      if (!confirm(t('deleteExerciseConfirm',{name}))) return;
+      const before = getCustomExercises();
+      const after = before.filter(e=>e.n!==name);
+      if (after.length !== before.length) saveCustomExercises(after); else setExerciseHidden(name, true);
+      setFavoriteExercise(name, false);
+      const map = getExerciseCategories(); delete map[name]; setExerciseCategories(map);
+      loadPlans(); if (window.GBCloudSync) window.GBCloudSync.push(true);
+      showToast(t('exerciseDeleted')); renderExerciseEditor();
+    }));
   }
 
 
@@ -1900,15 +2158,39 @@
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
-  function migrateLegacy() {
+  function runMigrations() {
     const users = getUsers();
     const old = S.get('pinnedPlans', null);
     if (Array.isArray(old) && users.length) {
       users.forEach(n => { if (!S.get('pinnedPlans_'+n,null)) S.set('pinnedPlans_'+n,old); });
       S.remove('pinnedPlans');
     }
+    if (!Array.isArray(S.get('hiddenExercises', null))) S.set('hiddenExercises', []);
+    if (!Array.isArray(S.get('favoriteExercises', null))) S.set('favoriteExercises', []);
+    if (!S.get('exerciseCategories', null) || typeof S.get('exerciseCategories', null) !== 'object') S.set('exerciseCategories', {});
+    users.forEach(n => { if (S.get('deload_' + n, null) === null) S.set('deload_' + n, false); });
+    S.keys().filter(k => k.startsWith('h_')).forEach(k => {
+      const exId = k.slice(2);
+      const ref = Object.values(plans).flatMap(p=>p.flatMap(d=>d.ex)).find(e=>e.id===exId);
+      const rows = S.get(k, []);
+      if (!Array.isArray(rows)) return;
+      let changed = false;
+      const fixed = rows.map(row => {
+        const r = Object.assign({}, row);
+        if (!r.exercise && ref?.n) { r.exercise = ref.n; changed = true; }
+        if (!r.muscle) { r.muscle = ref?.m || muscleForExercise(r.exercise); changed = true; }
+        if (!r.ts) { r.ts = Date.now(); changed = true; }
+        if (Array.isArray(r.sets)) {
+          r.sets = r.sets.map(set => set.type ? set : Object.assign({type:'normal'}, set));
+        }
+        return r;
+      }).sort((a,b)=>(a.ts||0)-(b.ts||0));
+      if (changed) S.set(k, fixed.slice(-120));
+    });
+    S.set('gb_data_model_version', DATA_MODEL_VERSION);
+    S.set('gb_app_version', APP_VERSION);
   }
-
+  function migrateLegacy() { runMigrations(); }
 
   function installDraggableTimer() {
     const box = $('rest-float');
@@ -1947,7 +2229,7 @@
     document.documentElement.lang=currentLang;
     renderAccountMenuLabels();
     loadPlans();
-    migrateLegacy();
+    runMigrations();
     applySavedTheme();
     renderUserScreen();
     bindDynamic();
@@ -1973,6 +2255,7 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
     $('tab-home').addEventListener('click', () => setScreen('home'));
     $('tab-train').addEventListener('click', () => setScreen('train'));
+    document.querySelectorAll('[data-screen]').forEach(btn => btn.addEventListener('click', () => setScreen(btn.dataset.screen)));
     $('rest-close').addEventListener('click', () => {
       clearInterval(window.__restInt); window.__restEnd=null;
       $('rest-float').classList.remove('show');
