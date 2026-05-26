@@ -1,0 +1,17 @@
+{
+  "name": "GymBaddies",
+  "short_name": "GymBaddies",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#ff3b30",
+  "description": "Mobile Trainingsplan- und Fortschritts-App",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
