@@ -37,7 +37,7 @@
       addHint: 'Button wird rot sobald ein Name eingetragen ist.',
       // Nav
       navHome: '🏠 Home', navTrain: '🏋️ Training', navProgress: '📈 Fortschritt',
-      navPlans: '🛠️ Pläne',
+      navPlans: '🛠️ Pläne', menuPlans: '🛠️ Pläne',
       // Home
       greeting: 'Hi {name} 👋',
       lastTraining: 'Zuletzt: {plan} · {label} am {date}',
@@ -69,6 +69,10 @@
       fillLastBtn: '↩ Letzte Werte',
       progressBtn: '📊 Fortschritt',
       setsSaved: 'Einheit gespeichert',
+      saveSession: 'Einheit speichern',
+      editSession: 'Einheit bearbeiten',
+      savedBadge: 'Gespeichert',
+      exerciseSwapped: 'Übung getauscht.',
       restRunning: 'Pause',
       // Finish
       finishBtn: 'Training beenden ({done}/{total})',
@@ -115,8 +119,12 @@
       deleteProfile: 'Löschen',
       exerciseDBLabel: 'Übungsdatenbank bearbeiten',
       cloudLabel: '☁️ Cloud-Sync',
-      cloudConnected: 'Verbunden · Auto-Sync aktiv',
-      cloudOffline: 'Offline · lokal gespeichert',
+      cloudConnected: 'Online',
+      cloudOffline: 'Offline',
+      statusOnline: 'Online',
+      statusOffline: 'Offline',
+      planSearch: 'Pläne suchen…',
+      swapFilterAll: 'Alle Muskelgruppen',
       addExercise: 'Übung hinzufügen',
       back: '← Zurück',
       // Misc
@@ -142,6 +150,7 @@
       deleteExerciseConfirm: 'Übung "{name}" löschen?',
       repsPlaceholder: 'Wdh',
       repsHeader: 'Wdh.',
+      avgWeight: 'Ø Gewicht (kg)', avgReps: 'Ø Wiederholungen', pinnedTag: '📌 Angeheftet', imageUrlPlaceholder: 'Bild-URL (optional)', removeDayTitle: 'Tag entfernen', moveUpTitle: 'Nach oben', moveDownTitle: 'Nach unten', removeTitle: 'Entfernen', uploadShort: 'Hochladen', imageTitle: 'Bild', deleteTitle: 'Löschen',
       timerDone: 'Fertig ✓',
       noPlanShort: 'Keinen Plan gefunden.',
       activePercent: '% abgeschlossen',
@@ -156,7 +165,7 @@
       addBtn: '+',
       addHint: 'Button turns red once a name is entered.',
       navHome: '🏠 Home', navTrain: '🏋️ Training', navProgress: '📈 Progress',
-      navPlans: '🛠️ Plans',
+      navPlans: '🛠️ Plans', menuPlans: '🛠️ Plans',
       greeting: 'Hi {name} 👋',
       lastTraining: 'Last: {plan} · {label} on {date}',
       noTrainingYet: 'No training completed yet.',
@@ -186,6 +195,10 @@
       fillLastBtn: '↩ Last values',
       progressBtn: '📊 Progress',
       setsSaved: 'Session saved',
+      saveSession: 'Save session',
+      editSession: 'Edit session',
+      savedBadge: 'Saved',
+      exerciseSwapped: 'Exercise swapped.',
       restRunning: 'Rest',
       finishBtn: 'End training ({done}/{total})',
       finishReady: '🎉 Finish',
@@ -228,8 +241,12 @@
       deleteProfile: 'Delete',
       exerciseDBLabel: 'Edit exercise database',
       cloudLabel: '☁️ Cloud Sync',
-      cloudConnected: 'Connected · Auto-Sync active',
-      cloudOffline: 'Offline · saved locally',
+      cloudConnected: 'Online',
+      cloudOffline: 'Offline',
+      statusOnline: 'Online',
+      statusOffline: 'Offline',
+      planSearch: 'Search plans…',
+      swapFilterAll: 'All muscle groups',
       addExercise: 'Add exercise',
       back: '← Back',
       noPlanTitle: 'No plan selected',
@@ -254,6 +271,7 @@
       deleteExerciseConfirm: 'Delete exercise "{name}"?',
       repsPlaceholder: 'Reps',
       repsHeader: 'Reps',
+      avgWeight: 'Avg. weight (kg)', avgReps: 'Avg. reps', pinnedTag: '📌 Pinned', imageUrlPlaceholder: 'Image URL (optional)', removeDayTitle: 'Remove day', moveUpTitle: 'Move up', moveDownTitle: 'Move down', removeTitle: 'Remove', uploadShort: 'Upload', imageTitle: 'Image', deleteTitle: 'Delete',
       timerDone: 'Done ✓',
       noPlanShort: 'No plan found.',
       activePercent: '% done',
@@ -268,7 +286,7 @@
       addBtn: '+',
       addHint: 'ปุ่มจะเป็นสีแดงเมื่อกรอกชื่อ',
       navHome: '🏠 หน้าหลัก', navTrain: '🏋️ ฝึก', navProgress: '📈 ความก้าวหน้า',
-      navPlans: '🛠️ แผน',
+      navPlans: '🛠️ แผน', menuPlans: '🛠️ แผน',
       greeting: 'สวัสดี {name} 👋',
       lastTraining: 'ล่าสุด: {plan} · {label} เมื่อ {date}',
       noTrainingYet: 'ยังไม่เคยฝึก',
@@ -298,6 +316,10 @@
       fillLastBtn: '↩ ค่าล่าสุด',
       progressBtn: '📊 ความก้าวหน้า',
       setsSaved: 'บันทึกเซตแล้ว',
+      saveSession: 'บันทึกเซต',
+      editSession: 'แก้ไขเซต',
+      savedBadge: 'บันทึกแล้ว',
+      exerciseSwapped: 'เปลี่ยนท่าแล้ว',
       restRunning: 'พัก',
       finishBtn: 'จบการฝึก ({done}/{total})',
       finishReady: '🎉 จบเลย',
@@ -340,8 +362,12 @@
       deleteProfile: 'ลบ',
       exerciseDBLabel: 'แก้ไขฐานข้อมูลท่า',
       cloudLabel: '☁️ คลาวด์ซิงค์',
-      cloudConnected: 'เชื่อมต่อแล้ว · ซิงค์อัตโนมัติ',
-      cloudOffline: 'ออฟไลน์ · บันทึกในเครื่อง',
+      cloudConnected: 'ออนไลน์',
+      cloudOffline: 'ออฟไลน์',
+      statusOnline: 'ออนไลน์',
+      statusOffline: 'ออฟไลน์',
+      planSearch: 'ค้นหาแผน…',
+      swapFilterAll: 'กล้ามเนื้อทั้งหมด',
       addExercise: 'เพิ่มท่า',
       back: '← กลับ',
       noPlanTitle: 'ยังไม่ได้เลือกแผน',
@@ -366,6 +392,7 @@
       deleteExerciseConfirm: 'ลบท่า "{name}" ไหม?',
       repsPlaceholder: 'ครั้ง',
       repsHeader: 'ครั้ง',
+      avgWeight: 'น้ำหนักเฉลี่ย (kg)', avgReps: 'จำนวนครั้งเฉลี่ย', pinnedTag: '📌 ปักหมุดแล้ว', imageUrlPlaceholder: 'URL รูปภาพ (ไม่บังคับ)', removeDayTitle: 'ลบวัน', moveUpTitle: 'เลื่อนขึ้น', moveDownTitle: 'เลื่อนลง', removeTitle: 'ลบ', uploadShort: 'อัปโหลด', imageTitle: 'รูปภาพ', deleteTitle: 'ลบ',
       timerDone: 'เสร็จ ✓',
       noPlanShort: 'ไม่พบแผน',
       activePercent: '% เสร็จ',
@@ -470,8 +497,7 @@
     // Update seg tabs
     const th = $('tab-home');   if (th) th.textContent = t('navHome');
     const tt = $('tab-train');  if (tt) tt.textContent = t('navTrain');
-    const tp = $('tab-progress'); if (tp) tp.textContent = t('navProgress');
-    const tpl = $('top-plans'); if (tpl) tpl.textContent = t('navPlans');
+    const tpl = $('menu-plans'); if (tpl) tpl.textContent = t('menuPlans');
     // Update user screen heading
     const h2 = document.querySelector('#screen-users h2');
     if (h2) h2.textContent = t('whoTrains');
@@ -556,17 +582,16 @@
     Object.keys(ID).forEach(s => { $(ID[s])?.classList.toggle('active', s === next); });
 
     // Header tabs
-    $('tab-home').classList.toggle('active',  next === 'home');
-    $('tab-train').classList.toggle('active', next === 'train');
-    $('tab-progress').classList.toggle('active', next === 'progress');
-    $('top-plans').classList.toggle('active', next === 'plans');
+    $('tab-home')?.classList.toggle('active',  next === 'home' || next === 'progress');
+    $('tab-train')?.classList.toggle('active', next === 'train');
+    $('menu-plans')?.classList.toggle('active', next === 'plans');
 
     // Training-only chrome
     $('daytabs').style.display    = next === 'train' ? 'flex'  : 'none';
     $('split-tabs').style.display = next === 'train' ? 'flex'  : 'none';
     $('finish-bar').style.display = next === 'train' ? 'block' : 'none';
 
-    $('account-menu')?.classList.remove('show');
+    closeMenu();
 
     if      (next === 'home')     { renderDashboard(); }
     else if (next === 'train')    renderTraining();
@@ -681,7 +706,6 @@
         <div class="dash-stat"><strong>${log.length}</strong><span>${t('total')}</span></div>
         <div class="dash-stat"><strong>${Math.round(totalVol/1000)}t</strong><span>${t('volume')}</span></div>
       </div>
-      <div id="home-train-widget" class="home-train-widget"></div>
       <div class="home-section-label">${t('pinnedPlans')}</div>
       ${pinnedHtml}
       ${lastSum ? `<div class="quick-card"><div class="quick-label">${t('lastWorkout')}</div>
@@ -700,9 +724,6 @@
     document.querySelectorAll('[data-start-plan]').forEach(b =>
       b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
     );
-
-    // Home training widget - use setTimeout to ensure DOM is painted
-    setTimeout(renderHomeTrainWidget, 0);
   }
 
   // ── Home training widget ──────────────────────────────────────────────────
@@ -942,22 +963,23 @@
       groups[item.m] = groups[item.m] || [];
       groups[item.m].push(item);
     });
+    const swapFilter = `<select class="swap-filter" data-swap-filter="${original.id}"><option value="">${t('swapFilterAll')}</option>${Object.keys(groups).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>`;
     const swapHtml = Object.keys(groups).map(muscle => `
+      <div class="swap-group" data-swap-group="${esc(muscle)}">
       <div class="swap-group-label">${esc(muscle)}</div>
       <div class="swap-grid">${groups[muscle].map(item => {
         const swapIndex = getExerciseDB().findIndex(e => e.m === item.m && e.n === item.n);
-        return `<div class="swap-card ${item.n===ex.n?'active':''}">
+        return `<button class="swap-card ${item.n===ex.n?'active':''}" type="button"
+          data-swap-id="${original.id}" data-swap-index="${swapIndex}">
           <img src="${esc(imageFor(item.n))}" onerror="this.onerror=null;this.src=GB.FALLBACK_IMG" loading="lazy">
           <div class="swap-card-body">
+            <div class="swap-muscle">${esc(item.m)}</div>
             <div class="swap-name">${esc(item.n)}</div>
-            <button class="swap-select-btn" type="button"
-              data-swap-id="${original.id}" data-swap-index="${swapIndex}">
-              ${item.n===ex.n ? t('activeExercise') : t('selectExercise')}
-            </button>
+            <div class="swap-select-btn">${item.n===ex.n ? t('activeExercise') : t('selectExercise')}</div>
           </div>
-        </div>`;
+        </button>`;
       }).join('')}
-      </div>`).join('');
+      </div></div>`).join('');
 
     return `<div class="ex-card open ${isDone?'edone':''}" id="card_${original.id}" style="border-color:${st.c}55">
       <div class="ex-hero" data-open="${original.id}">
@@ -971,7 +993,7 @@
           <button class="swap-toggle" type="button" data-swap-toggle="${original.id}">
             <span>${t('swapExercise')}</span><span>${swapOpen[original.id]?'−':'+'}</span>
           </button>
-          <div class="swap-content ${swapOpen[original.id]?'open':''}">${swapHtml}
+          <div class="swap-content ${swapOpen[original.id]?'open':''}">${swapFilter}${swapHtml}
             ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">${t('resetSwap')}</button>`:''}
           </div>
         </div>
@@ -988,9 +1010,9 @@
           <button class="rest-btn" type="button" data-rest="90">${t('rest90')}</button>
           <button class="rest-btn" type="button" data-rest="180">${t('rest180')}</button>
         </div>
-        <button class="save-btn" type="button"
+        <button class="save-btn ${isDone?'saved':''}" type="button"
           data-saveex="${original.id}" data-setcount="${count}"
-          style="background:${st.c}">${t('setsSaved')} ✓</button>
+          style="background:${st.c}">${isDone ? t('editSession') : t('saveSession')}</button>
       </div>
     </div>`;
   }
@@ -1046,7 +1068,7 @@
     }
 
     inner.innerHTML = `<button class="finish-btn ${allDone?'ready':''}" id="finish-btn" type="button">
-      ${allDone ? '🎉 ' + t('yesFinish') : `Training beenden (${done}/${total})`}
+      ${allDone ? t('finishReady') : t('finishBtn',{done,total})}
     </button>`;
     $('finish-btn').addEventListener('click', () => {
       saveCurrentInputs(); finishConfirm = true; renderFinishBar();
@@ -1110,8 +1132,8 @@
           saveCurrentInputs();
           daySwaps[swapKey(sw.dataset.swapId)] = {id:sw.dataset.swapId, m:item.m, n:item.n, swapped:true};
           openExercise = sw.dataset.swapId;
-          swapOpen[sw.dataset.swapId] = false;
-          showToast(t('setsSaved'));
+          swapOpen[sw.dataset.swapId] = true;
+          showToast(t('exerciseSwapped'));
           renderTraining();
         }
         return;
@@ -1122,6 +1144,16 @@
       // Swap reset
       const swr = e.target.closest('[data-swap-reset]');
       if (swr) { delete daySwaps[swapKey(swr.dataset.swapReset)]; openExercise = swr.dataset.swapReset; renderTraining(); return; }
+    });
+
+    document.addEventListener('change', e => {
+      const filter = e.target.closest('[data-swap-filter]');
+      if (!filter) return;
+      const value = filter.value;
+      const box = filter.closest('.swap-content');
+      box?.querySelectorAll('[data-swap-group]').forEach(group => {
+        group.style.display = !value || group.dataset.swapGroup === value ? '' : 'none';
+      });
     });
 
     // Auto-start timer when both kg+reps filled
@@ -1169,9 +1201,17 @@
       }
     });
 
-    S.set('h_' + id, [...getHistory(id), entry].slice(-80));
+    const histNow = getHistory(id);
+    const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date);
+    if (sameIdx >= 0) histNow[sameIdx] = entry;
+    else histNow.push(entry);
+    S.set('h_' + id, histNow.slice(-80));
+
     const sess = S.get('sessions_'+user,[]);
-    sess.push({date:dateStr(), day, plan, exercise:entry.exercise, ts:Date.now()});
+    const sIdx = sess.findIndex(e => e.date===dateStr() && e.day===day && e.plan===plan && e.exercise===entry.exercise);
+    const sEntry = {date:dateStr(), day, plan, exercise:entry.exercise, ts:Date.now()};
+    if (sIdx >= 0) sess[sIdx] = sEntry;
+    else sess.push(sEntry);
     S.set('sessions_'+user, sess.slice(-300));
     S.set(doneKey(id), true);
     openExercise = null;
@@ -1226,7 +1266,7 @@
     if (!progressExercise || !exList.find(e=>e.n===progressExercise)) {
       progressExercise = exList[0]?.n || null;
     }
-    if (!progressExercise) { $('prog-content').innerHTML = '<div class="empty-state"><p>Keine Übungen.</p></div>'; return; }
+    if (!progressExercise) { $('prog-content').innerHTML = '<div class="empty-state"><p>'+t('noExercisesDB')+'</p></div>'; return; }
 
     const cur = exList.find(e=>e.n===progressExercise) || exList[0];
     const st  = styleFor(cur.m);
@@ -1266,9 +1306,9 @@
       const maxReps = Math.max(...hist.flatMap(e=>e.sets.map(s=>parseFloat(s.reps)||0)));
       const vol     = Math.round(hist.reduce((s,e)=>s+(e.sets||[]).reduce((a,set)=>a+(parseFloat(set.kg)||0)*(parseFloat(set.reps)||0),0),0));
       html += `<div class="stats-row">
-        <div class="stat"><div class="stat-val" style="color:${st.c}">${hist.length}</div><div class="stat-lbl">Einheiten</div></div>
-        <div class="stat"><div class="stat-val" style="color:${st.c}">${maxKg}kg</div><div class="stat-lbl">Max kg</div></div>
-        <div class="stat"><div class="stat-val" style="color:${st.c}">${vol}</div><div class="stat-lbl">Volumen</div></div>
+        <div class="stat"><div class="stat-val" style="color:${st.c}">${hist.length}</div><div class="stat-lbl">${t('sessions')}</div></div>
+        <div class="stat"><div class="stat-val" style="color:${st.c}">${maxKg}kg</div><div class="stat-lbl">${t('maxKg')}</div></div>
+        <div class="stat"><div class="stat-val" style="color:${st.c}">${vol}</div><div class="stat-lbl">${t('volLabel')}</div></div>
       </div>`;
     }
     html += '</div>';
@@ -1283,8 +1323,8 @@
     const kgData   = hist.map(h=>avg(h.sets.map(s=>parseFloat(s.kg)||0)));
     const repsData = hist.map(h=>avg(h.sets.map(s=>parseFloat(s.reps)||0)));
 
-    html += '<div class="chart-box"><div class="chart-lbl">Ø Gewicht (kg)</div><canvas id="cKg"></canvas></div>';
-    html += '<div class="chart-box"><div class="chart-lbl">Ø Wiederholungen</div><canvas id="cRp"></canvas></div>';
+    html += '<div class="chart-box"><div class="chart-lbl">'+t('avgWeight')+'</div><canvas id="cKg"></canvas></div>';
+    html += '<div class="chart-box"><div class="chart-lbl">'+t('avgReps')+'</div><canvas id="cRp"></canvas></div>';
     html += `<div class="sec-lbl">${t('logLabel')}</div>`;
     html += [...hist].reverse().map(e => `<div class="log-entry">
       <div class="log-top"><span class="log-d" style="color:${st.c}">${e.date}</span><span class="log-u">${esc(e.user)}</span></div>
@@ -1328,6 +1368,7 @@
     let html = `<div class="builder-card">
       <div class="builder-title">${t('planLibTitle')}</div>
       <div class="builder-sub">${t('planLibDesc')}</div>
+      <input class="builder-input plan-search-input" id="plan-search" placeholder="${t('planSearch')}" autocomplete="off">
     </div>`;
 
     // Library list
@@ -1335,10 +1376,10 @@
       const p = plans[name] || [];
       const isBase = basePlanNames.includes(name);
       const isPinned = pinned.has(name);
-      html += `<div class="plan-lib-card">
+      html += `<div class="plan-lib-card" data-plan-filter="${esc(name.toLowerCase())}">
         <div class="plan-lib-head">
           <div>
-            ${isPinned ? '<span class="pinned-tag">📌 Angeheftet</span>' : ''}
+            ${isPinned ? '<span class="pinned-tag">'+t('pinnedTag')+'</span>' : ''}
             <div class="plan-lib-name">${esc(name)}</div>
             <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?(' '+t('template')):''}</div>
           </div>
@@ -1359,7 +1400,7 @@
 
     // New plan section
     html += `<div class="builder-card">
-      <div class="builder-title">➕ Neuen Plan</div>
+      <div class="builder-title">${t('newPlanTitle')}</div>
       <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft?.name||'')}">
       <div class="builder-row">
         <button class="builder-btn" id="btn-blank" type="button">${t('startBlank')}</button>
@@ -1380,9 +1421,9 @@
         ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
       </select>
       <input class="builder-input" id="cex-name" placeholder="${t('exerciseName')}" maxlength="50">
-      <input class="builder-input" id="cex-url" placeholder="Bild-URL (optional)">
+      <input class="builder-input" id="cex-url" placeholder="${t('imageUrlPlaceholder')}">
       <div class="file-upload-row">
-        <label class="file-upload-btn" for="cex-file">📷 Bild hochladen</label>
+        <label class="file-upload-btn" for="cex-file">${t('uploadImage')}</label>
         <input id="cex-file" type="file" accept="image/*" style="display:none">
         <span id="cex-file-name" class="file-name-hint"></span>
       </div>
@@ -1400,7 +1441,7 @@
         <div class="day-builder">
           <div class="day-builder-head">
             <input class="builder-input" data-day-label="${di}" value="${esc(d.label)}" style="margin:0;flex:1">
-            <button class="builder-mini" data-rmday="${di}" type="button" title="Tag entfernen">×</button>
+            <button class="builder-mini" data-rmday="${di}" type="button" title="${t('removeDayTitle')}">×</button>
           </div>
           ${d.ex.length
             ? d.ex.map((ex,ei) => `<div class="builder-ex">
@@ -1409,9 +1450,9 @@
                   <div class="builder-ex-muscle" style="color:${styleFor(ex.m).c}">${esc(ex.m)}</div>
                   <div class="builder-ex-name">${esc(ex.n)}</div>
                 </div>
-                <button class="builder-mini" data-mvup="${di}|${ei}" title="Nach oben">↑</button>
-                <button class="builder-mini" data-mvdn="${di}|${ei}" title="Nach unten">↓</button>
-                <button class="builder-mini" data-rmex="${di}|${ei}" title="Entfernen" style="color:var(--red)">×</button>
+                <button class="builder-mini" data-mvup="${di}|${ei}" title="${t('moveUpTitle')}">↑</button>
+                <button class="builder-mini" data-mvdn="${di}|${ei}" title="${t('moveDownTitle')}">↓</button>
+                <button class="builder-mini" data-rmex="${di}|${ei}" title="${t('removeTitle')}" style="color:var(--red)">×</button>
               </div>`).join('')
             : `<div class="builder-empty">${t('noExercises')}</div>`
           }
@@ -1426,6 +1467,12 @@
 
   function bindBuilderEvents() {
     const name = () => ($('builder-name')?.value || '').trim() || 'Mein Plan';
+    $('plan-search')?.addEventListener('input', e => {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('[data-plan-filter]').forEach(card => {
+        card.style.display = !q || card.dataset.planFilter.includes(q) ? '' : 'none';
+      });
+    });
 
     $('btn-blank')?.addEventListener('click', () => {
       planDraft = {name:name(), days:[{label:'Tag 1', ex:[]}]};
@@ -1493,7 +1540,7 @@
       renderPlanBuilder();
     }));
     document.querySelectorAll('[data-delplan]').forEach(b => b.addEventListener('click', () => {
-      if (!confirm('Plan "' + b.dataset.delplan + '" löschen?')) return;
+      if (!confirm(t('deletePlanConfirm',{name:b.dataset.delplan}))) return;
       delete plans[b.dataset.delplan];
       if (plan===b.dataset.delplan) { plan=null; days=[]; }
       saveCustomPlans(); renderPlanBuilder(); renderPlanTabs();
@@ -1602,10 +1649,12 @@
 
     $('s-dark').addEventListener('click',  () => setTheme('dark'));
     $('s-light').addEventListener('click', () => setTheme('light'));
-    $('l-de').addEventListener('click', () => { currentLang='de'; S.set('lang','de'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
-    $('l-en').addEventListener('click', () => { currentLang='en'; S.set('lang','en'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); });
-    $('l-th').addEventListener('click', () => { currentLang='th'; S.set('lang','th'); showToast(t('langSaved')); renderAccountMenuLabels(); renderSettings(); });
+    function applyLanguage(lang){ currentLang=lang; document.documentElement.lang=lang; S.set('lang',lang); showToast(t('langSaved')); renderAccountMenuLabels(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); if(screen==='home')renderDashboard(); else if(screen==='train')renderTraining(); else if(screen==='progress')renderProgress(); else if(screen==='plans')renderPlanBuilder(); else if(screen==='settings')renderSettings(); }
+    $('l-de').addEventListener('click', () => applyLanguage('de'));
+    $('l-en').addEventListener('click', () => applyLanguage('en'));
+    $('l-th').addEventListener('click', () => applyLanguage('th'));
     $('open-exdb').addEventListener('click', renderExerciseEditor);
+    updateNetworkStatus();
 
     // Profile delete — two-click confirm
     document.querySelectorAll('[data-deluser]').forEach(btn => {
@@ -1618,7 +1667,7 @@
           if (!confirm(msg)) return;
           saveUsers(usersNow.filter(u=>u!==name));
           // Remove user-bound local data for this profile.
-          Object.keys(localStorage).forEach(key => {
+          S.keys().forEach(key => {
             if (key.endsWith('_'+name) || key.includes('_'+name+'_')) S.remove(key);
           });
           showToast(t('profileDeleted'));
@@ -1651,9 +1700,9 @@
           ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
         </select>
         <input class="builder-input" id="edb-name" placeholder="${t('exerciseName')}" maxlength="50">
-        <input class="builder-input" id="edb-url" placeholder="Bild-URL (optional)">
+        <input class="builder-input" id="edb-url" placeholder="${t('imageUrlPlaceholder')}">
         <div class="file-upload-row">
-          <label class="file-upload-btn" for="edb-file">📷 Hochladen</label>
+          <label class="file-upload-btn" for="edb-file">📷 ${t('uploadShort')}</label>
           <input id="edb-file" type="file" accept="image/*" style="display:none">
           <span id="edb-fname" class="file-name-hint"></span>
         </div>
@@ -1675,9 +1724,9 @@
             </div>
             <input type="file" accept="image/*" id="edbf_${esc(ex.n).replace(/\W/g,'_')}"
               style="display:none" data-img-for="${esc(ex.n)}">
-            <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="Bild">🖼</button>
+            <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="${t('imageTitle')}">🖼</button>
             <button class="builder-mini" data-del-ex="${esc(ex.n)}" type="button"
-              title="Löschen" style="color:var(--red)">×</button>
+              title="${t('deleteTitle')}" style="color:var(--red)">×</button>
           </div>`).join('')}
       </details>`;
     });
@@ -1767,15 +1816,38 @@
 
 
   function renderAccountMenuLabels() {
+    const mn = $('menu-plans');
     const ms = $('menu-settings');
     const mp = $('menu-profile-switch');
+    if (mn) mn.textContent = t('menuPlans');
     if (ms) ms.textContent = '⚙️ ' + t('menuSettings');
     if (mp) mp.textContent = '👥 ' + t('menuSwitchProfile');
+    updateNetworkStatus();
   }
 
   // ── Account menu ───────────────────────────────────────────────────────────
-  function toggleMenu() { $('account-menu')?.classList.toggle('show'); }
-  function closeMenu()  { $('account-menu')?.classList.remove('show'); }
+  function updateNetworkStatus() {
+    const online = navigator.onLine !== false;
+    const text = $('menu-connection-text');
+    const row = $('menu-connection');
+    if (text) text.textContent = online ? t('statusOnline') : t('statusOffline');
+    if (row) row.classList.toggle('offline', !online);
+  }
+  function toggleMenu(e) {
+    if (e) e.stopPropagation();
+    const m = $('account-menu');
+    const b = $('sheet-backdrop');
+    const willShow = !m?.classList.contains('show');
+    m?.classList.toggle('show', willShow);
+    b?.classList.toggle('show', willShow);
+    document.body.classList.toggle('sheet-open', willShow);
+    updateNetworkStatus();
+  }
+  function closeMenu()  {
+    $('account-menu')?.classList.remove('show');
+    $('sheet-backdrop')?.classList.remove('show');
+    document.body.classList.remove('sheet-open');
+  }
 
   // ── Init ───────────────────────────────────────────────────────────────────
   function migrateLegacy() {
@@ -1789,6 +1861,7 @@
 
   function init() {
     currentLang = S.get('lang','de');
+    document.documentElement.lang=currentLang;
     renderAccountMenuLabels();
     loadPlans();
     migrateLegacy();
@@ -1804,15 +1877,18 @@
     add.addEventListener('touchend', e => { e.preventDefault(); addUser(); }, {passive:false});
 
     $('top-profile-menu').addEventListener('click', toggleMenu);
+    $('menu-plans').addEventListener('click', () => { closeMenu(); setScreen('plans'); });
     $('menu-settings').addEventListener('click', () => { closeMenu(); setScreen('settings'); });
     $('menu-profile-switch').addEventListener('click', () => { closeMenu(); goUsers(); });
+    $('sheet-backdrop')?.addEventListener('click', closeMenu);
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
     document.addEventListener('click', e => {
       if (!e.target.closest('#account-menu') && !e.target.closest('#top-profile-menu')) closeMenu();
     });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
     $('tab-home').addEventListener('click', () => setScreen('home'));
     $('tab-train').addEventListener('click', () => setScreen('train'));
-    $('tab-progress').addEventListener('click', () => setScreen('progress'));
-    $('top-plans').addEventListener('click', () => setScreen('plans'));
     $('rest-close').addEventListener('click', () => {
       clearInterval(window.__restInt); window.__restEnd=null;
       $('rest-float').classList.remove('show');
@@ -1821,6 +1897,7 @@
     const restLabel = document.querySelector('.rest-label');
     if (restLabel) restLabel.textContent = t('restRunning');
     upd();
+    updateNetworkStatus();
 
     // Expose remote sync hook for cloud-sync.js
     D.onRemoteSync = () => {
