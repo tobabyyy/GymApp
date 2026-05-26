@@ -378,6 +378,11 @@ body.light-mode .ninp { border-color: rgba(0,0,0,.12); background: var(--card2);
 .chart-box { background: var(--card); border-radius: var(--r-lg); border: 1px solid var(--border); padding: 13px 8px 11px; margin-bottom: 10px; }
 .chart-lbl { font-size: 11px; font-weight: 700; color: var(--muted); padding-left: 6px; margin-bottom: 10px; }
 canvas { max-height: 140px; }
+.chart-fallback { padding: 13px 14px 12px; }
+.chart-fallback-list { display: grid; grid-template-columns: 1fr auto; gap: 8px 14px; font-size: 13px; line-height: 1.35; }
+.chart-fallback-list span { color: var(--muted); font-weight: 700; }
+.chart-fallback-list strong { color: var(--text); font-weight: 900; }
+
 .log-entry { background: var(--card); border-radius: var(--r-md); border: 1px solid var(--border); padding: 10px 12px; margin-bottom: 7px; }
 .log-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
 .log-d { font-size: 13px; font-weight: 800; }
@@ -481,7 +486,7 @@ canvas { max-height: 140px; }
 
 /* ── Rest float ──────────────────────────────────────────────────────────── */
 .rest-float {
-  position: fixed; top: calc(var(--safe-top) + 72px); right: 12px; z-index: 200;
+  position: fixed; top: calc(var(--safe-top) + 118px); right: 12px; z-index: 200;
   background: rgba(20,20,20,.96); border: 1px solid rgba(255,255,255,.12);
   border-radius: 18px; padding: 12px 14px; display: none;
   align-items: center; gap: 14px; backdrop-filter: blur(14px);
