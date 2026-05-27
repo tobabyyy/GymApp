@@ -2,7 +2,7 @@
   'use strict';
   const S = window.GBStore;
   const D = window.GB;
-  const APP_VERSION = '7.3.10';
+  const APP_VERSION = '7.3.11';
   const DATA_MODEL_VERSION = 6;
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -465,8 +465,11 @@
   });
 
   function t(key, vars) {
-    let str = (STRINGS[currentLang] || STRINGS.de)[key] || (STRINGS.de)[key] || key;
-    if (vars) Object.keys(vars).forEach(k => { str = str.replace('{' + k + '}', vars[k]); });
+    const pack = STRINGS[currentLang] || STRINGS.de;
+    let str = Object.prototype.hasOwnProperty.call(pack, key)
+      ? pack[key]
+      : (Object.prototype.hasOwnProperty.call(STRINGS.de, key) ? STRINGS.de[key] : key);
+    if (vars) Object.keys(vars).forEach(k => { str = String(str).replace('{' + k + '}', vars[k]); });
     return str;
   }
 
@@ -1282,14 +1285,14 @@
         </div>`).join('')}</div>`;
     }
 
-    html += `<div class="add-extra-box">
-      <select class="builder-select" id="extra-ex-select">${extraOptions}</select>
-      <button class="builder-btn secondary" id="add-extra-ex" type="button">${t('addExtraExercise')}</button>
-    </div>`;
-
     html += `<div class="exercise-list" id="exercise-list">`;
     dayList.forEach((ex, idx) => { html += renderCard(ex, idx, dayList.length); });
     html += `</div>`;
+
+    html += `<div class="add-extra-box add-extra-box-bottom">
+      <select class="builder-select" id="extra-ex-select">${extraOptions}</select>
+      <button class="builder-btn secondary" id="add-extra-ex" type="button">${currentLang==='de'?'Ergänzen':'Add'}</button>
+    </div>`;
 
     $('train-content').innerHTML = html;
     $('open-sug')?.addEventListener('click', openSuggested);
@@ -1355,7 +1358,7 @@
 
     if (!isOpen) {
       return `<div class="ex-card ${isDone?'edone':''} ${isSkipped?'eskipped':''}" id="card_${original.id}" data-ex-card="${esc(original.id)}">
-        <div class="ex-row compact-ex-row" data-open="${original.id}">
+        <div class="ex-row" data-open="${original.id}">
           <div class="ex-thumb"><img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy"></div>
           <div class="ex-info">
             <div class="ex-mtag" style="color:${st.c}">${esc(ex.m)} ${extraBadge} ${skippedBadge}</div>
@@ -1428,15 +1431,18 @@
       </div></div>`).join('');
 
     return `<div class="ex-card open ${isDone?'edone':''} ${isSkipped?'eskipped':''}" id="card_${original.id}" data-ex-card="${esc(original.id)}" style="border-color:${st.c}55">
-      <div class="open-card-head">
-        <div class="open-card-img"><img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy"></div>
-        <div class="open-card-title" data-open="${original.id}">
-          <div class="ex-mtag" style="color:${st.c}">${esc(ex.m)} ${extraBadge} ${skippedBadge}</div>
-          <div class="hname">${esc(ex.n)}</div>
-          <div class="quick-sub">${t('closeCard')}</div>
+      <div class="ex-hero" data-open="${original.id}">
+        <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
+        <div class="grad"></div>
+        <div class="hbadge" style="background:${st.c}">${esc(ex.m)} ${extraBadge} ${skippedBadge}</div>
+        <div class="hbot">
+          <div>
+            <div class="hname">${esc(ex.n)}${original.superset ? `<span class="superset-badge">${t('supersetGroup',{group:esc(original.superset)})}</span>` : ''}</div>
+            <div class="hhint">${t('closeCard')}</div>
+          </div>
         </div>
-        ${dragTools}
       </div>
+      <div class="open-drag-row">${dragTools}</div>
       <div class="ex-body compact-ex-body">
         <details class="compact-details swap-details" ${swapOpen[original.id]?'open':''}>
           <summary>${t('swapExercise')}</summary>
@@ -1583,7 +1589,7 @@
         saveCurrentInputs();
         openExercise = openExercise === open.dataset.open ? null : open.dataset.open;
         renderTraining();
-        setTimeout(() => $('card_' + openExercise)?.scrollIntoView({behavior:'smooth',block:'nearest'}), 60);
+        setTimeout(() => $('card_' + openExercise)?.scrollIntoView({behavior:'smooth',block:'center'}), 60);
         return;
       }
       // Add set
@@ -2575,14 +2581,17 @@
 
 
   function renderAccountMenuLabels() {
-    const mt = $('menu-today');
-    const ms = $('menu-settings');
-    const me = $('menu-export');
-    const mp = $('menu-profile-switch');
-    if (mt) mt.textContent = t('menuToday');
-    if (ms) ms.textContent = t('menuSettings');
-    if (me) me.textContent = t('menuExport');
-    if (mp) mp.textContent = t('menuSwitchProfile');
+    const setMenuText = (id, text) => {
+      const btn = $(id);
+      if (!btn) return;
+      const label = btn.querySelector('.menu-txt');
+      if (label) label.textContent = text;
+      else btn.textContent = text;
+    };
+    setMenuText('menu-today', t('menuToday'));
+    setMenuText('menu-settings', t('menuSettings'));
+    setMenuText('menu-export', t('menuExport'));
+    setMenuText('menu-profile-switch', t('menuSwitchProfile'));
     updateNetworkStatus();
   }
 
@@ -2663,6 +2672,13 @@
       if (e.target.closest('button')) return;
       dragging=true; box.setPointerCapture(e.pointerId);
       const r=box.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; ox=r.left; oy=r.top;
+      box.style.width = Math.round(r.width) + 'px';
+      box.style.minWidth = Math.round(r.width) + 'px';
+      box.style.height = Math.round(r.height) + 'px';
+      box.style.left = Math.round(r.left) + 'px';
+      box.style.top = Math.round(r.top) + 'px';
+      box.style.right = 'auto'; box.style.bottom = 'auto';
+      box.classList.add('floating-free');
       box.classList.add('dragging');
     });
     box.addEventListener('pointermove', e => {
