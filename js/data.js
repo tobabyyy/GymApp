@@ -117,6 +117,8 @@
     { m: 'Brust', n: 'Kabelfliegende' },
     { m: 'Brust', n: 'Kurzhantel Flys' },
     { m: 'Brust', n: 'Push-Ups' },
+    { m: 'Brust', n: 'Chest Dips' },
+    { m: 'Brust', n: 'Schrägbank Maschine' },
     // Rücken
     { m: 'Rücken', n: 'Latziehen breit' },
     { m: 'Rücken', n: 'Latziehen eng' },
@@ -127,6 +129,10 @@
     { m: 'Rücken', n: 'Face Pulls' },
     { m: 'Rücken', n: 'Kreuzheben' },
     { m: 'Rücken', n: 'Hyperextension' },
+    { m: 'Rücken', n: 'Einarmiges Rudern' },
+    { m: 'Rücken', n: 'Rudern Maschine' },
+    { m: 'Rücken', n: 'Kabel Pullover' },
+    { m: 'Rücken', n: 'Latziehen neutral' },
     // Schultern
     { m: 'Schultern', n: 'Schulterdrücken' },
     { m: 'Schultern', n: 'Seitheben' },
@@ -134,6 +140,8 @@
     { m: 'Schultern', n: 'Reverse Flys' },
     { m: 'Schultern', n: 'Arnold Press' },
     { m: 'Schultern', n: 'Upright Row' },
+    { m: 'Schultern', n: 'Schulterpresse Maschine' },
+    { m: 'Schultern', n: 'Reverse Pec Deck' },
     // Arme
     { m: 'Arme', n: 'Bizeps Curls' },
     { m: 'Arme', n: 'Preacher Curls' },
@@ -144,12 +152,18 @@
     { m: 'Arme', n: 'Overhead Extension' },
     { m: 'Arme', n: 'Skullcrusher' },
     { m: 'Arme', n: 'Dips' },
+    { m: 'Arme', n: 'SZ-Curls' },
+    { m: 'Arme', n: 'Rope Pushdown' },
+    { m: 'Arme', n: 'French Press' },
     // Bauch
     { m: 'Bauch', n: 'Crunch' },
     { m: 'Bauch', n: 'Beinheben' },
     { m: 'Bauch', n: 'Cable Crunch' },
     { m: 'Bauch', n: 'Russian Twist' },
     { m: 'Bauch', n: 'Plank' },
+    { m: 'Bauch', n: 'Sit-Ups' },
+    { m: 'Bauch', n: 'Hanging Leg Raises' },
+    { m: 'Bauch', n: 'Ab Wheel' },
     // Beine
     { m: 'Beine', n: 'Kniebeuge' },
     { m: 'Beine', n: 'Beinpresse' },
@@ -160,17 +174,29 @@
     { m: 'Beine', n: 'Hip Thrust' },
     { m: 'Beine', n: 'Ausfallschritte' },
     { m: 'Beine', n: 'Wadenheben' },
+    { m: 'Beine', n: 'Hackenschmidt' },
+    { m: 'Beine', n: 'Goblet Squat' },
+    { m: 'Beine', n: 'Adduktoren' },
+    { m: 'Beine', n: 'Abduktoren' },
+    { m: 'Beine', n: 'Glute Kickback' },
+    { m: 'Beine', n: 'Beinbeuger sitzend' },
     // Cardio
     { m: 'Cardio', n: 'Laufen' },
     { m: 'Cardio', n: 'Fahrrad' },
     { m: 'Cardio', n: 'Rudern (Cardio)' },
     { m: 'Cardio', n: 'Seilspringen' },
     { m: 'Cardio', n: 'Burpees' },
+    { m: 'Cardio', n: 'Stepper' },
+    { m: 'Cardio', n: 'Crosstrainer' },
   ];
 
-  // Standard images are local SVG placeholders. Custom uploaded image URLs still work.
+  // Standard images are local files in assets/exercises. Custom uploaded image URLs still work.
+  GB.slug = function (name) {
+    return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase() || 'exercise';
+  };
+  GB.localExerciseImage = name => 'assets/exercises/' + GB.slug(name) + '.svg';
   GB.EXERCISE_DB.forEach(ex => {
-    GB.IMAGES[ex.n] = GB.autoImage(ex.n, ex.m);
+    GB.IMAGES[ex.n] = GB.localExerciseImage(ex.n);
   });
 
   // ── Base plans (no default selected — user must pin) ──────────────────────

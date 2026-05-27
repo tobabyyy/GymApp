@@ -3,7 +3,7 @@
 
   const TABLE = 'gymbaddies_sync';
   const SYNC_ID = 'gymbaddies-shared';
-  const MODEL_VER = 4;
+  const MODEL_VER = 6;
   const DEBOUNCE = 2500;
   const POLL_MS = 15000;
 
@@ -40,7 +40,7 @@
   function lsWrite(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
 
   function isManaged(key) {
-    const prefixes = ['pinnedPlans_', 'theme_', 'trainingLog_', 'sessions_', 'prs_', 'done_', 'h_', 'lastWorkoutSummary_', 'deload_'];
+    const prefixes = ['pinnedPlans_', 'theme_', 'trainingLog_', 'sessions_', 'prs_', 'done_', 'h_', 'lastWorkoutSummary_', 'deload_', 'extra_', 'order_', 'skipped_', 'workoutHistory_', 'pendingSwaps_', 'draft_'];
     const globals = ['users', 'customPlans', 'customExercises', 'hiddenExercises', 'favoriteExercises', 'exerciseCategories', 'theme_default', 'lang', 'gb_data_model_version', 'gb_app_version', 'restTimerPos'];
     return globals.includes(key) || prefixes.some(p => key.startsWith(p));
   }
@@ -59,6 +59,12 @@
           if (entries.length) history[k.slice(2)] = entries;
         }
       }
+      const misc = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        if (k === 'workoutHistory_' + name || k === 'pendingSwaps_' + name || k.startsWith('extra_' + name + '_') || k.startsWith('order_' + name + '_') || k.startsWith('skipped_' + name + '_') || k.startsWith('draft_' + name + '_')) misc[k] = lsRead(k, null);
+      }
       perUser[name] = {
         pinnedPlans: lsRead('pinnedPlans_' + name, null),
         theme: lsRead('theme_' + name, null),
@@ -66,9 +72,12 @@
         trainingLog: lsRead('trainingLog_' + name, []),
         sessions: lsRead('sessions_' + name, []),
         prs: lsRead('prs_' + name, []),
+        workoutHistory: lsRead('workoutHistory_' + name, []),
+        pendingSwaps: lsRead('pendingSwaps_' + name, []),
         lastSummary: lsRead('lastWorkoutSummary_' + name, null),
         done,
         history,
+        misc,
       };
     });
     return {
@@ -77,7 +86,7 @@
       model: {
         global: {
           users,
-          appVersion: lsRead('gb_app_version', '7.3.8'),
+          appVersion: lsRead('gb_app_version', '7.3.10'),
           dataModelVersion: lsRead('gb_data_model_version', MODEL_VER),
           customPlans: lsRead('customPlans', {}),
           customExercises: lsRead('customExercises', []),
@@ -127,7 +136,10 @@
         lsWrite('trainingLog_' + name, Array.isArray(d.trainingLog) ? d.trainingLog : []);
         lsWrite('sessions_' + name, Array.isArray(d.sessions) ? d.sessions : []);
         lsWrite('prs_' + name, Array.isArray(d.prs) ? d.prs : []);
+        lsWrite('workoutHistory_' + name, Array.isArray(d.workoutHistory) ? d.workoutHistory : []);
+        lsWrite('pendingSwaps_' + name, Array.isArray(d.pendingSwaps) ? d.pendingSwaps : []);
         if (d.lastSummary) lsWrite('lastWorkoutSummary_' + name, d.lastSummary);
+        Object.keys(d.misc || {}).forEach(k => { if (isManaged(k)) lsWrite(k, d.misc[k]); });
         Object.keys(d.done || {}).forEach(k => lsWrite(k, d.done[k]));
         Object.keys(d.history || {}).forEach(exId => {
           allHistory[exId] = allHistory[exId] || [];
