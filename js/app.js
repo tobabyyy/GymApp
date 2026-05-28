@@ -1313,7 +1313,6 @@
         <div class="quick-label">${runStarted || hasAnyProgress ? t('continueTraining') : t('startTraining')}</div>
         <div class="training-run-sub">${t('startHint')}</div>
       </div>
-      <button class="start-training-btn" id="start-training-btn" type="button">${runStarted || hasAnyProgress ? t('restartTraining') : t('startTraining')}</button>
     </div>`;
 
     if (sug) {
@@ -1364,7 +1363,6 @@
     </details>`;
 
     $('train-content').innerHTML = html;
-    $('start-training-btn')?.addEventListener('click', () => startTrainingRun(true));
     $('open-sug')?.addEventListener('click', openSuggested);
     $('add-extra-ex')?.addEventListener('click', () => {
       const val = $('extra-ex-select')?.value || '';
@@ -1609,6 +1607,14 @@
     const done  = list.filter(ex => isDoneId(ex.id)).length;
     const total = list.length;
     const allDone = total > 0 && done === total;
+    const runStarted = hasStartedRun();
+    const hasAnyProgress = list.some(ex => isDoneId(ex.id) || isSkippedId(ex.id)) || draftHasContent(S.get(draftKey(), null));
+
+    if (!runStarted && !hasAnyProgress) {
+      inner.innerHTML = `<button class="finish-btn ready" id="start-workout-main" type="button">${t('startTraining')}</button>`;
+      $('start-workout-main')?.addEventListener('click', () => startTrainingRun(true));
+      return;
+    }
 
     if (finished[day]) {
       inner.innerHTML = `<div class="finish-done-msg">
