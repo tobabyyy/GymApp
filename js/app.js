@@ -2,8 +2,8 @@
   'use strict';
   const S = window.GBStore;
   const D = window.GB;
-  const APP_VERSION = '7.3.11';
-  const DATA_MODEL_VERSION = 6;
+  const APP_VERSION = '7.3.16';
+  const DATA_MODEL_VERSION = 7;
 
   // ── State ──────────────────────────────────────────────────────────────────
   let plans = {}, allExercises = [];
@@ -435,31 +435,84 @@
     }
   };
 
-  // v7.3.9 supplemental labels
+  // v7.3.16 supplemental labels + complete language metadata
+  const LANGUAGES = {
+    de: {flag:'🇩🇪', label:'Deutsch'},
+    en: {flag:'🇬🇧', label:'English'},
+    th: {flag:'🇹🇭', label:'ไทย'},
+    ro: {flag:'🇷🇴', label:'Română'},
+  };
+
   Object.assign(STRINGS.de, {
-    navMore:'Mehr', bottomPlans:'Pläne', firstProfileHint:'Lege ein Profil an und hefte dir danach einen Plan an.',
+    navHomeShort:'Home', navTrainShort:'Training', navProgressShort:'Fortschritt', bottomPlans:'Pläne', navMore:'Mehr', firstProfileHint:'Lege ein Profil an und hefte dir danach einen Plan an.',
     supersetLabel:'Superset', supersetNone:'Kein Superset', supersetGroup:'Superset {group}',
-    setType:'Typ', setTypeNormal:'Arbeit', setTypeWarmup:'Warm-up', setTypeDrop:'Dropset', setTypeFailure:'Limit',
-    rpeLabel:'RPE', noteLabel:'Notiz', notePlaceholder:'Technik, Gefühl oder Besonderheiten', deloadLabel:'Deload',
+    setType:'Typ', setTypeNormal:'Normal', setTypeDrop:'Dropset',
+    rpeLabel:'RPE', noteLabel:'Notiz', notePlaceholder:'Kurze Notiz', deloadLabel:'Deload', deloadActive:'Deload aktiv', deloadOff:'Deload aus',
     deloadDesc:'Markiert heutige Sätze als leichteren Deload und reduziert übernommene kg grob um 10%.',
     progressionTitle:'Vorschlag für heute', progressionEmpty:'Trage erst Werte ein, dann erscheint hier ein Vorschlag.',
     analyticsTitle:'Wochenanalyse', muscleBalance:'Muskel-Balance', planDevelopment:'Planentwicklung', frequency:'Frequenz', volumeWeek:'Wochenvolumen',
     favOnly:'Nur Favoriten', favorite:'Favorit', category:'Kategorie', hiddenExercisesLabel:'Ausgeblendete Übungen', restore:'Wiederherstellen', hideExercise:'Ausblenden',
     searchExercises:'Übungen suchen…', allCategories:'Alle Kategorien', selfTest:'Test-Suite', selfTestRun:'Tests starten', selfTestOK:'OK: Basisfunktionen sehen gut aus.', selfTestFail:'Fehler gefunden:',
     quickStartTitle:'Schnellstart', quickStartPlan:'Plan anheften', quickStartTrain:'Training öffnen', quickStartSave:'Erste Übung speichern',
-    navActions:'Aktionen', menuToday:'Heute weitertrainieren', menuExport:'Backup exportieren', navSettings:'Einstellungen',
-    addExtraExercise:'Zusatzübung hinzufügen', extraExercise:'Zusatzübung', addForToday:'Für heute ergänzen', extraSaved:'Zusatzübung ergänzt.',
+    navActions:'Aktionen', menuToday:'Heute weitertrainieren', menuExport:'Backup exportieren', navSettings:'Einstellungen', menuSwitchProfile:'Profil wechseln',
+    addExtraExercise:'Übung ergänzen', extraExercise:'Zusatzübung', addForToday:'Für heute ergänzen', extraSaved:'Zusatzübung ergänzt.',
     workoutHistory:'Trainingshistorie', doneStatus:'Erledigt', skippedStatus:'Übersprungen', skippedExercises:'Übersprungene Übungen',
     finishManualHint:'Training wird nur über diesen Button abgeschlossen.', volumeHelp:'Volumen = Gewicht mal Wiederholungen. Dropsets zählen mit.',
     timerStart:'Timer starten', timerPause:'Pausieren', timerResume:'Weiter', timerReset:'Zurücksetzen', timerManualHint:'Timer startet nur manuell.',
-    setTypeNormal:'Normal', addDropWeight:'Gewicht hinzufügen', dropWeight:'Drop-Gewicht', removeDrop:'Drop entfernen',
+    addDropWeight:'Gewicht hinzufügen', dropWeight:'Drop-Gewicht', removeDrop:'Drop entfernen',
     reorderHint:'Reihenfolge per Griff ziehen oder mit den Pfeilen ändern.', moveExerciseUp:'Übung nach oben', moveExerciseDown:'Übung nach unten',
-    postponedExercises:'Vorgeschlagene Tauschübungen', postponedHint:'Beim Tausch bleibt die ursprüngliche Übung als Vorschlag erhalten.', acceptPostponed:'Heute machen',
+    postponedExercises:'Vorgeschlagene Tauschübungen', postponedHint:'Beim Tausch bleibt die ursprüngliche Übung als Vorschlag erhalten.', acceptPostponed:'Heute machen', insteadOf:'statt',
     baseExerciseLocked:'Grundübung: Name und Kategorie sind geschützt. Das Bild kann getauscht werden.', customExercise:'Eigene Übung',
     settingsAppearance:'Ansicht und Sprache', settingsSync:'Sync und Sicherung', settingsTraining:'Training', settingsData:'Datenbank', settingsProfiles:'Profile', settingsDiagnostics:'Diagnose',
-    workoutSummaryTitle:'Zusammenfassung', noSkipped:'Keine übersprungenen Übungen.'
+    workoutSummaryTitle:'Zusammenfassung', noSkipped:'Keine übersprungenen Übungen.',
+    startTraining:'Training starten', restartTraining:'Training neu starten', continueTraining:'Training fortsetzen', trainingStarted:'Training gestartet.', trainingRestarted:'Neues Training gestartet.',
+    editFinishedTraining:'Abgeschlossenes Training bearbeiten', newSameDayTraining:'Gleichen Tag nochmal starten', startHint:'Startet einen eigenen Trainingslauf für diesen Tag.',
+    showSuggestion:'Vorschlag anzeigen', compactAddExercise:'Übung hinzufügen', addExerciseSelect:'Übung wählen', saveAndContinue:'Speichern', liquidGlassLabel:'Liquid-Glass-Design', imagesLocalLabel:'Lokale Übungsgrafiken',
   });
-  ['en','th'].forEach(lang => {
+
+  const EXTRA_STRINGS = {
+    en: {
+      navHomeShort:'Home', navTrainShort:'Training', navProgressShort:'Progress', bottomPlans:'Plans', navMore:'More', firstProfileHint:'Create a profile, then pin a plan.',
+      supersetLabel:'Superset', supersetNone:'No superset', supersetGroup:'Superset {group}', setType:'Type', setTypeNormal:'Normal', setTypeDrop:'Dropset',
+      rpeLabel:'RPE', noteLabel:'Note', notePlaceholder:'Short note', deloadLabel:'Deload', deloadActive:'Deload on', deloadOff:'Deload off',
+      deloadDesc:'Marks today as a lighter deload and roughly reduces loaded weights by 10%.',
+      progressionTitle:'Suggestion for today', progressionEmpty:'Log values first to get a suggestion.', analyticsTitle:'Weekly analysis', muscleBalance:'Muscle balance', planDevelopment:'Plan development', frequency:'Frequency', volumeWeek:'Weekly volume',
+      favOnly:'Favorites only', favorite:'Favorite', category:'Category', hiddenExercisesLabel:'Hidden exercises', restore:'Restore', hideExercise:'Hide', searchExercises:'Search exercises…', allCategories:'All categories', selfTest:'Test suite', selfTestRun:'Run tests', selfTestOK:'OK: core features look good.', selfTestFail:'Issue found:',
+      quickStartTitle:'Quick start', quickStartPlan:'Pin a plan', quickStartTrain:'Open training', quickStartSave:'Save first exercise', navActions:'Actions', menuToday:'Continue today', menuExport:'Export backup', navSettings:'Settings', menuSwitchProfile:'Switch profile',
+      addExtraExercise:'Add exercise', extraExercise:'Extra exercise', addForToday:'Add for today', extraSaved:'Extra exercise added.', workoutHistory:'Training history', doneStatus:'Done', skippedStatus:'Skipped', skippedExercises:'Skipped exercises',
+      finishManualHint:'Training is finished only with this button.', volumeHelp:'Volume = weight times reps. Dropsets are included.', timerStart:'Start timer', timerPause:'Pause', timerResume:'Resume', timerReset:'Reset', timerManualHint:'Timer starts manually only.',
+      addDropWeight:'Add weight', dropWeight:'Drop weight', removeDrop:'Remove drop', reorderHint:'Drag by the handle or use the arrows.', moveExerciseUp:'Move exercise up', moveExerciseDown:'Move exercise down', postponedExercises:'Suggested swap exercises', postponedHint:'When swapping, the original exercise stays as a suggestion.', acceptPostponed:'Do today', insteadOf:'instead of',
+      baseExerciseLocked:'Base exercise: name and category are protected. You can change the image.', customExercise:'Custom exercise', settingsAppearance:'Display and language', settingsSync:'Sync and backup', settingsTraining:'Training', settingsData:'Database', settingsProfiles:'Profiles', settingsDiagnostics:'Diagnostics', workoutSummaryTitle:'Summary', noSkipped:'No skipped exercises.',
+      startTraining:'Start training', restartTraining:'Start new training', continueTraining:'Continue training', trainingStarted:'Training started.', trainingRestarted:'New training started.', editFinishedTraining:'Edit finished training', newSameDayTraining:'Start same day again', startHint:'Starts a separate training run for this day.', showSuggestion:'Show suggestion', compactAddExercise:'Add exercise', addExerciseSelect:'Choose exercise', saveAndContinue:'Save', liquidGlassLabel:'Liquid glass design', imagesLocalLabel:'Local exercise graphics',
+    },
+    th: {
+      navHomeShort:'หน้าแรก', navTrainShort:'ฝึก', navProgressShort:'ความก้าวหน้า', bottomPlans:'แผน', navMore:'เพิ่มเติม', firstProfileHint:'สร้างโปรไฟล์แล้วปักหมุดแผน',
+      supersetLabel:'ซูเปอร์เซต', supersetNone:'ไม่มีซูเปอร์เซต', supersetGroup:'ซูเปอร์เซต {group}', setType:'ประเภท', setTypeNormal:'ปกติ', setTypeDrop:'ดรอปเซต',
+      rpeLabel:'RPE', noteLabel:'โน้ต', notePlaceholder:'โน้ตสั้น ๆ', deloadLabel:'Deload', deloadActive:'เปิด Deload', deloadOff:'ปิด Deload',
+      deloadDesc:'ทำเครื่องหมายวันนี้เป็นวันเบาและลดน้ำหนักที่คัดลอกมาประมาณ 10%', progressionTitle:'คำแนะนำวันนี้', progressionEmpty:'บันทึกค่าก่อนเพื่อรับคำแนะนำ', analyticsTitle:'วิเคราะห์รายสัปดาห์', muscleBalance:'สมดุลกล้ามเนื้อ', planDevelopment:'พัฒนาแผน', frequency:'ความถี่', volumeWeek:'ปริมาณรายสัปดาห์',
+      favOnly:'เฉพาะรายการโปรด', favorite:'รายการโปรด', category:'หมวดหมู่', hiddenExercisesLabel:'ท่าที่ซ่อน', restore:'กู้คืน', hideExercise:'ซ่อน', searchExercises:'ค้นหาท่า…', allCategories:'ทุกหมวด', selfTest:'ชุดทดสอบ', selfTestRun:'เริ่มทดสอบ', selfTestOK:'OK: ฟังก์ชันหลักดูดี', selfTestFail:'พบปัญหา:',
+      quickStartTitle:'เริ่มเร็ว', quickStartPlan:'ปักหมุดแผน', quickStartTrain:'เปิดการฝึก', quickStartSave:'บันทึกท่าแรก', navActions:'การทำงาน', menuToday:'ฝึกวันนี้ต่อ', menuExport:'ส่งออกสำรอง', navSettings:'ตั้งค่า', menuSwitchProfile:'เปลี่ยนโปรไฟล์',
+      addExtraExercise:'เพิ่มท่า', extraExercise:'ท่าเพิ่มเติม', addForToday:'เพิ่มวันนี้', extraSaved:'เพิ่มท่าแล้ว', workoutHistory:'ประวัติการฝึก', doneStatus:'เสร็จ', skippedStatus:'ข้าม', skippedExercises:'ท่าที่ข้าม',
+      finishManualHint:'จบการฝึกด้วยปุ่มนี้เท่านั้น', volumeHelp:'ปริมาณ = น้ำหนักคูณครั้ง รวมดรอปเซตด้วย', timerStart:'เริ่มจับเวลา', timerPause:'พัก', timerResume:'ต่อ', timerReset:'รีเซ็ต', timerManualHint:'จับเวลาเริ่มเองเท่านั้น',
+      addDropWeight:'เพิ่มน้ำหนัก', dropWeight:'น้ำหนักดรอป', removeDrop:'ลบดรอป', reorderHint:'ลากด้วยตัวจับหรือใช้ลูกศร', moveExerciseUp:'เลื่อนท่าขึ้น', moveExerciseDown:'เลื่อนท่าลง', postponedExercises:'ท่าสลับที่แนะนำ', postponedHint:'เมื่อสลับ ท่าเดิมจะยังเป็นคำแนะนำ', acceptPostponed:'ทำวันนี้', insteadOf:'แทน',
+      baseExerciseLocked:'ท่าพื้นฐาน: ชื่อและหมวดถูกป้องกัน เปลี่ยนรูปได้', customExercise:'ท่าของตัวเอง', settingsAppearance:'หน้าตาและภาษา', settingsSync:'ซิงค์และสำรอง', settingsTraining:'การฝึก', settingsData:'ฐานข้อมูล', settingsProfiles:'โปรไฟล์', settingsDiagnostics:'วินิจฉัย', workoutSummaryTitle:'สรุป', noSkipped:'ไม่มีท่าที่ข้าม',
+      startTraining:'เริ่มฝึก', restartTraining:'เริ่มฝึกใหม่', continueTraining:'ฝึกต่อ', trainingStarted:'เริ่มฝึกแล้ว', trainingRestarted:'เริ่มการฝึกใหม่แล้ว', editFinishedTraining:'แก้ไขการฝึกที่จบแล้ว', newSameDayTraining:'เริ่มวันเดียวกันอีกครั้ง', startHint:'เริ่มรอบการฝึกแยกสำหรับวันนี้', showSuggestion:'แสดงคำแนะนำ', compactAddExercise:'เพิ่มท่า', addExerciseSelect:'เลือกท่า', saveAndContinue:'บันทึก', liquidGlassLabel:'ดีไซน์กระจก', imagesLocalLabel:'รูปท่าแบบโลคัล',
+    },
+    ro: {
+      appName:'GymBaddies', whoTrains:'Cine se antrenează azi?', newProfile:'Nume nou', addBtn:'+', addHint:'Butonul devine roșu când introduci un nume.',
+      navHome:'Acasă', navTrain:'Antrenament', navProgress:'Progres', navPlans:'Planuri', menuPlans:'Planuri', navHomeShort:'Acasă', navTrainShort:'Antrenament', navProgressShort:'Progres', bottomPlans:'Planuri', navMore:'Mai mult',
+      greeting:'Salut {name}', lastTraining:'Ultimul: {plan} · {label} pe {date}', noTrainingYet:'Încă nu ai finalizat un antrenament.', pinnedPlans:'Planuri fixate', lastWorkout:'Ultimul antrenament', personalRecords:'Recorduri personale', startBtn:'{label} →', thisWeek:'Săptămâna aceasta', total:'Total', volume:'Volum',
+      warmUp:'Încălzire', gymSection:'{plan} · {label}', suggestion:'Sugestie', suggestionActive:'Activ ✓', openSuggestion:'Deschide →', lastSession:'Ultimul: {plan} · {label} pe {date}', noLastSession:'Încă niciun antrenament.', historyLabel:'Ultimele sesiuni', enterToday:'Completează azi', fillLast:'Ultimele valori au fost preluate.', noHistory:'Încă nu există valori salvate.', addSet:'+ Adaugă set', swapExercise:'Schimbă exercițiul', resetSwap:'Resetează', closeCard:'', selectExercise:'Alege', activeExercise:'✓ Activ', rest90:'1:30', rest180:'3:00', fillLastBtn:'Ultimele valori', progressBtn:'Progres', setsSaved:'Sesiune salvată', saveSession:'Salvează exercițiul', editSession:'Editează exercițiul', savedBadge:'Salvat', exerciseSwapped:'Exercițiu schimbat.', restRunning:'Pauză',
+      finishBtn:'Încheie antrenamentul ({done}/{total})', finishReady:'Finalizează', confirmFinish:'Sigur finalizezi antrenamentul?', stillOpen:'Mai sunt {n} exerciții deschise.', allDone:'Toate exercițiile sunt făcute!', yesFinish:'Finalizează', cancel:'Anulează', trainingSaved:'Antrenament salvat', trainingSavedFull:'Antrenament finalizat! Bravo, {name}!',
+      selectExerciseLabel:'Alege exercițiul', sessions:'Sesiuni', maxKg:'Max kg', volLabel:'Volum', logLabel:'Istoric', noData:'Încă nu există date', noDataDesc:'Completează o sesiune.',
+      planLibTitle:'Bibliotecă de planuri', planLibDesc:'Fixează planuri, editează sau creează propriile planuri.', newPlanTitle:'Creează plan nou', planNamePlaceholder:'Numele planului', startBlank:'Pornește gol', addDay:'+ Adaugă zi', copyTemplate:'Copiază șablon', pinBtn:'Fixează', unpinBtn:'Scoate', duplicate:'Duplică', editPlan:'Editează', copyEdit:'Editează copie', deletePlan:'Șterge planul', deletePlanConfirm:'Ștergi planul „{name}”?', draftActive:'Draft activ', saveDraft:'Salvează planul ✓', addExerciseToDay:'+ Adaugă exercițiu', addCustomToDay:'+ Exercițiu propriu', customExTitle:'Exercițiu propriu', customExDesc:'Adaugă un exercițiu în baza de date.', uploadImage:'Încarcă imagine', exerciseSaved:'Exercițiu salvat.',
+      settingsTitle:'Setări', designLabel:'Design', dark:'Întunecat', light:'Luminos', langLabel:'Limbă', profilesLabel:'Profiluri', menuSettings:'Setări', menuExport:'Export backup', menuSwitchProfile:'Schimbă profilul', activeProfile:'Activ', deleteProfile:'Șterge', exerciseDBLabel:'Editează baza de exerciții', cloudLabel:'Cloud Sync', backupLabel:'Backup', exportData:'Exportă', importData:'Importă', backupDesc:'Salvează profiluri, planuri, exerciții și date de antrenament ca fișier JSON.', exportDone:'Backup creat.', importDone:'Backup importat.', importInvalid:'Backup-ul nu a putut fi citit.', cloudConnected:'Online', cloudOffline:'Offline', statusOnline:'Online', statusOffline:'Offline',
+      planSearch:'Caută planuri…', swapFilterAll:'Toate grupele', addExercise:'Adaugă exercițiu', back:'← Înapoi', noPlanTitle:'Niciun plan selectat', noPlanDesc:'Fixează un plan din bibliotecă – apoi apare aici.', pinPlan:'Fixează plan', langSaved:'Limba a fost salvată.', profileDeleted:'Profil șters.', deleteConfirm:'Sigur ștergi profilul „{name}”? Toate datele de antrenament vor fi eliminate.', noLastProfile:'Ultimul profil nu poate fi șters.', confirmDeleteShort:'Sigur ștergi?', exerciseDeleted:'Exercițiu șters.', renamedTo:'Redenumit.', imageSaved:'Imagine actualizată.', planSaved:'Plan salvat.', newPR:'Record nou: ', nameRequired:'Introdu un nume.', atLeastOneEx:'Adaugă cel puțin un exercițiu pe zi.', sessions1:'sesiune', sessionsN:'sesiuni', days:'zile', exercises:'exerciții', template:'· șablon', noExercises:'Încă nu există exerciții.', exerciseName:'Numele exercițiului', deleteExerciseConfirm:'Ștergi exercițiul „{name}”?', repsPlaceholder:'rep', repsHeader:'rep.', avgWeight:'Greutate medie (kg)', avgReps:'Repetări medii', pinnedTag:'Fixat', imageUrlPlaceholder:'URL imagine (opțional)', removeDayTitle:'Elimină ziua', moveUpTitle:'Mută sus', moveDownTitle:'Mută jos', removeTitle:'Elimină', uploadShort:'Încarcă', imageTitle:'Imagine', deleteTitle:'Șterge', timerDone:'Gata ✓', noPlanShort:'Nu s-a găsit niciun plan.', activePercent:'% finalizat', openTraining:'Deschide antrenamentul', noExercisesDB:'Nu există exerciții.', vorlage:'· șablon',
+      firstProfileHint:'Creează un profil și fixează apoi un plan.', supersetLabel:'Superset', supersetNone:'Fără superset', supersetGroup:'Superset {group}', setType:'Tip', setTypeNormal:'Normal', setTypeDrop:'Dropset', rpeLabel:'RPE', noteLabel:'Notiță', notePlaceholder:'Notiță scurtă', deloadLabel:'Deload', deloadActive:'Deload activ', deloadOff:'Deload oprit', deloadDesc:'Marchează seturile de azi ca deload și reduce aproximativ cu 10% greutățile preluate.', progressionTitle:'Sugestie pentru azi', progressionEmpty:'Completează valori pentru a primi o sugestie.', analyticsTitle:'Analiză săptămânală', muscleBalance:'Balans muscular', planDevelopment:'Evoluția planului', frequency:'Frecvență', volumeWeek:'Volum săptămânal', favOnly:'Doar favorite', favorite:'Favorit', category:'Categorie', hiddenExercisesLabel:'Exerciții ascunse', restore:'Restaurează', hideExercise:'Ascunde', searchExercises:'Caută exerciții…', allCategories:'Toate categoriile', selfTest:'Suită de test', selfTestRun:'Pornește testele', selfTestOK:'OK: funcțiile de bază arată bine.', selfTestFail:'Problemă găsită:', quickStartTitle:'Start rapid', quickStartPlan:'Fixează plan', quickStartTrain:'Deschide antrenamentul', quickStartSave:'Salvează primul exercițiu', navActions:'Acțiuni', menuToday:'Continuă azi', navSettings:'Setări', addExtraExercise:'Adaugă exercițiu', extraExercise:'Exercițiu extra', addForToday:'Adaugă azi', extraSaved:'Exercițiu extra adăugat.', workoutHistory:'Istoric antrenamente', doneStatus:'Făcut', skippedStatus:'Sărit', skippedExercises:'Exerciții sărite', finishManualHint:'Antrenamentul se finalizează doar cu acest buton.', volumeHelp:'Volum = greutate ori repetări. Dropseturile sunt incluse.', timerStart:'Pornește timer', timerPause:'Pauză', timerResume:'Continuă', timerReset:'Resetează', timerManualHint:'Timerul pornește doar manual.', addDropWeight:'Adaugă greutate', dropWeight:'Greutate drop', removeDrop:'Elimină drop', reorderHint:'Trage de mâner sau folosește săgețile.', moveExerciseUp:'Mută exercițiul sus', moveExerciseDown:'Mută exercițiul jos', postponedExercises:'Exerciții de schimb sugerate', postponedHint:'La schimb, exercițiul original rămâne ca sugestie.', acceptPostponed:'Fă azi', insteadOf:'în loc de', baseExerciseLocked:'Exercițiu de bază: numele și categoria sunt protejate. Imaginea se poate schimba.', customExercise:'Exercițiu propriu', settingsAppearance:'Aspect și limbă', settingsSync:'Sync și backup', settingsTraining:'Antrenament', settingsData:'Bază de date', settingsProfiles:'Profiluri', settingsDiagnostics:'Diagnostic', workoutSummaryTitle:'Rezumat', noSkipped:'Niciun exercițiu sărit.', startTraining:'Pornește antrenamentul', restartTraining:'Pornește antrenament nou', continueTraining:'Continuă antrenamentul', trainingStarted:'Antrenament pornit.', trainingRestarted:'Antrenament nou pornit.', editFinishedTraining:'Editează antrenamentul finalizat', newSameDayTraining:'Pornește aceeași zi din nou', startHint:'Pornește o sesiune separată pentru această zi.', showSuggestion:'Arată sugestia', compactAddExercise:'Adaugă exercițiu', addExerciseSelect:'Alege exercițiu', saveAndContinue:'Salvează', liquidGlassLabel:'Design liquid glass', imagesLocalLabel:'Grafici locale pentru exerciții',
+    }
+  };
+  Object.keys(EXTRA_STRINGS).forEach(lang => Object.assign(STRINGS[lang] = STRINGS[lang] || {}, EXTRA_STRINGS[lang]));
+  Object.keys(LANGUAGES).forEach(lang => {
     STRINGS[lang] = STRINGS[lang] || {};
     Object.keys(STRINGS.de).forEach(k => { if (!STRINGS[lang][k]) STRINGS[lang][k] = STRINGS.de[k]; });
   });
@@ -586,11 +639,26 @@
     loadPlans();
   }
 
-  function dayToken(planName = plan, dayIndex = day, date = dateStr()) { return user + '_' + planName + '_' + dayIndex + '_' + date; }
-  function doneKeyFor(planName, dayIndex, id) { return 'done_' + user + '_' + planName + '_' + dayIndex + '_' + dateStr() + '_' + id; }
+  function legacyDayToken(planName = plan, dayIndex = day, date = dateStr()) { return user + '_' + planName + '_' + dayIndex + '_' + date; }
+  function runKeyFor(planName = plan, dayIndex = day, date = dateStr()) { return 'run_' + legacyDayToken(planName, dayIndex, date); }
+  function getActiveRunId(planName = plan, dayIndex = day, date = dateStr()) { return S.get(runKeyFor(planName, dayIndex, date), 'legacy'); }
+  function hasStartedRun(planName = plan, dayIndex = day, date = dateStr()) { return getActiveRunId(planName, dayIndex, date) !== 'legacy'; }
+  function dayToken(planName = plan, dayIndex = day, date = dateStr()) {
+    const rid = getActiveRunId(planName, dayIndex, date);
+    return rid === 'legacy' ? legacyDayToken(planName, dayIndex, date) : legacyDayToken(planName, dayIndex, date) + '_' + rid;
+  }
+  function doneKeyFor(planName, dayIndex, id) { return 'done_' + dayToken(planName, dayIndex) + '_' + id; }
+  function legacyDoneKeyFor(planName, dayIndex, id) { return 'done_' + legacyDayToken(planName, dayIndex) + '_' + id; }
   function doneKey(id) { return doneKeyFor(plan, day, id); }
-  function skippedKeyFor(planName, dayIndex, id) { return 'skipped_' + user + '_' + planName + '_' + dayIndex + '_' + dateStr() + '_' + id; }
+  function isDoneId(id, planName = plan, dayIndex = day) {
+    return !!S.get(doneKeyFor(planName, dayIndex, id), false) || (!hasStartedRun(planName, dayIndex) && !!S.get(legacyDoneKeyFor(planName, dayIndex, id), false));
+  }
+  function skippedKeyFor(planName, dayIndex, id) { return 'skipped_' + dayToken(planName, dayIndex) + '_' + id; }
+  function legacySkippedKeyFor(planName, dayIndex, id) { return 'skipped_' + legacyDayToken(planName, dayIndex) + '_' + id; }
   function skippedKey(id) { return skippedKeyFor(plan, day, id); }
+  function isSkippedId(id, planName = plan, dayIndex = day) {
+    return !!S.get(skippedKeyFor(planName, dayIndex, id), false) || (!hasStartedRun(planName, dayIndex) && !!S.get(legacySkippedKeyFor(planName, dayIndex, id), false));
+  }
   function extraKey(planName = plan, dayIndex = day) { return 'extra_' + dayToken(planName, dayIndex); }
   function orderKey(planName = plan, dayIndex = day) { return 'order_' + dayToken(planName, dayIndex); }
   function pendingSwapKey(name = user) { return 'pendingSwaps_' + name; }
@@ -760,9 +828,9 @@
     const hint = document.querySelector('.start-hint');
     if (hint) hint.textContent = t('addHint');
     // Update seg tabs
-    const th = $('tab-home');   if (th) th.textContent = t('navHome');
-    const tt = $('tab-train');  if (tt) tt.textContent = t('navTrain');
-    const bottomLabels = {home:t('navHome').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), train:t('navTrain').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), progress:t('navProgress').replace(/^[^A-Za-zÄÖÜäöü]+\s*/,''), plans:t('bottomPlans')};
+    const th = $('tab-home');   if (th) th.textContent = t('navHomeShort');
+    const tt = $('tab-train');  if (tt) tt.textContent = t('navTrainShort');
+    const bottomLabels = {home:t('navHomeShort'), train:t('navTrainShort'), progress:t('navProgressShort'), plans:t('bottomPlans')};
     Object.keys(bottomLabels).forEach(k => { const el = document.querySelector(`[data-bottom-nav="${k}"] .bn-label`); if (el) el.textContent = bottomLabels[k]; });
     // Update user screen heading
     const h2 = document.querySelector('#screen-users h2');
@@ -899,7 +967,7 @@
     if (!days || !days.length) return;
     days.forEach((d, i) => {
       const dayList = getDayExercises(plan, i);
-      const allDone = dayList.length > 0 && dayList.every(ex => S.get(doneKeyFor(plan, i, ex.id), false));
+      const allDone = dayList.length > 0 && dayList.every(ex => isDoneId(ex.id, plan, i));
       const b = document.createElement('button');
       b.className = 'daytab' + (i === day ? ' active' : '');
       b.type = 'button';
@@ -1130,11 +1198,7 @@
     }
 
     const donePct = widgetList.length
-      ? Math.round(widgetList.filter(ex => {
-          // Match doneKey() format exactly
-          const k = 'done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id;
-          return !!S.get(k, false);
-        }).length / widgetList.length * 100)
+      ? Math.round(widgetList.filter(ex => isDoneId(ex.id, widgetPlan, widgetDay)).length / widgetList.length * 100)
       : 0;
 
     widget.innerHTML = `
@@ -1160,7 +1224,7 @@
         ${widgetList.map(ex => {
           const exDisp = displayExercise(ex);
           const st = styleFor(exDisp.m);
-          const isDone = !!S.get('done_'+user+'_'+widgetPlan+'_'+widgetDay+'_'+dateStr()+'_'+ex.id, false);
+          const isDone = isDoneId(ex.id, widgetPlan, widgetDay);
           const hist = getHistory(ex.id).filter(e=>e.user===user).slice(-1)[0];
           return `<div class="ex-card ${isDone?'edone':''}" style="margin-bottom:8px">
             <div class="ex-row" data-htw-open="${ex.id}">
@@ -1242,28 +1306,25 @@
     const extraOptions = Object.keys(groups).map(m => `<optgroup label="${esc(m)}">${groups[m].map(ex => `<option value="${esc(ex.m)}|${esc(ex.n)}">${esc(ex.n)}</option>`).join('')}</optgroup>`).join('');
     let html = '';
 
+    const runStarted = hasStartedRun();
+    const hasAnyProgress = dayList.some(ex => isDoneId(ex.id) || isSkippedId(ex.id)) || draftHasContent(S.get(draftKey(), null));
+    // No training-run-card here – start/end is handled by the finish bar
+
     if (sug) {
-      html += `<div class="quick-card suggestion-card compact-card">
-        <div class="quick-top">
-          <div>
-            <div class="quick-label">${t('suggestion')}</div>
-            <div class="quick-title">${esc(sug.plan)} · ${esc(sug.label)}</div>
-            <div class="quick-sub">${last ? t('lastSession',{plan:esc(last.plan),label:esc(last.label),date:esc(last.date)}) : t('noLastSession')}</div>
-          </div>
+      html += `<details class="compact-details suggestion-details">
+        <summary>${t('suggestion')}: ${esc(sug.plan)} · ${esc(sug.label)}</summary>
+        <div class="suggestion-mini-body">
+          <div class="quick-sub">${last ? t('lastSession',{plan:esc(last.plan),label:esc(last.label),date:esc(last.date)}) : t('noLastSession')}</div>
           ${isActive
             ? `<span class="quick-done">${t('suggestionActive')}</span>`
             : `<button class="quick-btn" id="open-sug" type="button">${t('openSuggestion')}</button>`
           }
         </div>
-      </div>`;
+      </details>`;
     }
 
-    html += `<div class="training-tools">
-      <button class="tool-chip" type="button" data-rest="90">${t('timerStart')} 1:30</button>
-      <span class="tool-hint">${t('timerManualHint')}</span>
-    </div>`;
-
-    html += `<details class="compact-details warmup-details"><summary>${t('warmUp')}</summary><div class="wu-row compact-warmup">`;
+    // Warmup always visible (not collapsible)
+    html += `<div class="sec-lbl">${t('warmUp')}</div><div class="wu-row">`;
     D.WARMUP.forEach(name => {
       const done = !!warmup[name];
       html += `<div class="wu-card ${done?'done':''}" data-wu="${esc(name)}">
@@ -1272,7 +1333,7 @@
         <div class="wu-tick">✓</div>
       </div>`;
     });
-    html += `</div></details>`;
+    html += `</div>`;
 
     html += `<div class="sec-lbl training-headline">${t('gymSection',{plan:esc(plan),label:esc(d.label)})}</div>
       <div class="reorder-hint">${t('reorderHint')}</div>`;
@@ -1280,19 +1341,22 @@
     if (pending.length) {
       html += `<div class="postponed-box"><div class="postponed-title">${t('postponedExercises')}</div><div class="postponed-sub">${t('postponedHint')}</div>${pending.map((p,i)=>`
         <div class="postponed-row">
-          <span>${esc(p.exercise)}${p.replacement ? ` <small>statt ${esc(p.replacement)}</small>` : ''}</span>
+          <span>${esc(p.exercise)}${p.replacement ? ` <small>${t('insteadOf')} ${esc(p.replacement)}</small>` : ''}</span>
           <button class="builder-mini" data-accept-pending="${i}" type="button">${t('acceptPostponed')}</button>
         </div>`).join('')}</div>`;
     }
 
     html += `<div class="exercise-list" id="exercise-list">`;
     dayList.forEach((ex, idx) => { html += renderCard(ex, idx, dayList.length); });
+    // Add exercise button inside list, right after last exercise
+    html += `<details class="add-extra-panel add-extra-inline">
+      <summary class="add-s-btn add-extra-summary">${t('compactAddExercise')}</summary>
+      <div class="add-extra-box">
+        <select class="builder-select" id="extra-ex-select" aria-label="${t('addExerciseSelect')}">${extraOptions}</select>
+        <button class="rest-btn add-extra-save" id="add-extra-ex" type="button">${t('addForToday')}</button>
+      </div>
+    </details>`;
     html += `</div>`;
-
-    html += `<div class="add-extra-box add-extra-box-bottom">
-      <select class="builder-select" id="extra-ex-select">${extraOptions}</select>
-      <button class="builder-btn secondary" id="add-extra-ex" type="button">${currentLang==='de'?'Ergänzen':'Add'}</button>
-    </div>`;
 
     $('train-content').innerHTML = html;
     $('open-sug')?.addEventListener('click', openSuggested);
@@ -1322,6 +1386,26 @@
     renderPlanTabs(); renderDayTabs(); renderTraining();
   }
 
+  function startTrainingRun(forceNew = false) {
+    if (!user || !plan || !days?.[day]) return;
+    saveCurrentInputs();
+    const oldRun = getActiveRunId();
+    if (!forceNew && oldRun !== 'legacy') return;
+    const newRun = 'r' + Date.now().toString(36);
+    S.set(runKeyFor(), newRun);
+    inputs[day] = {};
+    metaInputs[day] = {};
+    setCounts = {};
+    warmup = {};
+    openExercise = null;
+    finishConfirm = false;
+    finished[day] = false;
+    showToast(oldRun === 'legacy' ? t('trainingStarted') : t('trainingRestarted'));
+    if (window.GBCloudSync) window.GBCloudSync.push(true);
+    renderDayTabs();
+    renderTraining();
+  }
+
   // ── Exercise card ──────────────────────────────────────────────────────────
   function renderDropRows(id, setIndex, set, isEditing) {
     const drops = (set.type === 'drop') ? (Array.isArray(set.drops) && set.drops.length ? set.drops : [{kg:'',reps:''}]) : [];
@@ -1341,8 +1425,8 @@
     const ex = displayExercise(original);
     const st = styleFor(ex.m);
     const isOpen = openExercise === original.id;
-    const isDone = !!S.get(doneKey(original.id), false);
-    const isSkipped = !!S.get(skippedKey(original.id), false) && !isDone;
+    const isDone = isDoneId(original.id);
+    const isSkipped = isSkippedId(original.id) && !isDone;
     const isEditing = !isDone || !!editMode[original.id];
     const hist   = historyEntriesForExercise(ex.n, user, [original.id]).slice(-3);
     const last   = hist[hist.length - 1];
@@ -1450,7 +1534,10 @@
             ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">${t('resetSwap')}</button>`:''}
           </div>
         </details>
-        <div class="progression-box"><strong>${t('progressionTitle')}</strong><span>${esc(progressionSuggestion(hist))}</span></div>
+        <details class="compact-details progression-details">
+          <summary>${t('progressionTitle')}</summary>
+          <div class="progression-box mini"><span>${esc(progressionSuggestion(hist))}</span></div>
+        </details>
         ${histHtml}
         ${isDone&&!isEditing?`<div class="saved-edit-note">✓ ${t('savedBadge')} · ${t('editSession')}</div>`:''}
         <div class="inp-ttl">${t('enterToday')}</div>
@@ -1513,16 +1600,57 @@
     const inner = $('finish-bar-inner');
     if (!days || !days[day]) { inner.innerHTML = ''; return; }
     const list = getDayExercises();
-    const done  = list.filter(ex => S.get(doneKey(ex.id), false)).length;
+    const done  = list.filter(ex => isDoneId(ex.id)).length;
     const total = list.length;
     const allDone = total > 0 && done === total;
+    const runStarted = hasStartedRun();
+    const hasAnyProgress = list.some(ex => isDoneId(ex.id) || isSkippedId(ex.id)) || draftHasContent(S.get(draftKey(), null));
 
+    // ── Not started: single green "Training starten" button ────────────────
+    if (!runStarted && !hasAnyProgress) {
+      inner.innerHTML = `
+        <button class="finish-btn finish-btn--start" id="start-workout-main" type="button">
+          ${t('startTraining')}
+        </button>`;
+      $('start-workout-main')?.addEventListener('click', () => {
+        startTrainingRun(true);
+        renderTraining();
+        renderFinishBar();
+      });
+      return;
+    }
+
+    // ── Finished: show summary + confirm restart ──────────────────────────
     if (finished[day]) {
+      if (finishConfirm === 'restart') {
+        inner.innerHTML = `<div class="finish-confirm">
+          <div class="finish-confirm-title">${t('restartTraining')}?</div>
+          <div class="finish-confirm-note">${t('startHint')}</div>
+          <div class="finish-confirm-row">
+            <button class="finish-no"  id="fc-no"  type="button">${t('cancel')}</button>
+            <button class="finish-yes" id="fc-yes-restart" type="button">${t('restartTraining')}</button>
+          </div>
+        </div>`;
+        $('fc-no').addEventListener('click', () => { finishConfirm = false; renderFinishBar(); });
+        $('fc-yes-restart').addEventListener('click', () => {
+          finishConfirm = false;
+          finished[day] = false;
+          startTrainingRun(true);
+          renderTraining();
+          renderFinishBar();
+        });
+        return;
+      }
       inner.innerHTML = `<div class="finish-done-msg">
         <div class="fdm-txt">${t('trainingSavedFull',{name:esc(user)})}</div>
-      </div>`; return;
+        <button class="finish-start-new" id="finish-start-new" type="button">${t('newSameDayTraining')}</button>
+      </div>`;
+      $('finish-start-new')?.addEventListener('click', () => {
+        finishConfirm = 'restart'; renderFinishBar();
+      });
+      return;
     }
-    if (finishConfirm) {
+    if (finishConfirm && finishConfirm !== 'restart') {
       inner.innerHTML = `<div class="finish-confirm">
         <div class="finish-confirm-title">${t('confirmFinish')}</div>
         <div class="finish-confirm-note">${allDone ? t('allDone') : t('stillOpen',{n:total-done})}<br><small>${t('finishManualHint')}</small></div>
@@ -1534,17 +1662,19 @@
       $('fc-no').addEventListener('click', () => { finishConfirm = false; renderFinishBar(); });
       $('fc-yes').addEventListener('click', () => {
         saveDraftedInputsForDay();
+        const runId = getActiveRunId();
         const details = list.map(ex => {
           const shown = displayExercise(ex);
-          const doneNow = !!S.get(doneKey(ex.id), false);
+          const doneNow = isDoneId(ex.id);
           if (!doneNow) S.set(skippedKey(ex.id), true);
           const hkey = historyKeyFor(ex.id, shown.n);
-          const h = getHistory(hkey).filter(e => e.user === user && e.date === dateStr() && e.exercise === shown.n).slice(-1)[0]
-            || getHistory(ex.id).filter(e => e.user === user && e.date === dateStr() && e.exercise === shown.n).slice(-1)[0];
+          const sameRun = e => runId === 'legacy' || (e.workoutRun || 'legacy') === runId;
+          const h = getHistory(hkey).filter(e => e.user === user && e.date === dateStr() && e.exercise === shown.n && sameRun(e)).slice(-1)[0]
+            || getHistory(ex.id).filter(e => e.user === user && e.date === dateStr() && e.exercise === shown.n && sameRun(e)).slice(-1)[0];
           return { id:ex.id, exercise:shown.n, muscle:shown.m, status:doneNow ? 'done' : 'skipped', sets:h?.sets || [], volume:h ? volumeForEntry(h) : 0, extra:!!ex.extra };
         });
         const summary = {
-          plan, label: days[day].label, dayIndex:day, date: dateStr(), ts:Date.now(),
+          plan, label: days[day].label, dayIndex:day, date: dateStr(), ts:Date.now(), workoutRun: runId,
           exercises: details.filter(d => d.status === 'done').length,
           skipped: details.filter(d => d.status === 'skipped').length,
           sets: details.reduce((s,d)=>s+d.sets.length,0),
@@ -1553,13 +1683,13 @@
         };
         S.set('lastWorkoutSummary_' + user, summary);
         const wh = S.get('workoutHistory_' + user, []);
-        const whIdx = wh.findIndex(e => e.date === summary.date && e.plan === plan && e.dayIndex === day);
+        const whIdx = wh.findIndex(e => e.date === summary.date && e.plan === plan && e.dayIndex === day && (runId === 'legacy' || (e.workoutRun || 'legacy') === runId));
         if (whIdx >= 0) wh[whIdx] = summary; else wh.push(summary);
         S.set('workoutHistory_' + user, wh.sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-60));
         const log = getTrainingLog(user);
-        const entry = {plan, dayIndex:day, label:days[day].label, date:dateStr(), ts:Date.now(), done:summary.exercises, skipped:summary.skipped};
+        const entry = {plan, dayIndex:day, label:days[day].label, date:dateStr(), ts:Date.now(), done:summary.exercises, skipped:summary.skipped, workoutRun:runId};
         const prev = log[log.length-1];
-        if (!(prev && prev.plan===plan && prev.dayIndex===day && prev.date===entry.date)) {
+        if (!(prev && prev.plan===plan && prev.dayIndex===day && prev.date===entry.date && (runId === 'legacy' || (prev.workoutRun || 'legacy') === runId))) {
           log.push(entry); S.set('trainingLog_' + user, log.slice(-100));
         } else { log[log.length-1] = entry; S.set('trainingLog_' + user, log.slice(-100)); }
         clearDraftForCurrentDay();
@@ -1747,7 +1877,7 @@
       date:dateStr(), user, sets, exercise:exInfo?.n||id, muscle:exInfo?.m||'Brust', slotId:id, plannedExercise: original?.n || id,
       rpe: String(metaInputs[day]?.[id]?.rpe ?? $('meta_' + id + '_rpe')?.value ?? '').trim(),
       note: String(metaInputs[day]?.[id]?.note ?? $('meta_' + id + '_note')?.value ?? '').trim(),
-      deload: isDeloadOn(), ts:Date.now(), extra:!!original.extra, swapped: !!exInfo?.swapped
+      deload: isDeloadOn(), ts:Date.now(), workoutRun:getActiveRunId(), extra:!!original.extra, swapped: !!exInfo?.swapped
     };
 
     const prev = historyEntriesForExercise(entry.exercise, user, [id]).flatMap(e=>e.sets || [])
@@ -1768,14 +1898,14 @@
 
     const hKey = historyKeyFor(id, entry.exercise);
     const histNow = getHistory(hKey);
-    const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date && (e.exercise || entry.exercise) === entry.exercise && (e.slotId || id) === id);
+    const sameIdx = histNow.findIndex(e => e.user === user && e.date === entry.date && (e.exercise || entry.exercise) === entry.exercise && (e.slotId || id) === id && (entry.workoutRun === 'legacy' || (e.workoutRun || 'legacy') === entry.workoutRun));
     if (sameIdx >= 0) histNow[sameIdx] = entry;
     else histNow.push(entry);
     S.set('h_' + hKey, histNow.sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-160));
 
     const sess = S.get('sessions_'+user,[]);
-    const sIdx = sess.findIndex(e => e.date===dateStr() && e.day===day && e.plan===plan && e.slotId===id);
-    const sEntry = {date:dateStr(), day, plan, exercise:entry.exercise, plannedExercise:entry.plannedExercise, slotId:id, ts:Date.now(), status:'done'};
+    const sIdx = sess.findIndex(e => e.date===dateStr() && e.day===day && e.plan===plan && e.slotId===id && (entry.workoutRun === 'legacy' || (e.workoutRun || 'legacy') === entry.workoutRun));
+    const sEntry = {date:dateStr(), day, plan, exercise:entry.exercise, plannedExercise:entry.plannedExercise, slotId:id, ts:Date.now(), status:'done', workoutRun:entry.workoutRun};
     if (sIdx >= 0) sess[sIdx] = sEntry;
     else sess.push(sEntry);
     S.set('sessions_'+user, sess.sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-300));
@@ -1789,7 +1919,7 @@
     saveCurrentInputs();
     const dayMap = inputs[day] || {};
     Object.keys(dayMap).forEach(id => {
-      if (S.get(doneKey(id), false)) return;
+      if (isDoneId(id)) return;
       const count = Math.max(setCounts[id] || 0, Array.isArray(dayMap[id]) ? dayMap[id].length : 0);
       if (count && dayMap[id].some(setIsFilled)) persistExerciseEntry(id, count, {silent:true});
     });
@@ -2247,7 +2377,7 @@
   function applySavedTheme() { document.body.classList.toggle('light-mode', getTheme()==='light'); }
 
   function isBackupKey(key) {
-    const prefixes = ['pinnedPlans_','theme_','trainingLog_','sessions_','prs_','done_','h_','lastWorkoutSummary_','deload_','extra_','order_','skipped_','workoutHistory_','pendingSwaps_','draft_'];
+    const prefixes = ['pinnedPlans_','theme_','trainingLog_','sessions_','prs_','done_','h_','lastWorkoutSummary_','deload_','extra_','order_','skipped_','workoutHistory_','pendingSwaps_','draft_','run_'];
     return ['users','customPlans','customExercises','hiddenExercises','favoriteExercises','exerciseCategories','theme_default','lang','gb_data_model_version','gb_app_version','restTimerPos'].includes(key) || prefixes.some(p => key.startsWith(p));
   }
   function exportBackup() {
@@ -2323,10 +2453,8 @@
             <button class="theme-btn ${theme==='light'?'active':''}" id="s-light" type="button">${t('light')}</button>
           </div>
           <div class="quick-label" style="margin-top:14px">${t('langLabel')}</div>
-          <div class="theme-row">
-            <button class="theme-btn ${lang==='de'?'active':''}" id="l-de" type="button">Deutsch</button>
-            <button class="theme-btn ${lang==='en'?'active':''}" id="l-en" type="button">English</button>
-            <button class="theme-btn ${lang==='th'?'active':''}" id="l-th" type="button">ภาษาไทย</button>
+          <div class="theme-row language-row">
+            ${Object.keys(LANGUAGES).map(code => `<button class="theme-btn lang-btn ${lang===code?'active':''}" data-lang="${code}" type="button"><span class="flag">${LANGUAGES[code].flag}</span><span>${LANGUAGES[code].label}</span></button>`).join('')}
           </div>
         </div>
       </section>
@@ -2352,7 +2480,7 @@
         <div class="settings-card slim">
           <div class="settings-title">${t('deloadLabel')}</div>
           <div class="builder-sub">${t('deloadDesc')}</div>
-          <button class="theme-btn ${deload?'active':''}" id="toggle-deload" type="button" style="width:100%;margin-top:8px">${deload ? t('deloadLabel') + ' aktiv' : t('deloadLabel') + ' aus'}</button>
+          <button class="theme-btn ${deload?'active':''}" id="toggle-deload" type="button" style="width:100%;margin-top:8px">${deload ? t('deloadActive') : t('deloadOff')}</button>
           <div class="builder-sub" style="margin-top:12px">${t('timerManualHint')}</div>
         </div>
       </section>
@@ -2392,9 +2520,7 @@
     $('s-dark').addEventListener('click',  () => setTheme('dark'));
     $('s-light').addEventListener('click', () => setTheme('light'));
     function applyLanguage(lang){ currentLang=lang; document.documentElement.lang=lang; S.set('lang',lang); showToast(t('langSaved')); renderAccountMenuLabels(); renderUserScreen(); const rl=document.querySelector('.rest-label'); if(rl) rl.textContent=t('restRunning'); if(screen==='home')renderDashboard(); else if(screen==='train')renderTraining(); else if(screen==='progress')renderProgress(); else if(screen==='plans')renderPlanBuilder(); else if(screen==='settings')renderSettings(); }
-    $('l-de').addEventListener('click', () => applyLanguage('de'));
-    $('l-en').addEventListener('click', () => applyLanguage('en'));
-    $('l-th').addEventListener('click', () => applyLanguage('th'));
+    document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)));
     $('backup-export')?.addEventListener('click', exportBackup);
     $('backup-import')?.addEventListener('change', e => importBackupFile(e.target.files[0]));
     $('toggle-deload')?.addEventListener('click', () => { S.set('deload_' + user, !isDeloadOn()); renderSettings(); if (window.GBCloudSync) window.GBCloudSync.push(true); });
@@ -2667,14 +2793,24 @@
       box.style.bottom = 'auto';
       box.classList.add('floating-free');
     }
-    let dragging=false, sx=0, sy=0, ox=0, oy=0;
+    const freezeSize = () => {
+      const r = box.getBoundingClientRect();
+      const w = Math.round(r.width || 216);
+      const h = Math.round(r.height || 72);
+      box.style.width = w + 'px';
+      box.style.minWidth = w + 'px';
+      box.style.maxWidth = w + 'px';
+      box.style.height = h + 'px';
+      box.style.minHeight = h + 'px';
+      box.style.maxHeight = h + 'px';
+      return {w,h};
+    };
+    let dragging=false, sx=0, sy=0, ox=0, oy=0, dragSize={w:216,h:72};
     box.addEventListener('pointerdown', e => {
       if (e.target.closest('button')) return;
       dragging=true; box.setPointerCapture(e.pointerId);
       const r=box.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; ox=r.left; oy=r.top;
-      box.style.width = Math.round(r.width) + 'px';
-      box.style.minWidth = Math.round(r.width) + 'px';
-      box.style.height = Math.round(r.height) + 'px';
+      dragSize = freezeSize();
       box.style.left = Math.round(r.left) + 'px';
       box.style.top = Math.round(r.top) + 'px';
       box.style.right = 'auto'; box.style.bottom = 'auto';
@@ -2683,13 +2819,13 @@
     });
     box.addEventListener('pointermove', e => {
       if(!dragging) return;
-      const w=box.offsetWidth, h=box.offsetHeight;
-      const x=Math.min(Math.max(8, ox + e.clientX - sx), window.innerWidth - w - 8);
-      const y=Math.min(Math.max(8, oy + e.clientY - sy), window.innerHeight - h - 8);
+      const x=Math.min(Math.max(8, ox + e.clientX - sx), window.innerWidth - dragSize.w - 8);
+      const y=Math.min(Math.max(8, oy + e.clientY - sy), window.innerHeight - dragSize.h - 8);
       box.style.left=x+'px'; box.style.top=y+'px'; box.style.right='auto'; box.style.bottom='auto'; box.classList.add('floating-free');
     });
     box.addEventListener('pointerup', e => {
       if(!dragging) return; dragging=false; box.classList.remove('dragging');
+      freezeSize();
       const r=box.getBoundingClientRect(); S.set('restTimerPos',{x:Math.round(r.left), y:Math.round(r.top)});
     });
   }
