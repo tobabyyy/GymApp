@@ -170,6 +170,8 @@
       newPR: 'Neue PR: ',
       nameRequired: 'Bitte Namen eintragen.',
       atLeastOneEx: 'Mindestens eine Übung pro Tag hinzufügen.',
+      inProgress: 'In Bearbeitung',
+      nextUp: 'Als nächstes',
       sessions1: 'Einheit', sessionsN: 'Einheiten',
       days: 'Tage', exercises: 'Übungen', template: '· Vorlage',
       noExercises: 'Noch keine Übungen.',
@@ -294,6 +296,8 @@
       newPR: 'New PR: ',
       nameRequired: 'Please enter a name.',
       atLeastOneEx: 'Add at least one exercise per day.',
+      inProgress: 'In progress',
+      nextUp: 'Next up',
       sessions1: 'session', sessionsN: 'sessions',
       days: 'days', exercises: 'exercises', template: '· Template',
       noExercises: 'No exercises yet.',
@@ -418,6 +422,8 @@
       newPR: 'สถิติใหม่: ',
       nameRequired: 'กรุณาใส่ชื่อ',
       atLeastOneEx: 'เพิ่มอย่างน้อยหนึ่งท่าต่อวัน',
+      inProgress: 'กำลังทำอยู่',
+      nextUp: 'ต่อไป',
       sessions1: 'ครั้ง', sessionsN: 'ครั้ง',
       days: 'วัน', exercises: 'ท่า', template: '· เทมเพลต',
       noExercises: 'ยังไม่มีท่าออกกำลังกาย',
@@ -507,7 +513,7 @@
       selectExerciseLabel:'Alege exercițiul', sessions:'Sesiuni', maxKg:'Max kg', volLabel:'Volum', logLabel:'Istoric', noData:'Încă nu există date', noDataDesc:'Completează o sesiune.',
       planLibTitle:'Bibliotecă de planuri', planLibDesc:'Fixează planuri, editează sau creează propriile planuri.', newPlanTitle:'Creează plan nou', planNamePlaceholder:'Numele planului', startBlank:'Pornește gol', addDay:'+ Adaugă zi', copyTemplate:'Copiază șablon', pinBtn:'Fixează', unpinBtn:'Scoate', duplicate:'Duplică', editPlan:'Editează', copyEdit:'Editează copie', deletePlan:'Șterge planul', deletePlanConfirm:'Ștergi planul „{name}”?', draftActive:'Draft activ', saveDraft:'Salvează planul ✓', addExerciseToDay:'+ Adaugă exercițiu', addCustomToDay:'+ Exercițiu propriu', customExTitle:'Exercițiu propriu', customExDesc:'Adaugă un exercițiu în baza de date.', uploadImage:'Încarcă imagine', exerciseSaved:'Exercițiu salvat.',
       settingsTitle:'Setări', designLabel:'Design', dark:'Întunecat', light:'Luminos', langLabel:'Limbă', profilesLabel:'Profiluri', menuSettings:'Setări', menuExport:'Export backup', menuSwitchProfile:'Schimbă profilul', activeProfile:'Activ', deleteProfile:'Șterge', exerciseDBLabel:'Editează baza de exerciții', cloudLabel:'Cloud Sync', backupLabel:'Backup', exportData:'Exportă', importData:'Importă', backupDesc:'Salvează profiluri, planuri, exerciții și date de antrenament ca fișier JSON.', exportDone:'Backup creat.', importDone:'Backup importat.', importInvalid:'Backup-ul nu a putut fi citit.', cloudConnected:'Online', cloudOffline:'Offline', statusOnline:'Online', statusOffline:'Offline',
-      planSearch:'Caută planuri…', swapFilterAll:'Toate grupele', addExercise:'Adaugă exercițiu', back:'← Înapoi', noPlanTitle:'Niciun plan selectat', noPlanDesc:'Fixează un plan din bibliotecă – apoi apare aici.', pinPlan:'Fixează plan', langSaved:'Limba a fost salvată.', profileDeleted:'Profil șters.', deleteConfirm:'Sigur ștergi profilul „{name}”? Toate datele de antrenament vor fi eliminate.', noLastProfile:'Ultimul profil nu poate fi șters.', confirmDeleteShort:'Sigur ștergi?', exerciseDeleted:'Exercițiu șters.', renamedTo:'Redenumit.', imageSaved:'Imagine actualizată.', planSaved:'Plan salvat.', newPR:'Record nou: ', nameRequired:'Introdu un nume.', atLeastOneEx:'Adaugă cel puțin un exercițiu pe zi.', sessions1:'sesiune', sessionsN:'sesiuni', days:'zile', exercises:'exerciții', template:'· șablon', noExercises:'Încă nu există exerciții.', exerciseName:'Numele exercițiului', deleteExerciseConfirm:'Ștergi exercițiul „{name}”?', repsPlaceholder:'rep', repsHeader:'rep.', avgWeight:'Greutate medie (kg)', avgReps:'Repetări medii', pinnedTag:'Fixat', imageUrlPlaceholder:'URL imagine (opțional)', removeDayTitle:'Elimină ziua', moveUpTitle:'Mută sus', moveDownTitle:'Mută jos', removeTitle:'Elimină', uploadShort:'Încarcă', imageTitle:'Imagine', deleteTitle:'Șterge', timerDone:'Gata ✓', noPlanShort:'Nu s-a găsit niciun plan.', activePercent:'% finalizat', openTraining:'Deschide antrenamentul', noExercisesDB:'Nu există exerciții.', vorlage:'· șablon',
+      planSearch:'Caută planuri…', swapFilterAll:'Toate grupele', addExercise:'Adaugă exercițiu', back:'← Înapoi', noPlanTitle:'Niciun plan selectat', noPlanDesc:'Fixează un plan din bibliotecă – apoi apare aici.', pinPlan:'Fixează plan', langSaved:'Limba a fost salvată.', profileDeleted:'Profil șters.', deleteConfirm:'Sigur ștergi profilul „{name}”? Toate datele de antrenament vor fi eliminate.', noLastProfile:'Ultimul profil nu poate fi șters.', confirmDeleteShort:'Sigur ștergi?', exerciseDeleted:'Exercițiu șters.', renamedTo:'Redenumit.', imageSaved:'Imagine actualizată.', planSaved:'Plan salvat.', newPR:'Record nou: ', nameRequired:'Introdu un nume.', atLeastOneEx:'Adaugă cel puțin un exercițiu pe zi.',inProgress:'În desfășurare',nextUp:'Urmează', sessions1:'sesiune', sessionsN:'sesiuni', days:'zile', exercises:'exerciții', template:'· șablon', noExercises:'Încă nu există exerciții.', exerciseName:'Numele exercițiului', deleteExerciseConfirm:'Ștergi exercițiul „{name}”?', repsPlaceholder:'rep', repsHeader:'rep.', avgWeight:'Greutate medie (kg)', avgReps:'Repetări medii', pinnedTag:'Fixat', imageUrlPlaceholder:'URL imagine (opțional)', removeDayTitle:'Elimină ziua', moveUpTitle:'Mută sus', moveDownTitle:'Mută jos', removeTitle:'Elimină', uploadShort:'Încarcă', imageTitle:'Imagine', deleteTitle:'Șterge', timerDone:'Gata ✓', noPlanShort:'Nu s-a găsit niciun plan.', activePercent:'% finalizat', openTraining:'Deschide antrenamentul', noExercisesDB:'Nu există exerciții.', vorlage:'· șablon',
       firstProfileHint:'Creează un profil și fixează apoi un plan.', supersetLabel:'Superset', supersetNone:'Fără superset', supersetGroup:'Superset {group}', setType:'Tip', setTypeNormal:'Normal', setTypeDrop:'Dropset', rpeLabel:'RPE', noteLabel:'Notiță', notePlaceholder:'Notiță scurtă', deloadLabel:'Deload', deloadActive:'Deload activ', deloadOff:'Deload oprit', deloadDesc:'Marchează seturile de azi ca deload și reduce aproximativ cu 10% greutățile preluate.', progressionTitle:'Sugestie pentru azi', progressionEmpty:'Completează valori pentru a primi o sugestie.', analyticsTitle:'Analiză săptămânală', muscleBalance:'Balans muscular', planDevelopment:'Evoluția planului', frequency:'Frecvență', volumeWeek:'Volum săptămânal', favOnly:'Doar favorite', favorite:'Favorit', category:'Categorie', hiddenExercisesLabel:'Exerciții ascunse', restore:'Restaurează', hideExercise:'Ascunde', searchExercises:'Caută exerciții…', allCategories:'Toate categoriile', selfTest:'Suită de test', selfTestRun:'Pornește testele', selfTestOK:'OK: funcțiile de bază arată bine.', selfTestFail:'Problemă găsită:', quickStartTitle:'Start rapid', quickStartPlan:'Fixează plan', quickStartTrain:'Deschide antrenamentul', quickStartSave:'Salvează primul exercițiu', navActions:'Acțiuni', menuToday:'Continuă azi', navSettings:'Setări', addExtraExercise:'Adaugă exercițiu', extraExercise:'Exercițiu extra', addForToday:'Adaugă azi', extraSaved:'Exercițiu extra adăugat.', workoutHistory:'Istoric antrenamente', doneStatus:'Făcut', skippedStatus:'Sărit', skippedExercises:'Exerciții sărite', finishManualHint:'Antrenamentul se finalizează doar cu acest buton.', volumeHelp:'Volum = greutate ori repetări. Dropseturile sunt incluse.', timerStart:'Pornește timer', timerPause:'Pauză', timerResume:'Continuă', timerReset:'Resetează', timerManualHint:'Timerul pornește doar manual.', addDropWeight:'Adaugă greutate', dropWeight:'Greutate drop', removeDrop:'Elimină drop', reorderHint:'Trage de mâner sau folosește săgețile.', moveExerciseUp:'Mută exercițiul sus', moveExerciseDown:'Mută exercițiul jos', postponedExercises:'Exerciții de schimb sugerate', postponedHint:'La schimb, exercițiul original rămâne ca sugestie.', acceptPostponed:'Fă azi', insteadOf:'în loc de', baseExerciseLocked:'Exercițiu de bază: numele și categoria sunt protejate. Imaginea se poate schimba.', customExercise:'Exercițiu propriu', settingsAppearance:'Aspect și limbă', settingsSync:'Sync și backup', settingsTraining:'Antrenament', settingsData:'Bază de date', settingsProfiles:'Profiluri', settingsDiagnostics:'Diagnostic', workoutSummaryTitle:'Rezumat', noSkipped:'Niciun exercițiu sărit.', startTraining:'Pornește antrenamentul', restartTraining:'Pornește antrenament nou', continueTraining:'Continuă antrenamentul', trainingStarted:'Antrenament pornit.', trainingRestarted:'Antrenament nou pornit.', editFinishedTraining:'Editează antrenamentul finalizat', newSameDayTraining:'Pornește aceeași zi din nou', startHint:'Pornește o sesiune separată pentru această zi.', showSuggestion:'Arată sugestia', compactAddExercise:'Adaugă exercițiu', addExerciseSelect:'Alege exercițiu', saveAndContinue:'Salvează', liquidGlassLabel:'Design liquid glass', imagesLocalLabel:'Grafici locale pentru exerciții',
     }
   };
@@ -1434,6 +1440,20 @@
     const count  = setCounts[original.id] || Math.max(3, inputs[day]?.[original.id]?.length || savedLen || 0);
     const extraBadge = original.extra ? `<span class="extra-badge">${t('extraExercise')}</span>` : '';
     const skippedBadge = isSkipped ? `<span class="skipped-badge">${t('skippedStatus')}</span>` : '';
+
+    // In-progress: has draft inputs but not yet saved
+    const draftData = inputs[day]?.[original.id];
+    const hasInputs = Array.isArray(draftData) && draftData.some(r => (r.kg||'').trim() || (r.reps||'').trim());
+    const isInProgress = !isDone && !isSkipped && hasInputs;
+
+    // "Next up": first exercise that has no input, is not done, not skipped
+    const dayList = getDayExercises();
+    const firstPending = !isDone && !isSkipped && !hasInputs
+      ? dayList.findIndex(e => !isDoneId(e.id) && !isSkippedId(e.id) && (() => {
+          const d = inputs[day]?.[e.id];
+          return !(Array.isArray(d) && d.some(r => (r.kg||'').trim() || (r.reps||'').trim()));
+        })()) === index
+      : false;
     const dragTools = `<div class="card-tools">
       <button class="drag-handle" draggable="true" data-drag-id="${esc(original.id)}" type="button" title="Drag">≡</button>
       <button class="builder-mini move-mini" data-move-ex="${esc(original.id)}|-1" type="button" ${index<=0?'disabled':''} title="${t('moveExerciseUp')}">↑</button>
@@ -1441,18 +1461,23 @@
     </div>`;
 
     if (!isOpen) {
-      return `<div class="ex-card ${isDone?'edone':''} ${isSkipped?'eskipped':''}" id="card_${original.id}" data-ex-card="${esc(original.id)}">
+      return `<div class="ex-card ${isDone?'edone':''} ${isSkipped?'eskipped':''} ${isInProgress?'ex-in-progress':''} ${firstPending&&!isDone?'ex-next-up':''}" id="card_${original.id}" data-ex-card="${esc(original.id)}">
         <div class="ex-row" data-open="${original.id}">
           <div class="ex-thumb"><img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy"></div>
           <div class="ex-info">
             <div class="ex-mtag" style="color:${st.c}">${esc(ex.m)} ${extraBadge} ${skippedBadge}</div>
             <div class="ex-name">${esc(ex.n)}${original.superset ? `<span class="superset-badge">${t('supersetGroup',{group:esc(original.superset)})}</span>` : ''}</div>
-            ${last ? `<div class="ex-last">${esc(last.date)} · ${last.sets.map(s=>esc(setLabel(s))).join('  ')}</div>` : ''}
+            ${isInProgress
+              ? `<div class="ex-status ex-status--progress">✏️ ${t('inProgress')}</div>`
+              : firstPending
+                ? `<div class="ex-status ex-status--next">▶ ${t('nextUp')}</div>`
+                : last ? `<div class="ex-last">${esc(last.date)} · ${last.sets.map(s=>esc(setLabel(s))).join('  ')}</div>` : ''
+            }
           </div>
           <div class="ex-r">
             ${isDone
               ? '<div class="done-chk">✓</div>'
-              : `<div class="sets-badge">${count}×</div><div class="chevron">›</div>`
+              : `<div class="chevron">›</div>`
             }
           </div>
         </div>
@@ -2138,52 +2163,87 @@
       </select>`;
     }
 
-    let html = `<div class="builder-card">
-      <div class="builder-title">${t('planLibTitle')}</div>
-      <div class="builder-sub">${t('planLibDesc')}</div>
-      <input class="builder-input plan-search-input" id="plan-search" placeholder="${t('planSearch')}" autocomplete="off">
+    // ── Separate pinned from unpinned ───────────────────────────────────────
+    const pinnedNames   = Object.keys(plans).filter(n => pinned.has(n));
+    const unpinnedNames = Object.keys(plans).filter(n => !pinned.has(n));
+
+    let html = `<div class="plan-lib-toolbar">
+      <input class="builder-input plan-search-input" id="plan-search"
+        placeholder="${t('planSearch')}" autocomplete="off" style="margin:0">
+      <button class="builder-btn" id="btn-blank-top" type="button">+ ${t('newPlanTitle')}</button>
     </div>`;
 
-    // Library list
+    // ── Pinned section ───────────────────────────────────────────────────────
+    if (pinnedNames.length) {
+      html += `<div class="plan-section-label">📌 ${t('pinnedPlans')}</div>`;
+      pinnedNames.forEach(name => {
+        const p = plans[name] || [];
+        const isBase = basePlanNames.includes(name);
+        html += `<div class="plan-lib-card plan-lib-card--pinned" data-plan-filter="${esc(name.toLowerCase())}">
+          <div class="plan-lib-head">
+            <div class="plan-lib-main">
+              <div class="plan-lib-name">${esc(name)}</div>
+              <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?' · '+t('template').replace('·','').trim():''}</div>
+            </div>
+            <div class="plan-lib-actions">
+              <button class="pin-btn active" data-pin="${esc(name)}" type="button" title="${t('unpinBtn')}">📌</button>
+              <button class="quick-btn" data-start-plan="${esc(name)}" type="button">${t('navTrain')} →</button>
+            </div>
+          </div>
+          <div class="plan-lib-btns">
+            <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
+            ${isBase
+              ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
+              : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
+            }
+            ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button">${t('deletePlan')}</button>` : ''}
+          </div>
+        </div>`;
+      });
+    }
+
+    // ── All plans section ────────────────────────────────────────────────────
+    html += `<div class="plan-section-label">${t('planLibTitle')}</div>`;
     Object.keys(plans).forEach(name => {
       const p = plans[name] || [];
       const isBase = basePlanNames.includes(name);
       const isPinned = pinned.has(name);
       html += `<div class="plan-lib-card" data-plan-filter="${esc(name.toLowerCase())}">
         <div class="plan-lib-head">
-          <div>
-            ${isPinned ? '<span class="pinned-tag">'+t('pinnedTag')+'</span>' : ''}
+          <div class="plan-lib-main">
             <div class="plan-lib-name">${esc(name)}</div>
-            <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?(' '+t('template')):''}</div>
+            <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?' · '+t('template').replace('·','').trim():''}</div>
           </div>
-          <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button">
-            ${isPinned ? t('unpinBtn') : t('pinBtn')}
-          </button>
+          <div class="plan-lib-actions">
+            <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button" title="${isPinned?t('unpinBtn'):t('pinBtn')}">
+              ${isPinned?'📌':'☐'}
+            </button>
+          </div>
         </div>
-        <div class="builder-row" style="margin-top:10px">
+        <div class="plan-lib-btns">
           <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
           ${isBase
             ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
             : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
           }
+          ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button">${t('deletePlan')}</button>` : ''}
         </div>
-        ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button" style="width:100%;margin-top:8px">${t('deletePlan')}</button>` : ''}
       </div>`;
     });
 
-    // New plan section
-    html += `<div class="builder-card">
-      <div class="builder-title">${t('newPlanTitle')}</div>
-      <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft?.name||'')}">
+    // ── New plan section ─────────────────────────────────────────────────────
+    html += `<div class="plan-section-label">➕ ${t('newPlanTitle')}</div>
+    <div class="builder-card">
+      <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft?.name||'')}" style="margin-bottom:10px">
       <div class="builder-row">
         <button class="builder-btn" id="btn-blank" type="button">${t('startBlank')}</button>
         <button class="builder-btn secondary" id="btn-addday" type="button">${t('addDay')}</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:8px 0 4px">${t('copyTemplate')}:</div>
+      <div class="plan-or-divider">${t('copyTemplate')}</div>
       <select class="builder-select" id="tpl-select">
         ${Object.keys(plans).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}
       </select>
-      <button class="builder-btn secondary" id="btn-copy-tpl" type="button">${t('copyTemplate')}</button>
+      <button class="builder-btn secondary" id="btn-copy-tpl" type="button" style="width:100%;margin-top:6px">${t('copyTemplate')}</button>
     </div>`;
 
     // Custom exercise creator
@@ -2241,6 +2301,16 @@
 
   function bindBuilderEvents() {
     const name = () => ($('builder-name')?.value || '').trim() || 'Mein Plan';
+    // Quick start from pinned card
+    document.querySelectorAll('[data-start-plan]').forEach(b =>
+      b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
+    );
+    // New plan from top toolbar
+    $('btn-blank-top')?.addEventListener('click', () => {
+      planDraft = {name:name(), days:[{label:'Tag 1', ex:[]}]};
+      renderPlanBuilder();
+      setTimeout(() => $('builder-name')?.focus(), 60);
+    });
     $('plan-search')?.addEventListener('input', e => {
       const q = e.target.value.trim().toLowerCase();
       document.querySelectorAll('[data-plan-filter]').forEach(card => {
