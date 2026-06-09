@@ -1553,12 +1553,14 @@
       </div>
       <div class="open-drag-row">${dragTools}</div>
       <div class="ex-body compact-ex-body">
-        <details class="compact-details swap-details" ${swapOpen[original.id]?'open':''}>
-          <summary>${t('swapExercise')}</summary>
-          <div class="swap-content open">${swapFilter}${swapHtml}
+        <div class="swap-box-wrap">
+          <button class="compact-swap-toggle" type="button" data-swap-toggle="${original.id}">
+            <span>${t('swapExercise')}</span><span class="swap-chev ${swapOpen[original.id]?'open':''}">▾</span>
+          </button>
+          <div class="swap-content ${swapOpen[original.id]?'open':''}">${swapFilter}${swapHtml}
             ${ex.swapped?`<button class="swap-reset" data-swap-reset="${original.id}">${t('resetSwap')}</button>`:''}
           </div>
-        </details>
+        </div>
         <details class="compact-details progression-details">
           <summary>${t('progressionTitle')}</summary>
           <div class="progression-box mini"><span>${esc(progressionSuggestion(hist))}</span></div>
@@ -1742,7 +1744,14 @@
       const open = e.target.closest('[data-open]');
       if (open) {
         saveCurrentInputs();
-        openExercise = openExercise === open.dataset.open ? null : open.dataset.open;
+        const oid = open.dataset.open;
+        if (openExercise === oid) {
+          openExercise = null;
+          delete swapOpen[oid];
+        } else {
+          openExercise = oid;
+          delete swapOpen[oid]; // always closed on fresh open
+        }
         renderTraining();
         setTimeout(() => $('card_' + openExercise)?.scrollIntoView({behavior:'smooth',block:'center'}), 60);
         return;
@@ -1837,7 +1846,7 @@
           if (original && original.n !== item.n) addPendingSwap(original, item);
           persistDraft();
           openExercise = sw.dataset.swapId;
-          swapOpen[sw.dataset.swapId] = true;
+          swapOpen[sw.dataset.swapId] = false;  // close after selecting
           showToast(t('exerciseSwapped'));
           if (window.GBCloudSync) window.GBCloudSync.push(true);
           renderTraining();
@@ -1846,7 +1855,15 @@
       }
       // Swap toggle
       const swt = e.target.closest('[data-swap-toggle]');
-      if (swt) { swapOpen[swt.dataset.swapToggle] = !swapOpen[swt.dataset.swapToggle]; renderTraining(); return; }
+      if (swt) {
+        e.stopPropagation();
+        const sid = swt.dataset.swapToggle;
+        swapOpen[sid] = !swapOpen[sid];
+        const card = $('card_' + sid);
+        card?.querySelector('.swap-content')?.classList.toggle('open', !!swapOpen[sid]);
+        card?.querySelector('.swap-chev')?.classList.toggle('open', !!swapOpen[sid]);
+        return;
+      }
       // Swap reset
       const swr = e.target.closest('[data-swap-reset]');
       if (swr) { delete daySwaps[swapKey(swr.dataset.swapReset)]; openExercise = swr.dataset.swapReset; persistDraft(); renderTraining(); return; }
@@ -2167,133 +2184,197 @@
     const pinnedNames   = Object.keys(plans).filter(n => pinned.has(n));
     const unpinnedNames = Object.keys(plans).filter(n => !pinned.has(n));
 
-    let html = `<div class="plan-lib-toolbar">
-      <input class="builder-input plan-search-input" id="plan-search"
-        placeholder="${t('planSearch')}" autocomplete="off" style="margin:0">
-      <button class="builder-btn" id="btn-blank-top" type="button">+ ${t('newPlanTitle')}</button>
+    // ── Tab state ──────────────────────────────────────────────────────────
+    if (!window._planTab) window._planTab = 'library';
+    const tab = window._planTab;
+
+    let html = `
+    <div class="plan-tabs-bar">
+      <button class="plan-tab-btn ${tab==='library'?'active':''}" data-plan-tab="library">📚 ${t('planLibTitle')}</button>
+      <button class="plan-tab-btn ${tab==='create'?'active':''}" data-plan-tab="create">➕ ${t('newPlanTitle')}</button>
+      <button class="plan-tab-btn ${tab==='exercises'?'active':''}" data-plan-tab="exercises">💪 ${t('exerciseDBLabel')}</button>
     </div>`;
 
-    // ── Pinned section ───────────────────────────────────────────────────────
-    if (pinnedNames.length) {
-      html += `<div class="plan-section-label">📌 ${t('pinnedPlans')}</div>`;
-      pinnedNames.forEach(name => {
+    // ════════════════════════════════════════════════════════════
+    // TAB 1: LIBRARY
+    // ════════════════════════════════════════════════════════════
+    if (tab === 'library') {
+      html += `<input class="builder-input plan-search-input" id="plan-search"
+        placeholder="🔍 ${t('planSearch')}" autocomplete="off">`;
+
+      if (pinnedNames.length) {
+        html += `<div class="plan-section-label">📌 ${t('pinnedPlans')}</div>`;
+        pinnedNames.forEach(name => {
+          const p = plans[name] || [];
+          const isBase = basePlanNames.includes(name);
+          html += `<div class="plan-lib-card plan-lib-card--pinned" data-plan-filter="${esc(name.toLowerCase())}">
+            <div class="plan-lib-head">
+              <div class="plan-lib-main">
+                <div class="plan-lib-name">${esc(name)}</div>
+                <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}</div>
+              </div>
+              <div class="plan-lib-actions">
+                <button class="pin-btn active" data-pin="${esc(name)}" type="button" title="${t('unpinBtn')}">📌</button>
+                <button class="quick-btn" data-start-plan="${esc(name)}" type="button">${t('navTrain')} →</button>
+              </div>
+            </div>
+            <div class="plan-lib-btns">
+              ${isBase
+                ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
+                : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
+              }
+              <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
+              ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button">${t('deletePlan')}</button>` : ''}
+            </div>
+          </div>`;
+        });
+      }
+
+      html += `<div class="plan-section-label">${t('planLibTitle')}</div>`;
+      Object.keys(plans).forEach(name => {
         const p = plans[name] || [];
         const isBase = basePlanNames.includes(name);
-        html += `<div class="plan-lib-card plan-lib-card--pinned" data-plan-filter="${esc(name.toLowerCase())}">
+        const isPinned = pinned.has(name);
+        html += `<div class="plan-lib-card" data-plan-filter="${esc(name.toLowerCase())}">
           <div class="plan-lib-head">
             <div class="plan-lib-main">
               <div class="plan-lib-name">${esc(name)}</div>
-              <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?' · '+t('template').replace('·','').trim():''}</div>
+              <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?' · Vorlage':''}</div>
             </div>
             <div class="plan-lib-actions">
-              <button class="pin-btn active" data-pin="${esc(name)}" type="button" title="${t('unpinBtn')}">📌</button>
-              <button class="quick-btn" data-start-plan="${esc(name)}" type="button">${t('navTrain')} →</button>
+              <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button" title="${isPinned?t('unpinBtn'):t('pinBtn')}">
+                ${isPinned?'📌':'＋'}
+              </button>
             </div>
           </div>
           <div class="plan-lib-btns">
-            <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
             ${isBase
               ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
               : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
             }
+            <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
             ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button">${t('deletePlan')}</button>` : ''}
           </div>
         </div>`;
       });
     }
 
-    // ── All plans section ────────────────────────────────────────────────────
-    html += `<div class="plan-section-label">${t('planLibTitle')}</div>`;
-    Object.keys(plans).forEach(name => {
-      const p = plans[name] || [];
-      const isBase = basePlanNames.includes(name);
-      const isPinned = pinned.has(name);
-      html += `<div class="plan-lib-card" data-plan-filter="${esc(name.toLowerCase())}">
-        <div class="plan-lib-head">
-          <div class="plan-lib-main">
-            <div class="plan-lib-name">${esc(name)}</div>
-            <div class="plan-lib-meta">${p.length} ${t('days')} · ${p.reduce((s,d)=>s+d.ex.length,0)} ${t('exercises')}${isBase?' · '+t('template').replace('·','').trim():''}</div>
-          </div>
-          <div class="plan-lib-actions">
-            <button class="pin-btn ${isPinned?'active':''}" data-pin="${esc(name)}" type="button" title="${isPinned?t('unpinBtn'):t('pinBtn')}">
-              ${isPinned?'📌':'☐'}
+    // ════════════════════════════════════════════════════════════
+    // TAB 2: CREATE / EDIT
+    // ════════════════════════════════════════════════════════════
+    if (tab === 'create') {
+      if (!planDraft) {
+        // No draft – show options
+        html += `<div class="plan-create-options">
+          <div class="plan-section-label">Neuen Plan erstellen</div>
+          <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="">
+          <div class="plan-create-grid">
+            <button class="plan-create-btn" id="btn-blank" type="button">
+              <span class="plan-create-icon">✏️</span>
+              <span class="plan-create-label">${t('startBlank')}</span>
+            </button>
+            <button class="plan-create-btn" id="btn-from-tpl" type="button">
+              <span class="plan-create-icon">📋</span>
+              <span class="plan-create-label">${t('copyTemplate')}</span>
             </button>
           </div>
-        </div>
-        <div class="plan-lib-btns">
-          <button class="builder-btn secondary" data-dup="${esc(name)}" type="button">${t('duplicate')}</button>
-          ${isBase
-            ? `<button class="builder-btn secondary" data-copy="${esc(name)}" type="button">${t('copyEdit')}</button>`
-            : `<button class="builder-btn secondary" data-edit="${esc(name)}" type="button">${t('editPlan')}</button>`
-          }
-          ${!isBase ? `<button class="builder-btn danger" data-delplan="${esc(name)}" type="button">${t('deletePlan')}</button>` : ''}
-        </div>
-      </div>`;
-    });
-
-    // ── New plan section ─────────────────────────────────────────────────────
-    html += `<div class="plan-section-label">➕ ${t('newPlanTitle')}</div>
-    <div class="builder-card">
-      <input class="builder-input" id="builder-name" placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft?.name||'')}" style="margin-bottom:10px">
-      <div class="builder-row">
-        <button class="builder-btn" id="btn-blank" type="button">${t('startBlank')}</button>
-        <button class="builder-btn secondary" id="btn-addday" type="button">${t('addDay')}</button>
-      </div>
-      <div class="plan-or-divider">${t('copyTemplate')}</div>
-      <select class="builder-select" id="tpl-select">
-        ${Object.keys(plans).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}
-      </select>
-      <button class="builder-btn secondary" id="btn-copy-tpl" type="button" style="width:100%;margin-top:6px">${t('copyTemplate')}</button>
-    </div>`;
-
-    // Custom exercise creator
-    html += `<div class="builder-card">
-      <div class="builder-title">${t('customExTitle')}</div>
-      <div class="builder-sub">${t('customExDesc')}</div>
-      <select class="builder-select" id="cex-muscle">
-        ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
-      </select>
-      <input class="builder-input" id="cex-name" placeholder="${t('exerciseName')}" maxlength="50">
-      <input class="builder-input" id="cex-url" placeholder="${t('imageUrlPlaceholder')}">
-      <div class="file-upload-row">
-        <label class="file-upload-btn" for="cex-file">${t('uploadImage')}</label>
-        <input id="cex-file" type="file" accept="image/*" style="display:none">
-        <span id="cex-file-name" class="file-name-hint"></span>
-      </div>
-      <button class="builder-btn" id="cex-save" type="button" style="width:100%;margin-top:8px">${t('addExercise')}</button>
-    </div>`;
-
-    // Draft editor
-    if (planDraft) {
-      html += `<div class="builder-card draft-active">
-        <span class="custom-pill">${t('draftActive')}</span>
-        <div class="builder-title">${esc(planDraft.name || t('newPlanTitle'))}</div>
-        <button class="builder-btn" id="save-draft" type="button" style="width:100%">${t('saveDraft')}</button>
-      </div>`;
-      html += planDraft.days.map((d, di) => `
-        <div class="day-builder">
-          <div class="day-builder-head">
-            <input class="builder-input" data-day-label="${di}" value="${esc(d.label)}" style="margin:0;flex:1">
-            <button class="builder-mini" data-rmday="${di}" type="button" title="${t('removeDayTitle')}">×</button>
+          <div class="plan-or-divider">Vorlage wählen</div>
+          <select class="builder-select" id="tpl-select">
+            ${Object.keys(plans).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}
+          </select>
+        </div>`;
+      } else {
+        // Draft active
+        html += `<div class="draft-header">
+          <div>
+            <div class="custom-pill">${t('draftActive')}</div>
+            <input class="builder-input draft-name-input" id="builder-name"
+              placeholder="${t('planNamePlaceholder')}" value="${esc(planDraft.name||'')}">
           </div>
-          ${d.ex.length
-            ? d.ex.map((ex,ei) => `<div class="builder-ex">
-                <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
-                <div class="builder-ex-info">
-                  <div class="builder-ex-muscle" style="color:${styleFor(ex.m).c}">${esc(ex.m)}</div>
-                  <div class="builder-ex-name">${esc(ex.n)}${ex.superset ? `<span class="superset-badge">${t('supersetGroup',{group:esc(ex.superset)})}</span>` : ''}</div>
-                </div>
-                <select class="builder-mini-select" data-superset="${di}|${ei}">${['','A','B','C','D'].map(g=>`<option value="${g}" ${(ex.superset||'')===g?'selected':''}>${g?('SS '+g):'-'}</option>`).join('')}</select>
-                <button class="builder-mini" data-mvup="${di}|${ei}" title="${t('moveUpTitle')}">↑</button>
-                <button class="builder-mini" data-mvdn="${di}|${ei}" title="${t('moveDownTitle')}">↓</button>
-                <button class="builder-mini" data-rmex="${di}|${ei}" title="${t('removeTitle')}" style="color:var(--red)">×</button>
-              </div>`).join('')
-            : `<div class="builder-empty">${t('noExercises')}</div>`
-          }
-          ${exPicker('addex-' + di)}
-          <button class="builder-btn secondary" data-addex="${di}" type="button">${t('addExerciseToDay')}</button>
-        </div>`).join('');
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button class="builder-btn" id="save-draft" type="button" style="flex:1">${t('saveDraft')}</button>
+            <button class="builder-btn secondary" id="btn-addday" type="button">${t('addDay')}</button>
+            <button class="builder-btn danger" id="discard-draft" type="button">✕</button>
+          </div>
+        </div>`;
+
+        html += planDraft.days.map((d, di) => `
+          <div class="day-builder">
+            <div class="day-builder-head">
+              <input class="builder-input" data-day-label="${di}" value="${esc(d.label)}" style="margin:0;flex:1">
+              <button class="builder-mini" data-rmday="${di}" type="button" title="${t('removeDayTitle')}">×</button>
+            </div>
+            ${d.ex.length
+              ? d.ex.map((ex,ei) => `<div class="builder-ex">
+                  <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
+                  <div class="builder-ex-info">
+                    <div class="builder-ex-muscle" style="color:${styleFor(ex.m).c}">${esc(ex.m)}</div>
+                    <div class="builder-ex-name">${esc(ex.n)}</div>
+                  </div>
+                  <button class="builder-mini" data-mvup="${di}|${ei}" title="${t('moveUpTitle')}">↑</button>
+                  <button class="builder-mini" data-mvdn="${di}|${ei}" title="${t('moveDownTitle')}">↓</button>
+                  <button class="builder-mini" data-rmex="${di}|${ei}" title="${t('removeTitle')}" style="color:var(--red)">×</button>
+                </div>`).join('')
+              : `<div class="builder-empty">${t('noExercises')}</div>`
+            }
+            ${exPicker('addex-' + di)}
+            <button class="builder-btn secondary" data-addex="${di}" type="button">${t('addExerciseToDay')}</button>
+          </div>`).join('');
+      }
     }
+
+    // ════════════════════════════════════════════════════════════
+    // TAB 3: EXERCISE DATABASE
+    // ════════════════════════════════════════════════════════════
+    if (tab === 'exercises') {
+      const allEx = getExerciseDB();
+      const groups = {};
+      allEx.forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
+
+      html += `<input class="builder-input" id="ex-db-search"
+        placeholder="🔍 ${t('exerciseName')}…" autocomplete="off">`;
+
+      // Add new exercise
+      html += `<div class="builder-card" style="margin-bottom:16px">
+        <div class="builder-title">➕ ${t('addExercise')}</div>
+        <select class="builder-select" id="cex-muscle">
+          ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
+        </select>
+        <input class="builder-input" id="cex-name" placeholder="${t('exerciseName')}" maxlength="50">
+        <input class="builder-input" id="cex-url" placeholder="${t('imageUrlPlaceholder')}">
+        <div class="file-upload-row">
+          <label class="file-upload-btn" for="cex-file">${t('uploadImage')}</label>
+          <input id="cex-file" type="file" accept="image/*" style="display:none">
+          <span id="cex-file-name" class="file-name-hint"></span>
+        </div>
+        <button class="builder-btn" id="cex-save" type="button" style="width:100%;margin-top:8px">${t('addExercise')} ✓</button>
+      </div>`;
+
+      // Exercise list grouped
+      Object.keys(groups).forEach(muscle => {
+        const st = styleFor(muscle);
+        html += `<details class="ex-db-group" open>
+          <summary style="color:${st.c}">
+            <span>${esc(muscle)}</span>
+            <span class="ex-db-count">${groups[muscle].length}</span>
+          </summary>
+          <div class="ex-db-list" id="exgrp_${esc(muscle)}">
+            ${groups[muscle].map(ex => `
+              <div class="ex-db-row" data-ex-search="${esc((ex.m+' '+ex.n).toLowerCase())}">
+                <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
+                <div class="ex-db-info">
+                  <div class="ex-db-name">${esc(ex.n)}</div>
+                </div>
+                <input type="file" accept="image/*" id="edbf_${esc(ex.n).replace(/\W/g,'_')}" style="display:none" data-img-for="${esc(ex.n)}">
+                <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="${t('imageSaved')}">🖼</button>
+                <button class="builder-mini" data-del-ex="${esc(ex.n)}" type="button" style="color:var(--red)" title="${t('exerciseDeleted')}">×</button>
+              </div>`).join('')}
+          </div>
+        </details>`;
+      });
+    }
+
+    // Draft editor handled in tab === 'create' block above
 
     $('plan-content').innerHTML = html;
     bindBuilderEvents();
@@ -2301,15 +2382,23 @@
 
   function bindBuilderEvents() {
     const name = () => ($('builder-name')?.value || '').trim() || 'Mein Plan';
+
+    // Tab switching
+    document.querySelectorAll('[data-plan-tab]').forEach(b =>
+      b.addEventListener('click', () => { window._planTab = b.dataset.planTab; renderPlanBuilder(); })
+    );
+
     // Quick start from pinned card
     document.querySelectorAll('[data-start-plan]').forEach(b =>
       b.addEventListener('click', () => { setPlan(b.dataset.startPlan); setScreen('train'); })
     );
-    // New plan from top toolbar
-    $('btn-blank-top')?.addEventListener('click', () => {
-      planDraft = {name:name(), days:[{label:'Tag 1', ex:[]}]};
-      renderPlanBuilder();
-      setTimeout(() => $('builder-name')?.focus(), 60);
+
+    // Plan search
+    $('ex-db-search')?.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('[data-ex-search]').forEach(row => {
+        row.style.display = (!q || row.dataset.exSearch.includes(q)) ? '' : 'none';
+      });
     });
     $('plan-search')?.addEventListener('input', e => {
       const q = e.target.value.trim().toLowerCase();
@@ -2321,6 +2410,15 @@
     $('btn-blank')?.addEventListener('click', () => {
       planDraft = {name:name(), days:[{label:'Tag 1', ex:[]}]};
       renderPlanBuilder();
+      setTimeout(() => $('builder-name')?.focus(), 60);
+    });
+    $('btn-from-tpl')?.addEventListener('click', () => {
+      const tpl = $('tpl-select')?.value;
+      planDraft = {name:name()||tpl, days:clone(plans[tpl]||plans[Object.keys(plans)[0]])};
+      renderPlanBuilder();
+    });
+    $('discard-draft')?.addEventListener('click', () => {
+      planDraft = null; renderPlanBuilder();
     });
     $('btn-addday')?.addEventListener('click', () => {
       if (!planDraft) planDraft = {name:name(), days:[]};
