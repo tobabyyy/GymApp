@@ -102,6 +102,41 @@
     };
   }
 
+
+  function mergeArrays(a,b){ return Array.isArray(b)&&b.length>= (Array.isArray(a)?a.length:0) ? b : (a||[]); }
+  function mergePayloads(localPayload, remotePayload){
+    if(!remotePayload||!remotePayload.model) return localPayload;
+    const merged = JSON.parse(JSON.stringify(remotePayload));
+    const lg=(localPayload.model&&localPayload.model.global)||{};
+    const rg=(remotePayload.model&&remotePayload.model.global)||{};
+    merged.model.global = Object.assign({}, rg, lg);
+    merged.model.users = merged.model.users || {};
+    const lu=(localPayload.model&&localPayload.model.users)||{};
+    const ru=(remotePayload.model&&remotePayload.model.users)||{};
+    Object.keys(lu).forEach(name=>{
+      const l=lu[name]||{}; const r=ru[name]||{};
+      const m=Object.assign({}, r, l);
+      ['trainingLog','sessions','prs','workoutHistory','pendingSwaps'].forEach(k=>{
+        const arr=[...(r[k]||[]),...(l[k]||[])];
+        const map=new Map();
+        arr.forEach(x=> map.set(JSON.stringify(x),x));
+        m[k]=[...map.values()];
+      });
+      m.done=Object.assign({}, r.done||{}, l.done||{});
+      m.misc=Object.assign({}, r.misc||{}, l.misc||{});
+      m.history=Object.assign({}, r.history||{});
+      Object.keys(l.history||{}).forEach(ex=>{
+        const arr=[...((r.history||{})[ex]||[]),...((l.history||{})[ex]||[])];
+        const map=new Map();
+        arr.forEach(row=>{ const key=(row&& (row.id || [row.user,row.date,row.exercise||ex,row.ts||''].join('|'))) ; map.set(key,row);});
+        m.history[ex]=[...map.values()];
+      });
+      merged.model.users[name]=m;
+    });
+    merged.updatedAt=new Date().toISOString();
+    return merged;
+  }
+
   function clearManaged() {
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
@@ -166,7 +201,9 @@
     if (!sb) return false;
     try {
       const now = new Date().toISOString();
-      const { error } = await sb.from(TABLE).upsert({ sync_id: SYNC_ID, payload: buildPayload(), updated_at: now }, { onConflict: 'sync_id' });
+      let payload = buildPayload();
+      try { const r = await sb.from(TABLE).select('payload').eq('sync_id', SYNC_ID).maybeSingle(); if(r && r.data && r.data.payload) payload = mergePayloads(payload, r.data.payload); } catch(e){}
+      const { error } = await sb.from(TABLE).upsert({ sync_id: SYNC_ID, payload: payload, updated_at: now }, { onConflict: 'sync_id' });
       if (error) throw error;
       _lastPushTs = Date.now();
       _lastRemoteTs = _lastPushTs;
