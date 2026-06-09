@@ -1763,3 +1763,190 @@ body.light-mode .plan-lib-card--pinned {
 /* ── Light mode plan cards ───────────────────────────────────── */
 body.light-mode .plan-lib-card { background: #fff; border-color: rgba(0,0,0,.08); }
 body.light-mode .plan-lib-card--pinned { border-color: var(--orange); }
+
+/* ═══════════════════════════════════════════════════════════════
+   FIXES: ex-thumb flush + bigger, plan builder tabs
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Exercise thumbnail: flush, taller, no border-radius clip ── */
+.ex-thumb {
+  width: 82px !important;
+  height: 82px !important;
+  flex-shrink: 0;
+  border-radius: var(--r-xl) 0 0 var(--r-xl);
+  overflow: hidden;
+  background: #181818;
+  position: relative;
+}
+.ex-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
+.ex-row { min-height: 82px !important; }
+
+/* Remove the thumbnail gradient overlay so image is fully visible */
+.ex-thumb::after { display: none !important; }
+
+/* ── Plan builder 3-tab bar ─────────────────────────────────────── */
+.plan-tabs-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--card2);
+  padding: 4px;
+  border-radius: var(--r-lg);
+  margin-bottom: 16px;
+}
+.plan-tab-btn {
+  flex: 1;
+  padding: 9px 6px;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  transition: all .15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plan-tab-btn.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 6px rgba(0,0,0,.18);
+}
+body.light-mode .plan-tab-btn.active {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+/* ── Create tab options grid ─────────────────────────────────────── */
+.plan-create-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+.plan-create-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 8px;
+  border-radius: var(--r-lg);
+  background: var(--card2);
+  border: 1.5px solid var(--border);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  transition: all .15s;
+}
+.plan-create-btn:active {
+  background: var(--card);
+  border-color: var(--red);
+}
+.plan-create-icon { font-size: 28px; }
+.plan-create-label { font-size: 13px; font-weight: 800; }
+
+/* Draft header */
+.draft-header {
+  background: var(--card);
+  border: 1.5px solid var(--green);
+  border-radius: var(--r-lg);
+  padding: 13px;
+  margin-bottom: 10px;
+}
+.draft-name-input {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  padding-left: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* ── Exercise DB tab ─────────────────────────────────────────────── */
+.ex-db-group {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.ex-db-group summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+.ex-db-group summary::-webkit-details-marker { display: none; }
+.ex-db-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--card2);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.ex-db-list { padding: 0 8px 8px; }
+.ex-db-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px;
+  border-radius: var(--r-sm);
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.ex-db-row:last-child { border-bottom: none; }
+.ex-db-row:active { background: rgba(255,255,255,.04); }
+.ex-db-row img {
+  width: 40px; height: 40px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #181818;
+}
+.ex-db-info { flex: 1; min-width: 0; }
+.ex-db-name {
+  font-size: 13px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body.light-mode .ex-db-group { background: #fff; border-color: rgba(0,0,0,.08); }
+body.light-mode .ex-db-row:active { background: rgba(0,0,0,.03); }
+
+/* ── Swap box (div+button replacement for details) ─── */
+.swap-box-wrap { margin-bottom: 10px; }
+.compact-swap-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--card2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  transition: background .15s;
+}
+.compact-swap-toggle:active { background: rgba(255,255,255,.08); }
+body.light-mode .compact-swap-toggle { background: rgba(0,0,0,.04); }
+.swap-chev {
+  font-size: 14px;
+  transition: transform .2s;
+  display: inline-block;
+}
+.swap-chev.open { transform: rotate(180deg); }
+.swap-content { display: none; padding-top: 8px; }
+.swap-content.open { display: block; }
