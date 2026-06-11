@@ -28,6 +28,13 @@
   const colorFor = i => D.COLORS[i % D.COLORS.length];
   const dateStr = () => new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'});
   const avg = arr => +(arr.reduce((s,v)=>s+v,0)/Math.max(arr.length,1)).toFixed(1);
+  function stampUser(name) {
+    if (window.GBCloudSync?.stampUser) window.GBCloudSync.stampUser(name || user);
+  }
+  function stampGlobal() {
+    if (window.GBCloudSync?.stampGlobal) window.GBCloudSync.stampGlobal();
+  }
+
   const cssEsc = v => (window.CSS && CSS.escape ? CSS.escape(String(v)) : String(v).replace(/[^a-zA-Z0-9_-]/g, '\\$&'));
   const slug = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase() || 'item';
   const parseNum = v => { const n = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(n) ? n : 0; };
@@ -610,6 +617,7 @@
     return Array.isArray(saved) ? saved.filter(n => plans[n]) : [];
   }
   function setPinned(name, pinned) {
+    stampUser(user);
     const set = new Set(getPinnedPlans());
     if (pinned) set.add(name); else set.delete(name);
     S.set('pinnedPlans_' + user, [...set].filter(n => plans[n]));
@@ -1720,6 +1728,7 @@
           log.push(entry); S.set('trainingLog_' + user, log.slice(-100));
         } else { log[log.length-1] = entry; S.set('trainingLog_' + user, log.slice(-100)); }
         clearDraftForCurrentDay();
+        stampUser();
         finished[day] = true; finishConfirm = false;
         showToast(t('trainingSaved') + ', ' + user + '!');
         if (window.GBCloudSync) window.GBCloudSync.push(true);
@@ -2450,7 +2459,7 @@
         else items.push({m:muscle, n:exName, image:img||'', imageUpdatedAt: img ? Date.now() : 0});
         saveCustomExercises(items);
         if (img) D.IMAGES[exName] = img;
-        loadPlans(); showToast(t('exerciseSaved'));
+        stampGlobal(); loadPlans(); showToast(t('exerciseSaved'));
         if (window.GBCloudSync) window.GBCloudSync.push(true);
         renderPlanBuilder();
       };
@@ -2531,6 +2540,7 @@
     const name = (planDraft.name||'').trim()||'Mein Plan';
     if (!planDraft.days.some(d=>d.ex.length)) { showToast(t('atLeastOneEx')); return; }
     plans[name] = clone(planDraft.days);
+    stampGlobal();
     saveCustomPlans();
     setPinned(name, true);
     plan=name; days=plans[name]; day=0; planDraft=null;
@@ -2541,7 +2551,7 @@
 
   // ── Settings ───────────────────────────────────────────────────────────────
   function getTheme()    { return S.get('theme_' + user, S.get('theme_default','dark')); }
-  function setTheme(th)  { S.set('theme_' + user, th); S.set('theme_default', th); applySavedTheme(); renderSettings(); }
+  function setTheme(th)  { stampUser(); S.set('theme_' + user, th); S.set('theme_default', th); applySavedTheme(); renderSettings(); }
   function applySavedTheme() { document.body.classList.toggle('light-mode', getTheme()==='light'); }
 
   function isBackupKey(key) {
@@ -2809,7 +2819,7 @@
         else items.push({m:muscle,n:name,image:img||'', imageUpdatedAt: img ? Date.now() : 0});
         saveCustomExercises(items); setExerciseHidden(name, false);
         if (img) D.IMAGES[name] = img;
-        loadPlans(); showToast(t('exerciseSaved'));
+        stampGlobal(); loadPlans(); showToast(t('exerciseSaved'));
         if (window.GBCloudSync) window.GBCloudSync.push(true);
         renderExerciseEditor();
       };
@@ -3044,6 +3054,13 @@
 
     // Expose remote sync hook for cloud-sync.js
     D.onRemoteSync = () => {
+      // Don't reload mid-workout if user has active inputs
+      const hasActiveInputs = Object.values(inputs).some(dayObj =>
+        Object.values(dayObj||{}).some(sets =>
+          (sets||[]).some(s => s.kg || s.reps)
+        )
+      );
+      if (hasActiveInputs) { renderDayTabs(); renderFinishBar(); return; }
       loadPlans();
       renderUserScreen();
       renderPlanTabs();
