@@ -2199,9 +2199,9 @@
 
     let html = `
     <div class="plan-tabs-bar">
-      <button class="plan-tab-btn ${tab==='library'?'active':''}" data-plan-tab="library">📚 ${t('planLibTitle')}</button>
-      <button class="plan-tab-btn ${tab==='create'?'active':''}" data-plan-tab="create">➕ ${t('newPlanTitle')}</button>
-      <button class="plan-tab-btn ${tab==='exercises'?'active':''}" data-plan-tab="exercises">💪 ${t('exerciseDBLabel')}</button>
+      <button class="plan-tab-btn ${tab==='library'?'active':''}" data-plan-tab="library">${t('planLibTitle')}</button>
+      <button class="plan-tab-btn ${tab==='create'?'active':''}" data-plan-tab="create">${t('newPlanTitle')}</button>
+      <button class="plan-tab-btn ${tab==='exercises'?'active':''}" data-plan-tab="exercises">${t('exerciseDBLabel')}</button>
     </div>`;
 
     // ════════════════════════════════════════════════════════════
@@ -2333,60 +2333,22 @@
     }
 
     // ════════════════════════════════════════════════════════════
-    // TAB 3: EXERCISE DATABASE
+    // TAB 3: EXERCISE DATABASE – rendered by renderExerciseEditor()
     // ════════════════════════════════════════════════════════════
     if (tab === 'exercises') {
-      const allEx = getExerciseDB();
-      const groups = {};
-      allEx.forEach(ex => { groups[ex.m]=groups[ex.m]||[]; groups[ex.m].push(ex); });
-
-      html += `<input class="builder-input" id="ex-db-search"
-        placeholder="🔍 ${t('exerciseName')}…" autocomplete="off">`;
-
-      // Add new exercise
-      html += `<div class="builder-card" style="margin-bottom:16px">
-        <div class="builder-title">➕ ${t('addExercise')}</div>
-        <select class="builder-select" id="cex-muscle">
-          ${Object.keys(D.STYLE).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}
-        </select>
-        <input class="builder-input" id="cex-name" placeholder="${t('exerciseName')}" maxlength="50">
-        <input class="builder-input" id="cex-url" placeholder="${t('imageUrlPlaceholder')}">
-        <div class="file-upload-row">
-          <label class="file-upload-btn" for="cex-file">${t('uploadImage')}</label>
-          <input id="cex-file" type="file" accept="image/*" style="display:none">
-          <span id="cex-file-name" class="file-name-hint"></span>
-        </div>
-        <button class="builder-btn" id="cex-save" type="button" style="width:100%;margin-top:8px">${t('addExercise')} ✓</button>
-      </div>`;
-
-      // Exercise list grouped
-      Object.keys(groups).forEach(muscle => {
-        const st = styleFor(muscle);
-        html += `<details class="ex-db-group" open>
-          <summary style="color:${st.c}">
-            <span>${esc(muscle)}</span>
-            <span class="ex-db-count">${groups[muscle].length}</span>
-          </summary>
-          <div class="ex-db-list" id="exgrp_${esc(muscle)}">
-            ${groups[muscle].map(ex => `
-              <div class="ex-db-row" data-ex-search="${esc((ex.m+' '+ex.n).toLowerCase())}">
-                <img src="${esc(imageFor(ex.n))}" ${imgFallbackAttr(ex.n)} loading="lazy">
-                <div class="ex-db-info">
-                  <div class="ex-db-name">${esc(ex.n)}</div>
-                </div>
-                <input type="file" accept="image/*" id="edbf_${esc(ex.n).replace(/\W/g,'_')}" style="display:none" data-img-for="${esc(ex.n)}">
-                <button class="builder-mini" data-img-btn="${esc(ex.n)}" type="button" title="${t('imageSaved')}">🖼</button>
-                <button class="builder-mini" data-del-ex="${esc(ex.n)}" type="button" style="color:var(--red)" title="${t('exerciseDeleted')}">×</button>
-              </div>`).join('')}
-          </div>
-        </details>`;
-      });
+      // Inject a container; renderExerciseEditor fills it
+      html += `<div id="plan-ex-db-container"></div>`;
     }
 
     // Draft editor handled in tab === 'create' block above
 
     $('plan-content').innerHTML = html;
     bindBuilderEvents();
+    // If exercises tab active, render full exercise editor into container
+    if (tab === 'exercises') {
+      const container = $('plan-ex-db-container');
+      if (container) renderExerciseEditor(container);
+    }
   }
 
   function bindBuilderEvents() {
@@ -2739,7 +2701,9 @@
   }
 
   // ── Exercise DB editor (in settings) ──────────────────────────────────────
-  function renderExerciseEditor() {
+  function renderExerciseEditor(targetEl) {
+    const wrap = targetEl || $('settings-content');
+    if (!wrap) return;
     const search = S.get('edb_search', '');
     const catFilter = S.get('edb_cat_filter', '');
     const favOnly = !!S.get('edb_fav_only', false);
@@ -2799,8 +2763,8 @@
     const hiddenItems = allEx.filter(ex => hidden.has(ex.n));
     if (hiddenItems.length) html += `<div class="settings-card"><div class="settings-title">${t('hiddenExercisesLabel')}</div><div class="hidden-list">${hiddenItems.map(ex => `<button class="builder-btn secondary" data-restore-ex="${esc(ex.n)}" type="button">${esc(ex.n)} · ${t('restore')}</button>`).join('')}</div></div>`;
 
-    $('settings-content').innerHTML = html;
-    $('back-settings').addEventListener('click', renderSettings);
+    wrap.innerHTML = html;
+    wrap.querySelector('#back-settings').addEventListener('click', renderSettings);
     $('edb-search')?.addEventListener('input', e => { S.set('edb_search', e.target.value || ''); renderExerciseEditor(); setTimeout(() => { const inp=$('edb-search'); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } }, 0); });
     $('edb-cat-filter')?.addEventListener('change', e => { S.set('edb_cat_filter', e.target.value || ''); renderExerciseEditor(); });
     $('edb-fav-only')?.addEventListener('click', () => { S.set('edb_fav_only', !favOnly); renderExerciseEditor(); });
@@ -2892,7 +2856,6 @@
       if (label) label.textContent = text;
       else btn.textContent = text;
     };
-    setMenuText('menu-today', t('menuToday'));
     setMenuText('menu-settings', t('menuSettings'));
     setMenuText('menu-export', t('menuExport'));
     setMenuText('menu-profile-switch', t('menuSwitchProfile'));
@@ -3027,7 +2990,6 @@
     add.addEventListener('touchend', e => { e.preventDefault(); addUser(); }, {passive:false});
 
     $('top-profile-menu').addEventListener('click', toggleMenu);
-    $('menu-today')?.addEventListener('click', () => { closeMenu(); setScreen('train'); });
     $('menu-settings').addEventListener('click', () => { closeMenu(); setScreen('settings'); });
     $('menu-export')?.addEventListener('click', () => { closeMenu(); exportBackup(); });
     $('menu-profile-switch').addEventListener('click', () => { closeMenu(); goUsers(); });
